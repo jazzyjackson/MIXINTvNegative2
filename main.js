@@ -2,15 +2,30 @@ let repl = require('repl')
 let exec = require('child_process').exec
 let fs = require('fs')
 
-repl.start({prompt: '> ', eval: myEval});
+let ConnectionHandler = require('./connectionHandler.js')
+const chatscript_config = { port: process.env.CSPORT || 1024, 
+                            host: process.env.CSHOST || 'localhost',
+                            defaultUser: 'guest',
+                            defaultBot: 'Harry',
+                            debug: false }
+
+let ChatScript = new ConnectionHandler(chatscript_config)
+
+function bootRepl(){
+    repl.start({prompt: '> ', eval: myEval});
+}
 
 function myEval(stdin, context, filename, stdout) {
     tryBash(stdin)
     .then(stdout)
-    .catch(err => {
+    .catch(basherr => {
         tryEval(stdin)
         .then(stdout)
-        .catch(()=>stdout('not a thing'))
+        .catch(evalerr => {
+            ChatScript.chat(stdin)
+            .then(botResponse => stdout(botResponse.output))
+            .catch(chatErr => stdout(`Everything is terrible: \nbasherr\n${basherr}\nevalerr:\n${evalerr}\nchaterr:${chatErr}`))
+        })
     })
 }
 
@@ -23,6 +38,7 @@ function tryEval(input){
 
 function tryBash(input){
     return new Promise((resolve, reject) => {
+       if(input.toLowerCase().trim() == 'what') reject('what with no arguments hangs the shell')
        exec(input, (err, stdout, stderr) => {
             err && reject('err ' + err)
             stderr && reject('stderr ' + !!stderr)
@@ -30,3 +46,24 @@ function tryBash(input){
        })
     })
 }
+
+ChatScript.chat('',':reset','')
+     .then(botResponse => console.log(botResponse.output))
+     .then(bootRepl)
+     .catch(response => {
+        if(response.error){
+          console.log('error: ', response.error)
+          console.log('Let me try to start the chatscript server myself')
+          ChatScript.startServer()
+          //though windows doesn't mind attempting to hit the server immediately after starting the process, mac os wants some time. Unfortunately, the child process doesn't provide immediate feedback if starting the server was successful or not, so we just have to try to hit it again.
+          setTimeout(() => {
+            ChatScript.chat('',':reset','')
+                .then(botResponse => console.log(botResponse.output))
+                .then(bootRepl)
+                .catch(error => {
+                  console.log(`I wasn't able to start the server. Received message: ${error.error}`)
+                  process.exit()
+                })
+          }, 1000)
+        }
+     }) 
