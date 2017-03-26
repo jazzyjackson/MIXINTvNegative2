@@ -4,8 +4,6 @@ let fs = require('fs')
 
 repl.start({prompt: '> ', eval: myEval});
 
-//lol promises were invented to get rid of callback pyramids
-//but I'm going to make a promise pyramid.
 function myEval(stdin, context, filename, stdout) {
     tryBash(stdin)
     .then(stdout)
@@ -25,16 +23,10 @@ function tryEval(input){
 
 function tryBash(input){
     return new Promise((resolve, reject) => {
-        //exec returns a bundle, stderr, stdout, and err.
        exec(input, (err, stdout, stderr) => {
-            if(err){
-                reject('err ' + err)
-            } else if (stderr){
-                reject('stderr ' + stderr)
-            } else {
-                //.trim to throw out the newline
-                resolve(stdout.trim())
-            }
+            err && reject('err ' + err)
+            stderr && reject('stderr ' + !!stderr)
+            resolve(stdout.trim())
        })
     })
 }
