@@ -17,7 +17,6 @@ function myEval(stdin, context, filename, stdout) {
     tryBash(stdin)
     .then(stdout)
     .catch(basherr => {
-        console.log(basherr)
         tryEval(stdin)
         .then(stdout)
         .catch(evalerr => stdout(`Everything is terrible: \nbasherr:\n${basherr}\n\nevalerr:\n${evalerr}`))
