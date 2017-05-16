@@ -36,7 +36,7 @@ function tryBash(input){
        if(input.toLowerCase().trim() == 'what') reject('what with no arguments hangs the shell')
        exec(input, (err, stdout, stderr) => {
             err && reject('err ' + err)
-            stderr && reject('stderr ' + !!stderr)
+            stderr && reject('stderr ' + stderr)
             resolve(stdout.trim())
        })
     })
