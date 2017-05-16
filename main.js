@@ -1,31 +1,26 @@
-let repl = require('repl')
-let exec = require('child_process').exec
-let fs = require('fs')
+const repl = require('repl')
+const exec = require('child_process').exec
+const fs = require('fs')
+const Koa = require('koa')
+const app = new Koa()
 
-let ConnectionHandler = require('./connectionHandler.js')
-const chatscript_config = { port: process.env.CSPORT || 1024, 
-                            host: process.env.CSHOST || 'localhost',
-                            defaultUser: 'guest',
-                            defaultBot: 'Harry',
-                            debug: false }
+app.context.defaultMsg = "Hello World"
 
-let ChatScript = new ConnectionHandler(chatscript_config)
+app.use( ctx => ctx.body = app.context.defaultMsg )
+app.listen(3000)
 
-function bootRepl(){
-    repl.start({prompt: '> ', eval: myEval});
-}
+
+repl.start({prompt: '> ', eval: myEval, useColors: true});
+
 
 function myEval(stdin, context, filename, stdout) {
     tryBash(stdin)
     .then(stdout)
     .catch(basherr => {
+        console.log(basherr)
         tryEval(stdin)
         .then(stdout)
-        .catch(evalerr => {
-            ChatScript.chat(stdin)
-            .then(botResponse => stdout(botResponse.output))
-            .catch(chatErr => stdout(`Everything is terrible: \nbasherr\n${basherr}\nevalerr:\n${evalerr}\nchaterr:${chatErr}`))
-        })
+        .catch(evalerr => stdout(`Everything is terrible: \nbasherr:\n${basherr}\n\nevalerr:\n${evalerr}`))
     })
 }
 
@@ -47,23 +42,23 @@ function tryBash(input){
     })
 }
 
-ChatScript.chat('',':reset','')
-     .then(botResponse => console.log(botResponse.output))
-     .then(bootRepl)
-     .catch(response => {
-        if(response.error){
-          console.log('error: ', response.error)
-          console.log('Let me try to start the chatscript server myself')
-          ChatScript.startServer()
-          //though windows doesn't mind attempting to hit the server immediately after starting the process, mac os wants some time. Unfortunately, the child process doesn't provide immediate feedback if starting the server was successful or not, so we just have to try to hit it again.
-          setTimeout(() => {
-            ChatScript.chat('',':reset','')
-                .then(botResponse => console.log(botResponse.output))
-                .then(bootRepl)
-                .catch(error => {
-                  console.log(`I wasn't able to start the server. Received message: ${error.error}`)
-                  process.exit()
-                })
-          }, 1000)
-        }
-     }) 
+// ChatScript.chat('',':reset','')
+//      .then(botResponse => console.log(botResponse.output))
+//      .then(bootRepl)
+//      .catch(response => {
+//         if(response.error){
+//           console.log('error: ', response.error)
+//           console.log('Let me try to start the chatscript server myself')
+//           ChatScript.startServer()
+//           //though windows doesn't mind attempting to hit the server immediately after starting the process, mac os wants some time. Unfortunately, the child process doesn't provide immediate feedback if starting the server was successful or not, so we just have to try to hit it again.
+//           setTimeout(() => {
+//             ChatScript.chat('',':reset','')
+//                 .then(botResponse => console.log(botResponse.output))
+//                 .then(bootRepl)
+//                 .catch(error => {
+//                   console.log(`I wasn't able to start the server. Received message: ${error.error}`)
+//                   process.exit()
+//                 })
+//           }, 1000)
+//         }
+//      }) 
