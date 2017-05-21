@@ -2,26 +2,42 @@ const repl = require('repl')
 const exec = require('child_process').exec
 const fs = require('fs')
 const Koa = require('koa')
+const router = require('koa-route')
 const app = new Koa()
 
-app.context.defaultMsg = "Hello World"
+const readStaticFile = require('./static')
 
-app.use( ctx => ctx.body = app.context.defaultMsg )
+// load views into variables
+let index = require('./index')
+
+// app.use(router.get('/static', readStaticFile))
+// app.use(async (ctx, next) => {
+//     console.log(ctx.path)
+// })
+
+app.use( ctx => ctx.body = index() )
 app.listen(3000)
 
 
-repl.start({prompt: '> ', eval: myEval, useColors: true});
-
-
+repl.start({prompt: '> ', eval: myEval});
 function myEval(stdin, context, filename, stdout) {
-    tryBash(stdin)
-    .then(stdout)
-    .catch(basherr => {
-        tryEval(stdin)
-        .then(stdout)
-        .catch(evalerr => stdout(`Everything is terrible: \nbasherr:\n${basherr}\n\nevalerr:\n${evalerr}`))
-    })
+    stdout(eval(stdin))
 }
+
+// function restart(){
+//     process.on('SIGHUP')
+//     process.exit()
+// }
+
+// function myEval(stdin, context, filename, stdout) {
+//     tryBash(stdin)
+//     .then(stdout)
+//     .catch(basherr => {
+//         tryEval(stdin)
+//         .then(stdout)
+//         .catch(evalerr => stdout(`Everything is terrible: \nbasherr:\n${basherr}\n\nevalerr:\n${evalerr}`))
+//     })
+// }
 
 function tryEval(input){
     return new Promise((resolve, reject) => {
