@@ -5,13 +5,9 @@ const Koa = require('koa')
 const router = require('koa-route')
 const app = new Koa()
 
-const readStaticFile = require('./static')
-
-// load views into variables
 
 app.use(router.get('/', require('./index/metaparser')))
 
-// app.use( ctx => ctx.body = index() )
 app.listen(3000)
 
 
@@ -20,10 +16,6 @@ function myEval(stdin, context, filename, stdout) {
     stdout(eval(stdin))
 }
 
-// function restart(){
-//     process.on('SIGHUP')
-//     process.exit()
-// }
 
 // function myEval(stdin, context, filename, stdout) {
 //     tryBash(stdin)
