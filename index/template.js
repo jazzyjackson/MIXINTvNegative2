@@ -2,6 +2,7 @@ module.exports = props =>
 `<html>
   <head>
   <title> Multi Interpreter </title>
+  <script id="meta"> meta = ${JSON.stringify(props.meta)} </script>
   ${props.styles.map(styleString => `<style> ${styleString} </style>`).join('')}
   </head>
   <body>

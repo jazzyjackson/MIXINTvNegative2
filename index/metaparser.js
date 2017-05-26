@@ -13,6 +13,6 @@ module.exports = async function parse(context){
 
   var globalScripts = await Promise.all(promiseScripts)
   var styles = await Promise.all(promiseStyles)
-  
-  context.body = environment({globalScripts, styles})
+
+  context.body = environment({globalScripts, styles, meta})
 }
