@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/jazzyjackson/multi-interpreter/issues"
   },
-  "homepage": "https://github.com/jazzyjackson/multi-interpreter#readme"
+  "homepage": "https://github.com/jazzyjackson/multi-interpreter#readme",
+  "dependencies": {
+    "koa-route": "^3.2.0"
+  }
 }

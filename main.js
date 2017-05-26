@@ -8,14 +8,10 @@ const app = new Koa()
 const readStaticFile = require('./static')
 
 // load views into variables
-let index = require('./index')
 
-// app.use(router.get('/static', readStaticFile))
-// app.use(async (ctx, next) => {
-//     console.log(ctx.path)
-// })
+app.use(router.get('/', require('./index/metaparser')))
 
-app.use( ctx => ctx.body = index() )
+// app.use( ctx => ctx.body = index() )
 app.listen(3000)
 
 
