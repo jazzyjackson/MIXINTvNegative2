@@ -1,11 +1,18 @@
 const fs = require('fs')
-const readFile = filename => require('fs').readFileSync('index/' + filename, 'utf8')
+const promiseFile = filename =>
+  new Promise((resolve, reject) => 
+    require('fs').readFile('index/' + filename, 'utf8', (err,data) => err ? reject(err) : resolve(data)))
 
-const meta = JSON.parse(readFile('meta.json'));
-const environment = require('./' + meta.environment) // meta.environment is a function that returns markup when invoked
-const globalScripts = typeof meta.globalScripts == 'string' ? [ readFile(meta.globalScripts) ]
-                                                           : meta.globalScripts.map(filename => readFile(filename))
-const styles = typeof meta.styles == 'string' ? [ readFile(meta.styles) ]
-                                : meta.styles.map(filename => readFile(filename))
+module.exports = async function parse(context){
+  var meta = JSON.parse(await promiseFile('meta.json'))
+  var environment = require('./' + meta.environment) // meta.environment is a function that returns markup when invoked
+  var promiseScripts = typeof meta.globalScripts == 'string' ? [ promiseFile(meta.globalScripts) ]
+                                                              : meta.globalScripts.map(filename => promiseFile(filename))
+  var promiseStyles = typeof meta.styles == 'string' ? [ promiseFile(meta.styles) ]
+                                                : meta.styles.map(filename => promiseFile(filename))
 
-module.exports = context => context.body = environment({styles, globalScripts})
+  var globalScripts = await Promise.all(promiseScripts)
+  var styles = await Promise.all(promiseStyles)
+  
+  context.body = environment({globalScripts, styles})
+}

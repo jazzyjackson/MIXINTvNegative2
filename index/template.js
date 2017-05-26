@@ -16,6 +16,6 @@ module.exports = props =>
         <input id='input' type="text" placeholder="Say something new">
       </form>
     </div>
-  ${props.globalScripts.map(scriptString => `<script defer> ${scriptString} </script>`).join('')}    
+  ${props.globalScripts.map(scriptString => `<script> ${scriptString} </script>`).join('')}    
   </body>
 </html>`
