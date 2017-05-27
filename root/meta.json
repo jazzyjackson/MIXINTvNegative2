@@ -1,0 +1,5 @@
+{
+  "template":"template.js",
+  "globalScripts": ["init.js","configButton.js"],
+  "styles": "style.css"
+}

@@ -1,6 +1,6 @@
 const Koa = require('koa')
-const router = require('koa-route')
 const app = new Koa()
 
-app.use(router.get('/', require('./index/metaparser')))
+app.use(require('./editor/metaparser'))
+app.use(require('./root/metaparser'))
 app.listen(3000)

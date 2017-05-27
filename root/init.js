@@ -21,7 +21,6 @@ function tryEval(string){
     try {
         return eval(string)
     } catch(e) {
-        console.log(Object.keys(e))
         return 'Error'
     }
 }
