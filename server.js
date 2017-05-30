@@ -1,6 +1,6 @@
-const fs = require('fs')
-const exec = require('child_process').exec
-const http = require('http')
+var fs = require('fs')
+var exec = require('child_process').exec
+var http = require('http')
 http.createServer((request,response) => ({
     'GET': () => fs.createReadStream('.' + request.url, 'utf8')
                    .on('error', err => response.end(JSON.stringify(err)))
