@@ -1,7 +1,7 @@
 var fs = require('fs')
 var exec = require('child_process').exec
 var http = require('http')
-http.createServer((request,response) => ({
+var server = http.createServer((request,response) => ({
     'GET': () => fs.createReadStream('.' + request.url, 'utf8')
                    .on('error', err => response.end(JSON.stringify(err)))
                    .pipe(response),
@@ -9,4 +9,4 @@ http.createServer((request,response) => ({
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
                         .on('finish', () => response.end()),
     'DELETE': () => fs.unlink('.' + request.url, err => response.end( err ? JSON.stringify(err) : 'OK'))
-})[request.method]()).listen(3000)
+})[request.method]()).listen().on('listening', () => console.log(server.address().port))
