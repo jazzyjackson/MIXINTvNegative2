@@ -11,17 +11,17 @@ const chatscript_config = { port: process.env.CSPORT || 1024,
 
 let ChatScript = new ConnectionHandler(chatscript_config)
 let stdin = process.argv.slice(2).join(' ')
-let stdout = console.log.bind(console)
+let stdout = message => process.stdout.write(JSON.stringify({message: message}))
 
 tryBash(stdin)
-.then(stdout)
-.catch(basherr => {
+  .then(stdout)
+  .catch(basherr => {
     tryEval(stdin)
     .then(stdout)
     .catch(evalerr => {
-        ChatScript.chat(stdin)
-        .then(botResponse => stdout(botResponse.output))
-        .catch(chatErr => stdout(`Everything is terrible: \nbasherr\n${basherr}\nevalerr:\n${evalerr}\nchaterr:${chatErr}`))
+      ChatScript.chat(stdin)
+      .then(stdout)
+      .catch(chatErr => stdout(`Everything is terrible: \nbasherr\n${basherr}\nevalerr:\n${evalerr}\nchaterr:${chatErr}`))
     })
 })
 
