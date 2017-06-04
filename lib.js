@@ -2,6 +2,7 @@ var exec = require('child_process').exec
 var http = require('http')
 var url = require('url')
 var childRegistry = {}
+var proxyRequest = http.request
 
 module.exports = {proxy, spinChild, getChild}
 
@@ -10,8 +11,7 @@ function getChild(childName){
 }
 
 function proxy(request, response, child){
-  console.log(child.name, 'proxy', request.url)
-  request.pipe(http.request({
+  request.pipe(proxyRequest({
     hostname: 'localhost',
     port: child.port,
     path: request.url,
@@ -25,7 +25,6 @@ function proxy(request, response, child){
 }
 
 function spinChild(request, response, childName){
-  console.log('spinChild', childName)
   var newServer = exec('node microserver')
   newServer.stdout.on('data', data => {
     childRegistry[childName] = {
