@@ -12,7 +12,7 @@ module.exports = class ConnectionHandler {
     this.username = chatscript_config.defaultUser
     this.botname = chatscript_config.defaultBot
     switch(os.type()){
-      case 'Darwin': this.chatscript_config.app = 'ChatScript'; break;
+      case 'Darwin': this.chatscript_config.app = 'MacChatScript'; break;
       case 'Windows_NT': this.chatscript_config.app = 'chatscript'; break;
     }
   }
@@ -54,11 +54,10 @@ module.exports = class ConnectionHandler {
       client.on('end', () => {
         //this will reject the promise only if the connection is closed before data is received. 
         //If the promise is resolved by receiving data, great, this rejection won't make a difference
-        reject({message: `the server at ${host}:${port} closed the connection.`})
+        reject(`the server at ${host}:${port} closed the connection.`)
       })
       client.on('error', error => {
-        console.log(error)
-        reject({error: `failed to connect to ${host}:${port}`})
+        reject(error)
       })
     })
   }
