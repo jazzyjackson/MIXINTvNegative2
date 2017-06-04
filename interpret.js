@@ -26,7 +26,7 @@ const tryBash = input => new Promise((resolve, reject) => {
         .stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData})))
 })
 
-const close = result => process.stdout.write(JSON.stringify(result))
+const close = result => process.stdout.write(JSON.stringify(result) + '\n')
 
 process.stdin.on('data', incomingMessage => {
     incomingMessage = incomingMessage.toString('utf8')    
@@ -35,10 +35,10 @@ process.stdin.on('data', incomingMessage => {
     .catch(bashErr => {
         tryEval(incomingMessage)
         .then(successEval => close({successEval,bashErr}))
-        .catch(evalerr => {
+        .catch(evalErr => {
             ChatScript.chat(incomingMessage) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-            .then(successfulChat => close({successfulChat, evalerr, bashErr}))
-            .catch(chatErr => close({bashErr, evalerr, chaterr}))
+            .then(successfulChat => close({successfulChat, evalErr, bashErr}))
+            .catch(chatErr => close({bashErr, evalErr, chatErr}))
         })
     })
 })
