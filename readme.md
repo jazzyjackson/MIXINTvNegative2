@@ -10,6 +10,8 @@ localhost:3000 is redirected to guest.localhost:3000, and when guest is used as 
 In this way (in the near future), node processes can be spawned with a particular user ID on the unix OS underlying the server, allowing unix to handle file and executable permissions.
 
 The way I'm redirecting and proxying to child processes based on a subdomain works fine with any browser if the server is named through a DNS service (ie hosted with a url). If you're connecting to the server via localhost, you can use chrome with no trouble. Other browsers automatically perform DNS lookup on the subdomain.localhost address and of course it doesn't find anything, so to use browsers other than chrome you must edit your system's HOSTS file and resolve each subdomain you want to use on your localhost to the proper address, like so:
+```
 127.0.0.1 localhost
 127.0.0.1 guest.localhost
 127.0.0.1 somethingelse.localhost
+```
