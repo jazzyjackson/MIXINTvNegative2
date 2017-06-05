@@ -13,15 +13,23 @@ const chatscript_config = { port: process.env.CSPORT || 1024,
 const ChatScript = new ChatScriptConnection(chatscript_config)
 
 const tryEval = input => new Promise((resolve, reject) => {
-    try { resolve(eval(input)) }
-    catch(err) { reject(err) }
+    try {
+        resolve(eval(input))
+    }
+    catch(err){ 
+        reject( err.toString()) 
+    }
 })
 
 const tryBash = input => new Promise((resolve, reject) => {
     if(input.toLowerCase().trim() == 'what') reject('what with no arguments hangs the shell on some systems. maybe just Mac')
+    if(!input.trim()) reject(`Blank line doesn't mean anything so I'll chat instead.`)
     if(input[0] == ':') reject(': is no-op in bash! input will be ignored, no error thrown')
     else exec(input)
-        .on('error', err => reject(err))
+        .on('error', err => {
+            console.log(err)
+            reject(err)
+        })
         .on('exit', (code, signal) => code === 0 ? resolve(code) : reject(code || signal))
         .stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData})))
 })
