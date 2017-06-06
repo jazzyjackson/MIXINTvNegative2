@@ -3,6 +3,7 @@ const $ = document.querySelectorAll.bind(document)
 const form = fromId('form')
 const input = fromId('input')
 const convoContainer = fromId('convoContainer')
+const decode = new TextDecoder('utf8').decode
 
 form.onsubmit = function(event){
     event.preventDefault()
@@ -21,7 +22,7 @@ function consumeStreamIfExists(reader, parentNode){
     if(!reader) return null
     return reader.read().then(sample => {
         if(sample.value){
-            chunk = new TextDecoder('utf8').decode(sample.value)
+            chunk = decode(sample.value)
             chunk.split(/\n(?={)/g).forEach(JSONchunk => appendSuccess(JSON.parse(JSONchunk), parentNode))
             return consumeStreamIfExists(reader, parentNode)
         }
