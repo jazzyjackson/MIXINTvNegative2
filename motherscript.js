@@ -1,7 +1,8 @@
 var domain = 'localhost'
 var fs = require('fs')
 var http = require('http')
-var {proxy, spinChild, getChild, outputOptions} = require('./lib.js')
+var { proxy, spinChild, getChild, outputOptions } = require('./lib.js')
+
 http.createServer((request,response) => {
   var subdomain = request.headers.host.split(domain)[0]
   if(!subdomain){response.writeHead(302, {'Location': '//guest.' + request.headers.host + request.url}); return response.end()}
@@ -11,7 +12,7 @@ http.createServer((request,response) => {
 
 interpretSubprocess = require('child_process').exec('node interpret')
 process.stdin.pipe(interpretSubprocess.stdin)
-interpretSubprocess.stdout.pipe(outputOptions['allInfo' || 'successOnly']).pipe(process.stdout)
+interpretSubprocess.stdout.pipe(outputOptions['allInfo' && 'successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
 
 
 

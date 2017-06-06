@@ -22,16 +22,14 @@ const tryEval = input => new Promise((resolve, reject) => {
 })
 
 const tryBash = input => new Promise((resolve, reject) => {
-    if(input.toLowerCase().trim() == 'what') reject('what with no arguments hangs the shell on some systems. maybe just Mac')
-    if(!input.trim()) reject(`Blank line doesn't mean anything so I'll chat instead.`)
-    if(input[0] == ':') reject(': is no-op in bash! input will be ignored, no error thrown')
-    else exec(input)
-        .on('error', err => {
-            console.log(err)
-            reject(err)
-        })
+    if(input.toLowerCase().trim() == 'what') return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
+    if(!input.trim()) return reject(`Blank line doesn't mean anything so I'll chat instead.`)
+    if(input[0] == ':') return reject(': is no-op in bash! input will be ignored, no error thrown')
+    var processpipe = exec(input)
+        .on('error', err => reject(err.toString()))
         .on('exit', (code, signal) => code === 0 ? resolve(code) : reject(code || signal))
-        .stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData})))
+    processpipe.stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData}) + '\n'))
+    processpipe.stderr.on('data', bashData => reject(bashData))
 })
 
 const close = result => process.stdout.write(JSON.stringify(result) + '\n')
