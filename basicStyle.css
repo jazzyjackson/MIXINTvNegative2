@@ -1,0 +1,8 @@
+input {
+  outline: transparent;
+  border: none;
+}
+form:before {
+  content: '> ';
+  content: attr(prompt);
+}
