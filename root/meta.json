@@ -3,3 +3,6 @@
   "globalScripts": ["init.js","configButton.js"],
   "styles": "style.css"
 }
+
+//with serverside HTML templating, you're given paths to fetch things, but the structure of the overall page if just divs with classnames, textareas you can edit. That will load quick on a slow connection. You can edit it. At the moment the constructors kick in, '
+//instead of pushing these little socket updates to all connected clients that are bound to lag and get out of date - send the hash around and update if someone has an old hash. Maybe one of the properties can simply be 'last modified' - come up with some kind of diff function. 

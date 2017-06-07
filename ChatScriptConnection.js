@@ -76,3 +76,4 @@ module.exports = class ConnectionHandler {
   }
 }
 
+//the chatbot can modify the configuration of a page by updating a fact, reserializing the JSON, and putting to the filepath, and then the bot via eval or the server via fs watch can force the update of the path to the new configuration.

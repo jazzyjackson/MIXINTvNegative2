@@ -8,16 +8,18 @@ form.setAttribute('prompt', location.pathname + ` →`)
 
 form.onsubmit = function(event){
     event.preventDefault()
-    form.scrollIntoView()
     var messageBlock = createMessageBlock(input.value)
     if(!specialMessage(input.value)){
         fetch(location.pathname + '?' + encodeURI(input.value), { method: 'POST' })
         .then(response => response.body ? response.body.getReader() : response.text().then( text => consumeText(text, messageBlock)))
         .then(reader => consumeStreamIfExists(reader, messageBlock))
-        input.value = ''
     }
+    input.value = ''
+}
 
-    
+
+function consumeText(text, parentNode){
+    text.split(/\n(?={)/g).forEach(JSONchunk => appendSuccess(JSON.parse(JSONchunk), parentNode))
 }
 
 function consumeStreamIfExists(reader, parentNode){
@@ -67,9 +69,6 @@ function specialMessage(evalInput){
     }
 }
 
-function consumeText(text, parentNode){
-    text.split(/\n(?={)/g).forEach(JSONchunk => appendSuccess(JSON.parse(JSONchunk), parentNode))
-}
 
 function appendSuccess(resObj, parentNode){
     console.log(parentNode)
