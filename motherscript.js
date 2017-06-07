@@ -11,6 +11,7 @@ http.createServer((request,response) => {
 }).listen(3000)
 
 interpretSubprocess = require('child_process').exec('node interpret')
+//input stream transform to take action on any special commands, like cd. also a good place to blacklist strings, from input to the bash. Sanitize input.
 process.stdin.pipe(interpretSubprocess.stdin)
 interpretSubprocess.stdout.pipe(outputOptions['allInfo' && 'successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
 
@@ -21,3 +22,5 @@ interpretSubprocess.stdout.pipe(outputOptions['allInfo' && 'successOnly']).pipe(
 // So every eval, every network request, and result of puts by the way is a version request, so the timing of those commits entertwined with other elements (including network traffic) will allow for very specific instruction-by-instruction . So it's a very cool way to pipe instructions from all directions into a central action repository. We'll see how quickly that file grows.... and that's also a good way to study and visualize how people interact with the new OS. People can share their records, comment on each others transcripts....'
 
 //as a result 
+
+// a possibly useful and devious behavior - listen for signal 'hangup' and on your wait syncExec a child process motherscript that wrangles itself free of this mother process. So it exits like you said, but immediately slips off to create a new instance of itself. You can readily talk to it anyway by invoking a PATH variable, like replchat. 

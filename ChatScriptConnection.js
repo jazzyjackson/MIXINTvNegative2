@@ -46,7 +46,6 @@ module.exports = class ConnectionHandler {
         //if the bot returned JSON, parse it and use that as the response object. 
         //Otherwise, create a new object with an output property
         let response = (data[0] === '{') ? JSON.parse(data) : {output: data} 
-        response.input = message
         // console.log(response)        
         resolve(response);
         client.end();
