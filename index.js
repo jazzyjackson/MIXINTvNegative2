@@ -4,6 +4,7 @@ const form = fromId('form')
 const input = fromId('input')
 const convoContainer = fromId('convoContainer')
 const textDecoder = new TextDecoder('utf8')
+document.body.addEventListener('click', event => event.target === document.body && input.focus())
 form.setAttribute('prompt', location.pathname + ` →`)
 
 form.onsubmit = function(event){
