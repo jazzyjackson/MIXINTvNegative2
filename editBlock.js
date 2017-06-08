@@ -35,6 +35,7 @@ function editBlock(extantEditBlock, newName){
     extantEditBlock = document.createElement('div')
     extantEditBlock.className = 'block editBlock'
     extantEditBlock.setAttribute('filepath', newName)
+    extantEditBlock.setAttribute('tabIndex', 1)
     extantEditBlock.id = Date.now()
     extantEditBlock.style.left = screen.availWidth / 2 + Math.random() * screen.availWidth / 4
     extantEditBlock.style.top = Math.random() * screen.availHeight  / 4
@@ -46,7 +47,8 @@ function editBlock(extantEditBlock, newName){
       oldFocus && oldFocus.classList.remove('focused')
       event.target.parentNode.classList.add('focused')
     }
-    extantEditBlock.appendChild(newTextArea) 
+    extantEditBlock.appendChild(newTextArea)
+    extantEditBlock.addEventListener('mousedown', handleDrag)
     document.body.appendChild(extantEditBlock)
     //if editBlock is passed an HTML node, it will apply all the necessary classes to it. else it will use a fresh textarea/div
   }
