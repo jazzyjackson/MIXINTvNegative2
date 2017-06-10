@@ -1,3 +1,9 @@
+const oldGlobalFuncList = {}
+// window.onreadystatechange(event => )
+var now = Date.now()
+for(each in window){
+    typeof window[each] == 'function' && (oldGlobalFuncList[each.toLowerCase()] = window[each])
+}
 const fromId = document.getElementById.bind(document)
 const $ = document.querySelectorAll.bind(document)
 const form = fromId('form')
@@ -114,6 +120,33 @@ function tryEval(string){
     try {
         return {success: eval(string)}
     } catch(e) {
+        var possibleFunc = string.split(' ')
+        var newGlobalFuncs = {}
+        for(var each in window){
+            typeof window[each] == 'function' && !oldGlobalFuncList[each] && (newGlobalFuncs[each.toLowerCase()] = window[each])
+        }
+        for(var each in newGlobalFuncs){
+            var argStartIndex = possibleFunc.length
+            while(!each.includes(possibleFunc.slice(0,argStartIndex).join('')) && argStartIndex > 1){
+                console.log('each: ', each)                
+                console.log('args', possibleFunc.slice(0,argStartIndex).join(''))
+                argStartIndex--
+            }
+            if(each.includes(possibleFunc.slice(0,argStartIndex).join(''))){
+                var funcName = possibleFunc.slice(0,argStartIndex)
+                                           .map((substring, i) => i == 0 ? substring : substring[0].toUpperCase() + substring.slice(1))
+                                           .join('')
+                console.log('match: ', possibleFunc.slice(0,argStartIndex), 'matches', funcName)
+                console.log(window[funcName])
+
+                // try {
+                    window[funcName](...possibleFunc.slice(argStartIndex))
+                // } catch(e) {
+                //     return {error: e.toString()}
+                // }
+            }
+        }
+
         return {error: e.toString()}
     }
 }
