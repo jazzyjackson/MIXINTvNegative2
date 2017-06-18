@@ -37,14 +37,14 @@ const close = result => process.stdout.write(JSON.stringify(result) + '\n')
 process.stdin.on('data', input => {
     input = input.toString('utf8')    
     tryBash(input)
-    .then(successBash => close({input, successBash}))
+    .then(successBash => close({successBash}))
     .catch(bashErr => {
         tryEval(input)
-        .then(successEval => close({input, successEval, bashErr}))
+        .then(successEval => close({bashErr, successEval}))
         .catch(evalErr => {
             ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-            .then(successfulChat => close({input, successfulChat, evalErr, bashErr}))
-            .catch(chatErr => close({input, bashErr, evalErr, chatErr}))
+            .then(successfulChat => close({bashErr, evalErr, successfulChat}))
+            .catch(chatErr => close({bashErr, evalErr, chatErr}))
         })
     })
 })
