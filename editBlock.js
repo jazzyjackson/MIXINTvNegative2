@@ -30,14 +30,19 @@ div.editBlock:before {
 `
 document.head.appendChild(editBlockStyle)
 
-function editBlock(filename){
+function editBlock(filename_or_node){
     newTextArea = document.createElement('textarea')
     newDiv = document.createElement('div')
-    
-    if( !filename ) filename = prompt("I need a file name to attach this block (relative to current directory. Cannot create a directory from here)")
-    else fetch(filename)
-         .then(res => res.text())
-         .then(plainText => newTextArea.value = plainText)
+    if(isElement(filename_or_node)){
+        newTextArea.value = filename_or_node.innerHTML
+        newTextArea.addEventListener('input', event => filename_or_node.innerHTML = event.target.value)
+        var filename = filename_or_node.tagName.toLowerCase() + '#' + filename_or_node.id
+    } else {
+        if( !filename ) var filename = prompt("I need a file name to attach this block (relative to current directory. Cannot create a directory from here)")
+        else fetch(filename)
+            .then(res => res.text())
+            .then(plainText => newTextArea.value = plainText)
+    }
 
     newDiv.className = 'block editBlock'
     newDiv.setAttribute('filename', filename)
@@ -70,4 +75,8 @@ function focus(htmlNode){
     //can be called to remove focused style from all nodes and apply className focused to a node, or called with no argument to just unfocus all
     Array.from(document.getElementsByClassName('focused'), node => node.classList.remove('focused'))
     htmlNode && htmlNode.classList.add('focused')
+}
+
+function isElement(htmlNode){
+    return htmlNode && htmlNode.__proto__.__proto__ === HTMLElement.prototype
 }
