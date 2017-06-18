@@ -2,7 +2,21 @@ input {
   outline: transparent;
   border: none;
 }
-form:before {
+form::before {
   content: '> ';
   content: attr(prompt);
+}
+
+.oneline {
+  white-space: normal;
+}
+
+[hide-error="true"] [msg-type="localError"], 
+[hide-error="true"] [msg-type="bashErr"], 
+[hide-error="true"] [msg-type="evalErr"] {
+  display: none;
+}
+
+[msg-type="successBash"] {
+  display: none;
 }

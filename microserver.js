@@ -5,7 +5,7 @@ var server = http.createServer((request,response) => ({
     'GET': () => fs.createReadStream(request.url[request.url.length - 1] === '/' ? __dirname + '/index.html' :  '.' + request.url, 'utf8')
                    .on('error', err => { response.writeHead(500); response.end(JSON.stringify(err)) })
                    .pipe(response),
-    'POST': () => exec('echo ' + decodeURI(request.url.split('?')[1]) + ' | node interpret', {cwd: __dirname + request.url.split('?')[0]})
+    'POST': () => exec('echo ' + decodeURI(request.url.split('?')[1]) + ' | node interpret')  //, {cwd: __dirname + request.url.split('?')[0]})
                  .on('error', err => { response.writeHead(500); response.end(JSON.stringify(err)) })
                  .stdout.pipe(response),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
