@@ -7,7 +7,7 @@ const input = fromId('input')
 const convoContainer = fromId('convoContainer')
 const textDecoder = new TextDecoder('utf8')
 document.body.addEventListener('click', event => event.target === document.body && input.focus())
-convoContainer.addEventListener('click', event => input.focus())
+convoContainer.addEventListener('mouseup', event => (window.getSelection().type != 'Range') && input.focus())
 form.setAttribute('prompt', location.pathname + ` → `)
 
 form.onsubmit = function(event){
@@ -85,6 +85,7 @@ function appendSuccess(resObj, parentNode){
         resultDiv.setAttribute('msg-type', key)
         resultText = resObj[key].output || resObj[key]
         resultText = typeof resultText === 'object' ? JSON.stringify(resultText) : String(resultText) // just in case its undefined, null, or a number, coerce to string
+        resultText = resultText.replace(/\r/g,'') // throw out carriage returns cuz it screws up double-click to select in chrome
         if(!resultText.includes('\n')) resultDiv.classList.add('oneline') // wrap lines if result is a long string. preformatted text will include new lines
         resultDiv.appendChild(document.createTextNode(resultText)) // check if result is nested object with an output property (successFul chat is this)
         parentNode.appendChild(resultDiv)
