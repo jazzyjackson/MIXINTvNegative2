@@ -1,9 +1,5 @@
-const oldGlobalFuncList = {}
 // window.onreadystatechange(event => )
 var now = Date.now()
-for(each in window){
-    typeof window[each] == 'function' && (oldGlobalFuncList[each.toLowerCase()] = window[each])
-}
 const fromId = document.getElementById.bind(document)
 const $ = document.querySelectorAll.bind(document)
 const form = fromId('form')
@@ -11,23 +7,21 @@ const input = fromId('input')
 const convoContainer = fromId('convoContainer')
 const textDecoder = new TextDecoder('utf8')
 document.body.addEventListener('click', event => event.target === document.body && input.focus())
-form.setAttribute('prompt', location.pathname + ` →`)
+convoContainer.addEventListener('click', event => input.focus())
+form.setAttribute('prompt', location.pathname + ` → `)
 
 form.onsubmit = function(event){
-    event.preventDefault()
-    var messageBlock = createMessageBlock(input.value)
-    let evalAttempt = evalledInWindow(input.value)
-    if(evalAttempt.error){
-        console.error(evalAttempt.error)
+    event.preventDefault()                              // suppress default action of reloading the page
+    var messageBlock = createMessageBlock(input.value)  // create a new Div that can be appended to by async response
+    evalAttempt = evalledInWindow(input.value)          // try to eval input in window first
+    appendSuccess(evalAttempt, messageBlock)            // add the result of evalling to the DOM whether it succeeded or not
+    if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (input.value)
         fetch(location.pathname + '?' + encodeURI(input.value), { method: 'POST' })
         .then(response => response.body ? response.body.getReader() : response.text().then( text => consumeText(text, messageBlock)))
         .then(reader => consumeStreamIfExists(reader, messageBlock))
-    } else {
-        appendSuccess({successEval: evalAttempt.success}, messageBlock)
     }
     input.value = ''
 }
-
 
 function consumeText(text, parentNode){
     text.split(/\n(?={)/g).forEach(JSONchunk => appendSuccess(JSON.parse(JSONchunk), parentNode))
@@ -44,7 +38,10 @@ function consumeStreamIfExists(reader, parentNode){
     })
 }
 
-function evalledInWindow(evalInput){ // returns true if cannot be evalled in local scope, before passing to server
+function evalledInWindow(evalInput){ 
+    // returns true if cannot be evalled in local scope, before passing to server
+    // really should hit server with options, does this directory exist, before allowing pathname to change.
+    // or mkdir before cd'ing into it. Anyway things will get weird if the working directory of a command doesnt exist
     if(input.value.indexOf('cd') == 0){
         console.log(input.value)
         newDir = input.value.slice(3).trim()
@@ -78,19 +75,20 @@ function evalledInWindow(evalInput){ // returns true if cannot be evalled in loc
         Array.from(document.querySelectorAll('.messageBlock'), node => node.remove())
         return {success: 'OK'}
     }
-    return tryEval(evalInput) //if not special message, return try eval
+    // if it wasn't cd or clear, then eval it as a string
+    return tryEval(evalInput)
 }
 
-
 function appendSuccess(resObj, parentNode){
-    //result is whatever one of these exists
-    var result = resObj.bashData || (resObj.successfulChat && resObj.successfulChat.output) 
-                                 || resObj.successEval 
-                                 || (resObj.successBash !== undefined) && ('exit code ' + resObj.successBash)
-                                 ||`chatErr: ${JSON.stringify(resObj.chatErr)}\nbashErr: ${resObj.bashErr.replace(/[\n\r]/g,'')}\nnodeErr: ${resObj.evalErr}`
-    var resultDiv = document.createElement('pre')
-    resultDiv.appendChild(document.createTextNode(result))
-    parentNode.appendChild(resultDiv)
+    Object.keys(resObj).forEach(key => {
+        var resultDiv = document.createElement('pre')
+        resultDiv.setAttribute('msg-type', key)
+        resultText = resObj[key].output || resObj[key]
+        resultText = typeof resultText === 'object' ? JSON.stringify(resultText) : String(resultText) // just in case its undefined, null, or a number, coerce to string
+        if(!resultText.includes('\n')) resultDiv.classList.add('oneline') // wrap lines if result is a long string. preformatted text will include new lines
+        resultDiv.appendChild(document.createTextNode(resultText)) // check if result is nested object with an output property (successFul chat is this)
+        parentNode.appendChild(resultDiv)
+    })
     form.scrollIntoView()
 }
 
@@ -107,7 +105,6 @@ function createMessageBlock(inputMessage){
     form.scrollIntoView()
     return messageBlock
     //push history could be used to change the pathname without reloading the page, making this functionality actually useful
-
 }
 
 
@@ -116,37 +113,12 @@ function parseHTML(string){
     tempNode.innerHTML = string
     return tempNode.firstChild
 }
+
 function tryEval(string){
     try {
-        return {success: eval(string)}
-    } catch(e) {
-        var possibleFunc = string.split(' ')
-        var newGlobalFuncs = {}
-        for(var each in window){
-            typeof window[each] == 'function' && !oldGlobalFuncList[each] && (newGlobalFuncs[each.toLowerCase()] = window[each])
-        }
-        for(var each in newGlobalFuncs){
-            var argStartIndex = possibleFunc.length
-            while(!each.includes(possibleFunc.slice(0,argStartIndex).join('')) && argStartIndex > 1){
-                console.log('each: ', each)                
-                console.log('args', possibleFunc.slice(0,argStartIndex).join(''))
-                argStartIndex--
-            }
-            if(each.includes(possibleFunc.slice(0,argStartIndex).join(''))){
-                var funcName = possibleFunc.slice(0,argStartIndex)
-                                           .map((substring, i) => i == 0 ? substring : substring[0].toUpperCase() + substring.slice(1))
-                                           .join('')
-                console.log('match: ', possibleFunc.slice(0,argStartIndex), 'matches', funcName)
-                console.log(window[funcName])
-
-                // try {
-                    window[funcName](...possibleFunc.slice(argStartIndex))
-                // } catch(e) {
-                //     return {error: e.toString()}
-                // }
-            }
-        }
-
-        return {error: e.toString()}
+        var success = eval(string)
+        return {success: success || String(success)} //coerce falsey values to string
+    } catch(localError) {
+        return {localError: localError.toString()} //errors are objects but can't be parsed by JSON stringify
     }
 }
