@@ -16,7 +16,7 @@ form.onsubmit = function(event){
     evalAttempt = evalledInWindow(input.value)          // try to eval input in window first
     appendSuccess(evalAttempt, messageBlock)            // add the result of evalling to the DOM whether it succeeded or not
     if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (input.value)
-        fetch(location.pathname + '?' + encodeURI(input.value), { method: 'POST' })
+        fetch(location.pathname + encodeURI('?echo ' + input.value + ' | node interpret'), { method: 'POST' })
         .then(response => response.body ? response.body.getReader() : response.text().then( text => consumeText(text, messageBlock)))
         .then(reader => consumeStreamIfExists(reader, messageBlock))
     }
