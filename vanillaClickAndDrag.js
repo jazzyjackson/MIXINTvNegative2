@@ -35,6 +35,7 @@ document.body.addEventListener('mouseup', () => {
 
 document.body.addEventListener('keydown', event => {
   if(event.key == 'Escape'){
+    document.activeElement.firstElementChild.disabled = false
     document.body.removeEventListener('mousemove', window.updatePos)
     window.updatePos = null
   }
