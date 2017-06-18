@@ -38,8 +38,8 @@ function editBlock(filename_or_node){
         newTextArea.addEventListener('input', event => filename_or_node.innerHTML = event.target.value)
         var filename = filename_or_node.tagName.toLowerCase() + '#' + filename_or_node.id
     } else {
-        if( !filename ) var filename = prompt("I need a file name to attach this block (relative to current directory. Cannot create a directory from here)")
-        else fetch(filename)
+        if( !filename_or_node ) var filename = prompt("I need a file name to attach this block (relative to current directory. Cannot create a directory from here)")
+        else fetch(filename = filename_or_node)
             .then(res => res.text())
             .then(plainText => newTextArea.value = plainText)
     }
