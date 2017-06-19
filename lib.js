@@ -10,6 +10,9 @@ var proxyRequest = http.request
 function getChild(childName){
   return childRegistry[childName] // might return undefined. No big deal.
 }
+function childExists(childName){
+  return Boolean(childRegistry[childName]) // of course getChild could already be used as a Boolean, this is just a more readable check, "if(childExists())"
+}
 
 function proxy(request, response, child){
   request.pipe(proxyRequest({
@@ -64,4 +67,4 @@ allInfo._transform = function(chunk, encoding, done){
   done()
 }
 
-module.exports = {proxy, spinChild, getChild, outputOptions: {allInfo, successOnly}}
+module.exports = {proxy, spinChild, childExists, getChild, outputOptions: {allInfo, successOnly}}
