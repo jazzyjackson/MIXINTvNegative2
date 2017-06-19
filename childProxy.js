@@ -1,17 +1,22 @@
 var exec = require('child_process').exec
 var http = require('http')
+var path = require('path')
 var url = require('url')
 var Transform = require('stream').Transform
 
 var childRegistry = {}
 var proxyRequest = http.request
 
-
+console.log(__dirname)
 function getChild(childName){
   return childRegistry[childName] // might return undefined. No big deal.
 }
 function childExists(childName){
   return Boolean(childRegistry[childName]) // of course getChild could already be used as a Boolean, this is just a more readable check, "if(childExists())"
+}
+
+function printFromAbove1979(){
+  console.log({cwd: __dirname + path.sep + 'index'})
 }
 
 function proxy(request, response, child){
@@ -29,7 +34,8 @@ function proxy(request, response, child){
 }
 
 function spinChild(request, response, childName){
-  var newServer = exec('node microserver')
+  
+  var newServer = exec('node microserver', {cwd: __dirname + '/index'})//+ path.sep + 'index'})
   newServer.stdout.on('data', data => {
     childRegistry[childName] = {
       stream: newServer,
@@ -40,8 +46,8 @@ function spinChild(request, response, childName){
     proxy(request, response, childRegistry[childName])
   })
   newServer.on('error', data => {
-    respond.writeHead(500)
-    respond.end(data)
+    response.writeHead(500)
+    response.end(data.toString())
   })
 }
 
@@ -67,4 +73,4 @@ allInfo._transform = function(chunk, encoding, done){
   done()
 }
 
-module.exports = {proxy, spinChild, childExists, getChild, outputOptions: {allInfo, successOnly}}
+module.exports = {proxy, spinChild, childExists, getChild, printFromAbove1979, outputOptions: {allInfo, successOnly}}

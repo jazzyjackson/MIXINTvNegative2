@@ -1,7 +1,7 @@
 var domain = 'localhost'
 var fs = require('fs')
 var http = require('http')
-var { proxy, spinChild, childExists, getChild, outputOptions } = require('./lib.js')
+var { proxy, spinChild, childExists, getChild, outputOptions, printFromAbove1979 } = require('./childProxy.js')
 
 var logFile = fs.createWriteStream('./motherscript.log',{flags: 'a'}) //open file for appending
 logFile.write(new Date().toUTCString() + '  OK Ready\n')
@@ -17,17 +17,17 @@ http.createServer((request,response) => {
   else if( childExists(subdomain) ) proxy(request,response,getChild(subdomain))  // check if a child process exists and proxy to it
   else spinChild(request, response, subdomain)                                              // otherwise, create new child process and pass response to it
 }).listen(3000)
+// simulate the effect of booting microserver in a flat file structure (you can download microserver and have a fully operable web application without writing any more network logic, files are streamed from disk and childprocesses have their outputs streamed to the client, so you get really responsive performance without doing any work. Make the option for PUTs to append to file, would make for a really easy API. if you don't allow access to any files outside the folder, there shouldn't be any security issues if the POST requests are handled by a proper restricted uid
 
-
-interpretSubprocess = require('child_process').exec('node interpret')
+interpretSubprocess = require('child_process').exec('node interpret',{cwd: __dirname + '/index'})
 //input stream transform to take action on any special commands, like cd. also a good place to blacklist strings, from input to the bash. Sanitize input.
 process.stdin.pipe(interpretSubprocess.stdin)
 interpretSubprocess.stdout.pipe(outputOptions['allInfo' || 'successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
-
-process.on('uncaughtException', err => {
-  logFile.write(new Date().toUTCString() + ' ERROR: ' + err.toString() + '\n')
-  console.log(new Date().toUTCString() + ' ERROR: ' + err.toString() + '\n')
-})
+interpretSubprocess.stderr.pipe(process.stdout)
+// process.on('uncaughtException', err => {
+//   logFile.write(new Date().toUTCString() + ' ERROR: ' + err + '\n')
+//   console.log(new Date().toUTCString() + ' ERROR: ' + err + '\n')
+// })
 process.on('SIGHUP', () => logFile.write(new Date().toUTCString() + ' EXIT: SIGHUP (shell terminated)\n'))
 process.on('SIGINT', () => {
   logFile.write(new Date().toUTCString() + ' EXIT: SIGINT (^-C exit requested) ' + '\n')

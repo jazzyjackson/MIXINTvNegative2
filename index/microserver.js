@@ -2,7 +2,7 @@ var fs = require('fs')
 var http = require('http')
 var exec = require('child_process').exec
 var server = http.createServer((request,response) => ({
-    'GET': () => fs.createReadStream(request.url[request.url.length - 1] === '/' ? __dirname + '/index.html' :  '.' + request.url, 'utf8')
+    'GET': () => fs.createReadStream(request.url.length > 1 ? '.' + request.url : 'index.html', 'utf8')
                    .on('error', err => { response.writeHead(500); response.end(JSON.stringify(err)) })
                    .pipe(response),
     'POST': () => exec(decodeURI(request.url.split('?')[1]))  //, {cwd: __dirname + request.url.split('?')[0]})
