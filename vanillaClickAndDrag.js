@@ -19,12 +19,12 @@ function handleDrag(event){
   document.body.removeEventListener('mousemove', window.updatePos) // edge case where the mouseup didn't register and an updatePos stuck around - have to remove listener before we delete a reference to this function by overwriting updatePos with a new function!
   window.updatePos = createUpdatePos(this)
   document.body.addEventListener('mousemove', window.updatePos)
-  this.firstElementChild.disabled = true //textArea would occasionally steal focus because it thought I wanted to type. I'll disable in during the move.'
+  Array.from(document.querySelectorAll('textarea'), textarea => textarea.disabled = true) //textArea would occasionally steal focus because it thought I wanted to type. I'll disable in during the move.'
 }
 
 document.body.addEventListener('mouseup', () => {
   if(!window.updatePos) return undefined
-  document.activeElement.firstElementChild.disabled = false // don't re-enable textarea if nothing was having their position updated
+  Array.from(document.querySelectorAll('textarea'), textarea => textarea.disabled = false) // don't re-enable textarea if nothing was having their position updated
   document.body.removeEventListener('mousemove', updatePos)
   window.updatePos = null   
 })
@@ -35,7 +35,7 @@ document.body.addEventListener('mouseup', () => {
 
 document.body.addEventListener('keydown', event => {
   if(event.key == 'Escape'){
-    document.activeElement.firstElementChild.disabled = false
+    Array.from(document.querySelectorAll('textarea'), textarea => textarea.disabled = false)
     document.body.removeEventListener('mousemove', window.updatePos)
     window.updatePos = null
   }

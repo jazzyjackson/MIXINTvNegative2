@@ -20,3 +20,10 @@ form::before {
 [msg-type="successBash"] {
   display: none;
 }
+
+/* hide the fact that textareas are disabled while clicking and dragging */
+
+textarea, textarea:disabled {
+  color: black;
+  background: white;
+}
