@@ -24,7 +24,6 @@ http.createServer((request, response) => {
 	response.setHeader('x-powered-by','multi-interpreter')
 	var userid = request.headers.host.split(hostname)[0] || null
 	var redirectHeaders = { 'Location': '//guest.' + request.headers.host + request.url }
-	console.log(redirectHeaders)
 	if( userid == null ) return response.writeHead(302, redirectHeaders) || response.end()
 	if( port4u(userid) ) return proxy(request, response, port4u(userid))
 	else return createPort4u(request, response, userid)
@@ -50,7 +49,6 @@ function createPort4u(request, response, userid){
 	var shell = exec('node microserver', {cwd: __dirname + '/branches/root'})//+ path.sep + 'index'})
 
 	shell.stdout.on('data', port => {
-		console.log(port)
 		portCollection[userid] = {shell, port, userid}
 		proxy(request, response, port)
 	})
