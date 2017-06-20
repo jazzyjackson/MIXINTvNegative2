@@ -23,15 +23,11 @@ http.createServer((request, response) => {
 	logRequest(request)
 	response.setHeader('x-powered-by','multi-interpreter')
 	var userid = request.headers.host.split(hostname)[0] || null
-	try {
-		var redirectHeaders = { 'Location': '//guest.' + request.headers.host + request.url }
-		console.log(redirectHeaders)
-		if( userid == null ) return response.writeHead(302, redirectHeaders) || response.end()
-		if( port4u(userid) ) return proxy(request, response, port4u(userid))
-		else return createPort4u(request, response, userid)
-	} catch(err){
-		logError(userid, err)
-	}
+	var redirectHeaders = { 'Location': '//guest.' + request.headers.host + request.url }
+	console.log(redirectHeaders)
+	if( userid == null ) return response.writeHead(302, redirectHeaders) || response.end()
+	if( port4u(userid) ) return proxy(request, response, port4u(userid))
+	else return createPort4u(request, response, userid)
 }).listen(process.env.PROD_PORT || 3000)
 
 /********** interpret requests on stdin for REPL interactiviy in host's shell **************/
@@ -46,7 +42,7 @@ process.stdin.pipe(pipeOptions['logInput']).pipe(interpreter.stdin)
 
 process.on('SIGHUP', error => logError('system', 'SIGHUP'))
 process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
-// process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
+process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
 
 /*********** function definitions for the above server ******************/
 
@@ -91,9 +87,7 @@ function port4u(userid){
 }
 
 function logError(userid, error){
-  console.log(userid, error)
-  fs.createWriteStream('./logs/error.log', {flags: 'a'})
-    .write(JSON.stringify({
+  fs.appendFile('./logs/error.log', JSON.stringify({
 		ztime: new Date(),
 		userid: userid, 
 		error: util.inspect(error || "undefined error")
@@ -103,8 +97,7 @@ function logError(userid, error){
 function logRequest(request){
   //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
   var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
-  fs.createWriteStream(`./logs/${userid}.log`, {flags: 'a'}) //flag a for append
-    .write(JSON.stringify({
+  fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
       userid: userid, 
       method: request.method,
       path:   request.url.split('?')[0],
@@ -119,11 +112,8 @@ function logRequest(request){
 function createTransforms(){
 	var logInput = new stream.Transform()
 	logInput._transform = function(chunk, encoding, done){
-		fs.createWriteStream(`./logs/stdin.log`, {flags: 'a'}) //flag a for append
-		  .write(JSON.stringify({stdin: chunk.toString() + '\n'}), () => {
-				this.push(chunk)
-				done()
-			})
+		this.push(chunk)
+		fs.appendFile(`./logs/stdin.log`, JSON.stringify({stdin: chunk.toString() + os.EOL}), done)
 	}
 
 	var successOnly = new stream.Transform()
@@ -144,7 +134,7 @@ function createTransforms(){
 		var result = JSON.parse(chunk.toString())
 		this.push(Object.keys(result)
 						.map(key => key + ': ' + util.inspect(result[key]))
-						.join('\n') + '\n')
+						.join(os.EOL) + os.EOL)
 		done()
 	}
 	return {logInput, successOnly, allInfo}
