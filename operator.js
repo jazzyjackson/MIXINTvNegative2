@@ -85,7 +85,9 @@ function port4u(userid){
 }
 
 function logError(userid, error){
-  fs.appendFile('./logs/error.log', JSON.stringify({
+  // hopefully there's not enough errors for blocking to be a big deal
+  // appendFileSync allows us to write to file even when the program has been requested to exit. Sync write THEN exit.
+  fs.appendFileSync('./logs/error.log', JSON.stringify({
 		ztime: new Date(),
 		userid: userid, 
 		error: util.inspect(error || "undefined error")
@@ -102,7 +104,7 @@ function logRequest(request){
       query:  decodeURI(request.url.split('?')[1]),
       ipaddr: request.connection.remoteAddress,
       ztime: new Date()
-	}) + os.EOL)
+	}) + os.EOL, () => undefined)
 }
 
 /***************************************************/
