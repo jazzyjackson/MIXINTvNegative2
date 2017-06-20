@@ -7,7 +7,7 @@ const input = fromId('input')
 const convoContainer = fromId('convoContainer')
 const textDecoder = new TextDecoder('utf8')
 document.body.addEventListener('click', event => event.target === document.body && input.focus())
-convoContainer.addEventListener('mouseup', event => (window.getSelection().type != 'Range') && input.focus())
+convoContainer.addEventListener('mouseup', event => (window.getSelection().focusOffset == 1) && input.focus())
 form.setAttribute('prompt', location.pathname + ` → `)
 
 form.onsubmit = function(event){
