@@ -1,4 +1,3 @@
-
 /********* load some dependencies, node built ins, nothing to install ***********/
 
 var fs     = require('fs')
@@ -8,14 +7,14 @@ var path   = require('path')
 var util   = require('util')
 var url    = require('url')
 var stream = require('stream')
-var exec  = require('child_process').exec
+var exec   = require('child_process').exec
 
 /************** and some global variables for convenience *******************/
 
-var proxyRequest = http.request
-var hostname     = 'localhost'
+var proxyRequest   = http.request
+var hostname       = 'localhost'
 var portCollection = {}
-var pipeOptions = createTransforms()
+var pipeOptions    = createTransforms()
 
 /********* stream responses to shell created for your user id ****************/
 
