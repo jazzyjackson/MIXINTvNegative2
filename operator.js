@@ -124,7 +124,11 @@ function createTransforms(){
 		chunk.toString()
 			 .split(/\n(?={)/g)
 			 .map(JSON.parse)
-			 .forEach(result => this.push(String(mostSuccessful(result)) + os.EOL))
+			 .forEach(result => {
+                result = mostSuccessful(result)
+                result = typeof result === 'object' ? util.inspect(result) : String(result)
+                this.push(result + os.EOL)
+			 })
 		done()
 	}
 
