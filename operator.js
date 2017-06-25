@@ -45,7 +45,7 @@ process.on('uncaughtException',  error => logError('system', error)) // && proce
 /*********** function definitions for the above server ******************/
 
 function createPort4u(request, response, userid){
-	var shell = exec('node microserver', {cwd: __dirname + '/branches/root'})//+ path.sep + 'index'})
+	var shell = exec('node switchboard', {cwd: __dirname + '/branches/root'})//+ path.sep + 'index'})
 
 	shell.stdout.on('data', port => {
 		portCollection[userid] = {shell, port, userid}
@@ -84,26 +84,26 @@ function port4u(userid){
 }
 
 function logError(userid, error){
-  // hopefully there's not enough errors for blocking to be a big deal
-  // appendFileSync allows us to write to file even when the program has been requested to exit. Sync write THEN exit.
-  fs.appendFileSync('./logs/error.log', JSON.stringify({
-		ztime: new Date(),
-		userid: userid, 
-		error: util.inspect(error || "undefined error")
-	}) + os.EOL)
+    // hopefully there's not enough errors for blocking to be a big deal
+    // appendFileSync allows us to write to file even when the program has been requested to exit. Sync write THEN exit.
+    fs.appendFileSync('./logs/error.log', JSON.stringify({
+        ztime: new Date(),
+        userid: userid, 
+        error: util.inspect(error || "undefined error")
+    }) + os.EOL)
 }
 
 function logRequest(request){
-  //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
-  var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
-  fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
-      userid: userid, 
-      method: request.method,
-      path:   request.url.split('?')[0],
-      query:  decodeURI(request.url.split('?')[1]),
-      ipaddr: request.connection.remoteAddress,
-      ztime: new Date()
-	}) + os.EOL, () => undefined)
+    //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
+    var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
+    fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
+        userid: userid, 
+        method: request.method,
+        path:   request.url.split('?')[0],
+        query:  decodeURI(request.url.split('?')[1]),
+        ipaddr: request.connection.remoteAddress,
+        ztime: new Date()
+    }) + os.EOL, () => undefined)
 }
 
 /***************************************************/
@@ -118,13 +118,13 @@ function createTransforms(){
 	var successOnly = new stream.Transform()
 	successOnly._transform = function(chunk, encoding, done){
 		var mostSuccessful = result => result.bashData 
-							|| (result.successfulChat && result.successfulChat.output )//might be a number, push REALLY only wants a string
-							||  result.successEval 
-							||  result.successBash
+                                    ||(result.successfulChat && result.successfulChat.output)
+                                    || result.successEval 
+                                    || result.successBash
 		chunk.toString()
 			 .split(/\n(?={)/g)
 			 .map(JSON.parse)
-			 .forEach( result => this.push(String(mostSuccessful(result)) + os.EOL))
+			 .forEach(result => this.push(String(mostSuccessful(result)) + os.EOL))
 		done()
 	}
 
