@@ -1,5 +1,5 @@
 .convoBlock {
-  padding-top: 25px;
+  padding-top: 30px;
   font-family: monospace;  
 }
 
@@ -11,6 +11,14 @@
     top: 0;
     z-index: 10;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.convoBlock > header menu {
+  width: 18px;
+  height: 18px;
+  background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
+
 }
 
 .convoBlock > form {

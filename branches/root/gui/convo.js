@@ -107,7 +107,7 @@ class MessageBlock extends Block {
         this.textContent = mostSuccessful(this.attributes)
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
         setTimeout(()=>{
-            this.textArea.style.height = this.textArea.scrollHeight
+            this.textArea.style.height = this.textArea.scrollHeight + 1
             /* I don't want to do it like this */
             document.querySelector('input').scrollIntoView()
         })

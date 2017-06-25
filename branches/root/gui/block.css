@@ -5,6 +5,8 @@
 .block header {
   text-align: center;
   padding: 3px;
+  display: flex;
+  justify-content: space-between;
 }
 .block textarea {
   border-top: 4px solid black;
@@ -13,4 +15,10 @@
 .block.focused {
   z-index: 10;
   box-shadow: 10px 14px 12px 5px rgba(0, 0, 0, 0.58);
+}
+
+.block header menu {
+  background-image: linear-gradient(white, white, black, white, black, white, black, white, white);
+  width: 18px;
+  height: 18px;
 }

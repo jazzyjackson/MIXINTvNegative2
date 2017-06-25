@@ -2,6 +2,8 @@ class BlockHeader {
     constructor(options){
         this.header = document.createElement('header')
         this.header.textContent = options.title
+        this.menu = document.createElement('menu')
+        this.header.appendChild(this.menu)
     }
 }
 
@@ -9,7 +11,6 @@ class BlockHeader {
 class Block {
     constructor(options = {}){
         this.header = new BlockHeader(options).header
-
         this.next = document.createElement('div')
         this.next.className = 'next'
 
