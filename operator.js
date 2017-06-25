@@ -118,7 +118,7 @@ function createTransforms(){
 	var successOnly = new stream.Transform()
 	successOnly._transform = function(chunk, encoding, done){
 		var mostSuccessful = result => result.bashData 
-                                    ||(result.successfulChat && result.successfulChat.output)
+                                    || result.successfulChat
                                     || result.successEval 
                                     || result.successBash
 		chunk.toString()

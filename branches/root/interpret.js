@@ -22,7 +22,7 @@ const tryEval = input => new Promise((resolve, reject) => {
 })
 
 const tryBash = input => new Promise((resolve, reject) => {
-    if(input.toLowerCase().trim() == 'what') return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
+    if(input.indexOf('what') == 0) return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
     if(!input.trim()) return reject(`Blank line doesn't mean anything so I'll chat instead.`)
     if(input[0] == ':') return reject(': is no-op in bash! input will be ignored, no error thrown')
     var processpipe = exec(input)
@@ -43,7 +43,7 @@ process.stdin.on('data', input => {
         .then(successEval => close({bashErr, successEval}))
         .catch(evalErr => {
             ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-            .then(successfulChat => close({bashErr, evalErr, successfulChat}))
+            .then(successfulChat => close(Object.assign({bashErr, evalErr}, successfulChat)))
             .catch(chatErr => close({bashErr, evalErr, chatErr}))
         })
     })

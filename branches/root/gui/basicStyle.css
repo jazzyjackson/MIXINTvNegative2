@@ -1,24 +1,36 @@
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
 input {
   outline: transparent;
   border: none;
 }
 form::before {
-  content: '> ';
   content: attr(prompt);
 }
 
-.oneline {
-  white-space: normal;
+
+[dragging="true"] textarea {
+  pointer-events: none;
 }
 
-[hide-error="true"] [msg-type="localError"], 
-[hide-error="true"] [msg-type="bashErr"], 
-[hide-error="true"] [msg-type="evalErr"] {
-  display: none;
+/*
+[dragging="true"] header {
+  cursor: grabbing;
+}*/
+
+.messageBlock textarea {
+  border: none;
+}
+.messageBlock textarea:focus {
+  outline: none;
 }
 
-[msg-type="successBash"] {
-  display: none;
+.messageBlock header {
+  font-family: monospace;
 }
 
 /* hide the fact that textareas are disabled while clicking and dragging */

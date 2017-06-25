@@ -15,8 +15,6 @@ Multi-intrepreter aims to make it easy to do all the things computers are good a
 - Explain what programs do and offer you many options on how to run them
 - Archiving files, keeping records and notes and tracking changes to them all
 
-
-
 # The Sphinx, the Bookkeeper, and the Operator
 
 **Sphinx.html blocks your passage until you answer a riddle.**
@@ -59,10 +57,14 @@ Machine language is so sensitive to the exact syntax and grammar of its parser t
 One missing semicolom and the program won't start, did you type `rm -rf` in the wrong directory? Poof! All yours files are gone forever. Computers are typically very unforgiving machines that take a lot of patience to get a feel for, and even engineers make mistakes.
 So multi-interpreter paired with a ChatScript personality aims to provide an assisstant that knows about itself - can modify its own configuration, read its own error log, and tries to match your intent with its own capabilities.
 
+## Why free?
+
+Because all the technology its built on was given away for free, and because it's really not my idea and I'm not going to patent it and take credit.
+
 ## License
 License is UIUC/NCSA: Do the thing! No restriction on commercial use, no warranty.
 
-Copyright (c) 2017 Colten Jackson. All rights reserved.
+Copyright (c) 2017 Colten Jackson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal with the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimers.
