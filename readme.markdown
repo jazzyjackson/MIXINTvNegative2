@@ -39,13 +39,13 @@ Convologs are JSON files with a single message per line, one file for each user.
 This allows the recording and interweaving of messages from many users, so anyone with a working directory 
 Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
 
-# Compatibility notes
+## Compatibility notes
 I'm developing multi-interpreter with Node 7+, but everything I'm using has been standard since 0.12, I think.
 Browser compatibility is another story, as I'm using Promises and ES6 classes on the clientside.
 In early development, I'm concentrating on webkit + gecko browsers (chrome, opera, firefox).
 In the future, polyfill and babel translation for older browsers will be provided.
 
-# Why?
+## Why?
 
 The central principal of this project is simply this: you already own a computer and pay for a network connection, why trade your attention and privacy to a social network or megacorp just to co-operate online with friends and coworkers?
 
@@ -56,7 +56,7 @@ Machine language is so sensitive to the exact syntax and grammar of its parser t
 One missing semicolom and the program won't start, did you type `rm -rf` in the wrong directory? Poof! All yours files are gone forever. Computers are typically very unforgiving machines that take a lot of patience to get a feel for, and even engineers make mistakes.
 So multi-interpreter paired with a ChatScript personality aims to provide an assisstant that knows about itself - can modify its own configuration, read its own error log, and tries to match your intent with its own capabilities.
 
-# License
+## License
 License is UIUC/NCSA: Do the thing! No restriction on commercial use, no warranty.
 
 Copyright (c) 2017 Colten Jackson. All rights reserved.
