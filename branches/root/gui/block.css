@@ -30,7 +30,7 @@ menu {
   text-transform: capitalize;
   overflow: auto;
   font-family: sans-serif;
-  font-size: x-large;
+  font-size: large;
   background: rgba(0,0,0,0.9);
   position: fixed; 
   min-height: 200px;
@@ -45,6 +45,6 @@ menu li:hover {
   color: cornflowerblue;
 }
 menu li:active {
-  font-size: xx-large;
+  font-size: x-large;
 }
 
