@@ -14,7 +14,7 @@
     display: flex;
     justify-content: space-between;
 }
-.convoBlock > header menu {
+.convoBlock > header button {
   width: 18px;
   height: 18px;
   background-image: linear-gradient(black, black, white, black, white, black, white, black, black);

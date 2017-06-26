@@ -4,7 +4,8 @@ class ConvoBlock extends Block {
     constructor(options){
         super(Object.assign({
             class: "convoBlock",
-            title: location.hostname + location.pathname
+            title: location.hostname + location.pathname,
+            type: "ConvoBlock"
         },options))
         this.input = document.createElement('input')
         this.input.placeholder = 'what do you say'
@@ -41,7 +42,7 @@ class ConvoBlock extends Block {
 
     _evalledInWindow(stringToEval){
         if(stringToEval.indexOf('cd') == 0){
-            newDir = stringToEval.slice(3).trim()
+            var newDir = stringToEval.slice(3).trim()
 
             if(newDir == '.') return {successEval: 'OK'}
             if(newDir == '..'){
@@ -89,6 +90,7 @@ class MessageBlock extends Block {
         super(Object.assign({
             class: "messageBlock",
             title: options.input,
+            type: "MessageBlock",
             style: {
                 width: "100%",
                 height: "1.1em"
@@ -134,3 +136,6 @@ class MessageBlock extends Block {
         })
     }
 }
+
+makeConstructorGlobal(ConvoBlock)
+makeConstructorGlobal(MessageBlock)

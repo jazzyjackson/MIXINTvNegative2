@@ -1,12 +1,54 @@
+class BlockMenu {
+    constructor(nodeToMenufy){
+        var blockType = nodeToMenufy.getAttribute('type')            
+        var blockConstructor = window.constructors[blockType]            
+        var blockMethodNames = Object.getOwnPropertyNames(blockConstructor.prototype)
+        var blockMethodDescriptors = Object.getOwnPropertyDescriptors(blockConstructor.prototype)
+        var menuMethods = blockMethodNames.filter(name => {
+            // inspect the Object Property Descriptor to determine whether this is a method or a getter/setter
+            // also filter out the constructor function, its not useful on the menu
+            return !(blockMethodDescriptors[name].set || blockMethodDescriptors[name].get) && name != 'constructor'
+        })
+
+        this.menu = document.createElement('menu')
+        var container = nodeToMenufy.getClientRects()[0]
+        var containerStyle = getComputedStyle(nodeToMenufy)
+        var header = nodeToMenufy.querySelector("header").getClientRects()[0]
+        var left = container.left
+        var top = container.top + header.height
+        var width = container.width
+        var height = container.height - header.height
+        var newMenuStyle = { 
+            width, height, left, top, 
+            border: containerStyle.borderWidth + ' solid transparent',
+        }
+        Object.assign(this.menu.style, newMenuStyle)
+
+        menuMethods.forEach(name => {
+            var menuItem = document.createElement('li')
+            menuItem.textContent = name.replace('_',' ')
+            this.menu.appendChild(menuItem)
+        })
+
+        var menu = this.menu
+        nodeToMenufy.addEventListener('mousedown', function dissolveMenu(){
+            menu.remove() // creating a function reference to add and remove lisener
+            nodeToMenufy.removeEventListener('mousedown', dissolveMenu)
+        })
+    }
+}
+
 class BlockHeader {
     constructor(options){
         this.header = document.createElement('header')
         this.header.textContent = options.title
-        this.menu = document.createElement('menu')
-        this.header.appendChild(this.menu)
+        this.button = document.createElement('button')
+        this.header.appendChild(this.button)
+        this.button.addEventListener('click', event => {
+            document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
+        })
     }
 }
-
 
 class Block {
     constructor(options = {}){
@@ -39,7 +81,7 @@ class Block {
         }, options.style)
         delete options.style
         delete options.text
-        this.attributes = options
+        this.attributes = Object.assign({type: "Block", id: 't' + Date.now()},options)
     }
 
     set style(newStyle){
@@ -53,6 +95,11 @@ class Block {
     set textContent(newString){
         this.textArea.textContent = newString
     }
+
+    get textContent(){
+        return this.textArea.value
+    }
+
 
     set attributes(updateObject){
         for(var key in updateObject){
@@ -71,17 +118,29 @@ class Block {
     remove(){
         this.container.remove()
     }
+
     save(){
         // grab filename and PUT to it
         fetch(this.container.getAttribute('filename'), {
             method: 'PUT',
-            body: this.textArea.value
+            body: this.textContent
         })
     }
+
     update(){
         // grab filename and GET from it, replace textContent
     }
+
+    become(){
+        // grab own attributes, return an object to generate new block derivative
+        // replace self with new Child
+    }
+
+    share_link(){
+        // determine link to pull this node
+    }
 }
+
 
 function edit(filename){
     fetch(filename)
@@ -105,3 +164,6 @@ function edit(filename){
         console.error(error)
     })
 }
+makeConstructorGlobal(Block)
+makeConstructorGlobal(BlockHeader)
+makeConstructorGlobal(BlockMenu)

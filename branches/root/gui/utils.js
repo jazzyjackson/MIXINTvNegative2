@@ -18,3 +18,7 @@ function parseHTML(string){
 
 var fromId = document.getElementById.bind(document)
 var $ = document.querySelectorAll.bind(document)
+
+function makeConstructorGlobal(aClass){
+    window.constructors = Object.assign({}, window.constructors, {[aClass.name]: aClass})
+}

@@ -6,10 +6,10 @@
   text-align: center;
   padding: 3px;
   display: flex;
+  border-bottom: 4px solid black;
   justify-content: space-between;
 }
 .block textarea {
-  border-top: 4px solid black;
   outline: none;
 }
 .block.focused {
@@ -17,8 +17,33 @@
   box-shadow: 10px 14px 12px 5px rgba(0, 0, 0, 0.58);
 }
 
-.block header menu {
+.block header button {
   background-image: linear-gradient(white, white, black, white, black, white, black, white, white);
   width: 18px;
   height: 18px;
 }
+
+menu {
+  color: white;
+  list-style: none;
+  text-align: center;
+  text-transform: capitalize;
+  overflow: auto;
+  font-family: sans-serif;
+  font-size: x-large;
+  background: rgba(0,0,0,0.9);
+  position: fixed; 
+}
+
+menu li {
+  padding: 5px;
+
+}
+menu li:hover {
+  background: rgba(130,130,130,0.3);
+  color: cornflowerblue;
+}
+menu li:active {
+  font-size: xx-large;
+}
+

@@ -40,7 +40,7 @@ They can be accessed via POST requests from client side applications or by a Cha
 
 # Convologs, Figtrees, Interpret, Switchboard, and GUI
 Convologs are JSON files with a single message per line, one file for each user.
-This allows the recording and interweaving of messages from many users, so anyone with a working directory 
+This allows the recording and interweaving of messages from many users, so anyone within a particular directory has the option to leave public messages. Chatroom functionality can be had if you connect to a "log watch" program to stream new file changes to you.
 Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
 
 ## Compatibility notes
@@ -62,7 +62,15 @@ So multi-interpreter paired with a ChatScript personality aims to provide an ass
 
 ## Why free?
 
+To give my regards to Linus and Stallman.
+
 Because all the technology its built on was given away for free, and because it's really not my idea and I'm not going to patent it and take credit.
+
+Third party software used by multi-interpreter includes:
+- CodeMirror, under MIT license by Marijn Haverbeke
+- ChatScript, under MIT license by Bruce Wilcox
+
+
 
 ## License
 License is UIUC/NCSA: Do the thing! No restriction on commercial use, no warranty.
