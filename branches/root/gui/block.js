@@ -27,14 +27,18 @@ class BlockMenu {
         menuMethods.forEach(name => {
             var menuItem = document.createElement('li')
             menuItem.textContent = name.replace('_',' ')
+            menuItem.addEventListener('click', () => console.log(name) )
             this.menu.appendChild(menuItem)
+            
         })
 
-        var menu = this.menu
-        nodeToMenufy.addEventListener('mousedown', function dissolveMenu(){
-            menu.remove() // creating a function reference to add and remove lisener
+        var dissolveMenu = () => {
+            this.menu.remove() // creating a function reference to add and remove lisener
+            document.body.removeEventListener('mouseup', dissolveMenu)
             nodeToMenufy.removeEventListener('mousedown', dissolveMenu)
-        })
+        }
+        document.body.addEventListener('mouseup', dissolveMenu)
+        nodeToMenufy.addEventListener('mousedown', dissolveMenu)
     }
 }
 
@@ -115,11 +119,11 @@ class Block {
         return tempObj
     }
 
-    remove(){
+    remove_from_window(){
         this.container.remove()
     }
 
-    save(){
+    write_to_disk(){
         // grab filename and PUT to it
         fetch(this.container.getAttribute('filename'), {
             method: 'PUT',
@@ -127,11 +131,11 @@ class Block {
         })
     }
 
-    update(){
+    update_from_disk(){
         // grab filename and GET from it, replace textContent
     }
 
-    become(){
+    become_codemirror(){
         // grab own attributes, return an object to generate new block derivative
         // replace self with new Child
     }
