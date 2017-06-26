@@ -26,7 +26,7 @@ class BlockMenu {
 
         menuMethods.forEach(name => {
             var menuItem = document.createElement('li')
-            menuItem.textContent = name.replace('_',' ')
+            menuItem.textContent = name.replace(/_/g,' ')
             menuItem.addEventListener('click', () => console.log(name) )
             this.menu.appendChild(menuItem)
             
