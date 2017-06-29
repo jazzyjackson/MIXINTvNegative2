@@ -39,15 +39,10 @@ module.exports = class ConnectionHandler {
         /*on a successful connection, write to the socket with 3 arguments, null char (\u0000) terminated)
         details of this message protocol may be found in DOCUMENTATION/CLIENTS-AND-SERVERS/ChatScript-ClientServer-Manual */
         this.log(String.raw`${username}\0${botname}\0${message.trim()}\0`) 
-        client.write(`${username}\0${botname}\0${message}\0`)
+        client.write([username,botname,message].join('\0') + '\0')
       })
       client.on('data', botResponse => {
-        let data = botResponse.toString()
-        //if the bot returned JSON, parse it and use that as the response object. 
-        //Otherwise, create a new object with an output property
-        let response = (data[0] === '{') ? JSON.parse(data) : {successfulChat: data} 
-        // console.log(response)        
-        resolve(response);
+        resolve(new digestOOB(botResponse.toString()));
         client.end();
       })
       client.on('end', () => {
@@ -73,6 +68,23 @@ module.exports = class ConnectionHandler {
     } else {
         this.log(`I couldn't detect your operating system, so chatscript was not started.`)
     }
+  }
+}
+
+function digestOOB(chatresult){
+  OOBregex = /(\S*)=(\S*)/g
+  var match = OOBregex.exec(chatresult)
+  while(match){
+    this[match[1]] = match[2]
+    match = OOBregex.exec(chatresult)
+  }
+
+  chatregex = /\[.*\](.*)/
+  chatmatch = chatregex.exec(chatresult)
+  if(chatmatch){
+    this.successfulChat = chatmatch[1]
+  } else {
+    this.successfulChat = chatresult
   }
 }
 
