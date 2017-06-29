@@ -1,13 +1,14 @@
 /********* load some dependencies, node built ins, nothing to install ***********/
 
+var spawn   = require('child_process').spawn
 var fs     = require('fs')
-var os     = require('os')
 var http   = require('http')
+var os     = require('os')
 var path   = require('path')
+var repl   = require('repl')
+var stream = require('stream')
 var util   = require('util')
 var url    = require('url')
-var stream = require('stream')
-var exec   = require('child_process').exec
 
 /************** and some global variables for convenience *******************/
 
@@ -21,17 +22,21 @@ var pipeOptions    = createTransforms()
 http.createServer((request, response) => {
 	logRequest(request)
 	response.setHeader('x-powered-by','multi-interpreter')
-	var userid = identify(request) || null
-	var redirectHeaders = { 'Location': '//guest.' + request.headers.host + request.url }
-	if( userid == null ) return response.writeHead(302, redirectHeaders) || response.end()
-	if( port4u(userid) ) return proxy(request, response, port4u(userid))
-	else return createPort4u(request, response, userid)
+	identify(request)
+	if( !request.userid ) return fs.createReadStream('sphinx.html').pipe(response)
+	if( port4u(request.userid) ) return proxy(request, response, port4u(request.userid))
+	else return createPort4u(request, response)
 }).listen(process.env.PROD_PORT || 3000)
 
 /********* identify user, check if magic link is associated *******************/
 
 function identify(request){
-	return 'colten'
+
+    request.destination = '/branches/root/'
+    return request.userid = 'colten'
+
+    // request can set a cookie, and set ephemeral properties on the request object
+    // so port4u and createPort4u can just check properties on the request object.
 	//check if cookie is still valid
 	//check if request is coming with a query
 	//check if query is registered to a username, return username
@@ -39,12 +44,21 @@ function identify(request){
 
 /********** interpret requests on stdin for REPL interactiviy in host's shell **************/
 
-interpreter = exec('node interpret', { cwd: __dirname + '/branches/root/' })
-interpreter.stdout.pipe(pipeOptions['successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
-interpreter.stderr.pipe(process.stdout)
-interpreter.on('error', error => logError('interpret', error))
-process.stdin.pipe(pipeOptions['logInput']).pipe(interpreter.stdin)
+// interpreter = spawn('node interpret', { cwd: __dirname + '/branches/root/' })
+// interpreter.stdout.pipe(pipeOptions['successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
+// interpreter.stderr.pipe(process.stdout)
+// interpreter.on('error', error => logError('interpret', error))
+// process.stdin.pipe(pipeOptions['logInput']).pipe(interpreter.stdin)
 
+repl.start({eval: (cmd, context, filename, callback) => {
+    try {
+        callback(util.inspect(eval(cmd)))
+    } catch(e) {
+        callback("there was an error")
+        // spawn('node', ['interpret', cmd])
+        // spawn.stdout.on('data', callback)
+    }
+}})
 /***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
 
 process.on('SIGHUP', error => logError('system', 'SIGHUP'))
@@ -57,11 +71,13 @@ process.on('uncaughtException',  error => logError('system', error)) // && proce
 // gotta create authentication - identity routing. Generate a magic link accessible via API, 
 // 
 
-function createPort4u(request, response, userid){
-	var shell = exec('node switchboard', {cwd: __dirname + '/branches/root',
-																				env: { CSUSER: userid }})//+ path.sep + 'index'})
+function createPort4u(request, response){
+    var userid = request.userid
+	var shell = spawn('node',['switchboard.js'], {cwd: __dirname + '/branches/root',
+                                          env: { CSUSER: userid, CSBOT: request.bot, PATH: process.env.PATH }})
 
 	shell.stdout.on('data', port => {
+        var port = port.toString()
 		portCollection[userid] = {shell, port, userid}
 		proxy(request, response, port)
 	})
@@ -80,6 +96,8 @@ function createPort4u(request, response, userid){
 }
 
 function proxy(request, response, port){
+    portCollection[request.userid].lastRequest = Date.now()
+
 	request.pipe(proxyRequest({
 		hostname: hostname,
 		port: port,
