@@ -7,20 +7,19 @@ var os     = require('os')
 var path   = require('path')
 var repl   = require('repl')
 var stream = require('stream')
-var util   = require('util')
 var url    = require('url')
+var util   = require('util')
 
 /************** and some global variables for convenience *******************/
 
-var proxyRequest   = http.request
 var hostname       = 'localhost'
 var portCollection = {}
-var pipeOptions    = createTransforms()
+var proxyRequest   = http.request
 
 /********* stream responses to shell created for your user id ****************/
 
 http.createServer((request, response) => {
-	logRequest(request)
+	// logRequest(request)
 	response.setHeader('x-powered-by','multi-interpreter')
 	identify(request)
 	if( !request.userid ) return fs.createReadStream('sphinx.html').pipe(response)
@@ -44,26 +43,22 @@ function identify(request){
 
 /********** interpret requests on stdin for REPL interactiviy in host's shell **************/
 
-// interpreter = spawn('node interpret', { cwd: __dirname + '/branches/root/' })
-// interpreter.stdout.pipe(pipeOptions['successOnly']).pipe(process.stdout)// || for allInfo, && for successOnly
-// interpreter.stderr.pipe(process.stdout)
-// interpreter.on('error', error => logError('interpret', error))
-// process.stdin.pipe(pipeOptions['logInput']).pipe(interpreter.stdin)
-
 repl.start({eval: (cmd, context, filename, callback) => {
     try {
-        callback(util.inspect(eval(cmd)))
+        callback(util.inspect(eval(cmd))) //this eval is in the server's scope
     } catch(e) {
-        callback("there was an error")
-        // spawn('node', ['interpret', cmd])
-        // spawn.stdout.on('data', callback)
+        interpreter = spawn('node', ['interpret',cmd], { cwd: __dirname + '/branches/root/' })
+        var spawnbuffer = '' // I think I want to use buffer concat but I have to look it up
+        interpreter.stdout.on('data', data => spawnbuffer += data.toString())
+        interpreter.stderr.on('data', data => spawnbuffer += data.toString())
+        interpreter.on('close', () => callback(blob2allInfo(spawnbuffer))) //blob2successOnly || blob2allInfo
     }
 }})
 /***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
 
-process.on('SIGHUP', error => logError('system', 'SIGHUP'))
-process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
-process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
+// process.on('SIGHUP', error => logError('system', 'SIGHUP'))
+// process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
+// process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
 
 /*********** function definitions for the above server ******************/
 
@@ -85,13 +80,13 @@ function createPort4u(request, response){
 	shell.stderr.on('data', err => {
 		response.writeHead(500)
 		response.end(util.inspect(error))
-		logError(userid, error)
+		// logError(userid, error)
 	})
 
 	shell.on('error', error => {
 		response.writeHead(500)
 		response.end(util.inspect(error))
-		logError(userid, error)
+		// logError(userid, error)
 	})
 }
 
@@ -115,62 +110,19 @@ function port4u(userid){
 	return portCollection[userid] && portCollection[userid].port
 }
 
-function logError(userid, error){
-    // hopefully there's not enough errors for blocking to be a big deal
-    // appendFileSync allows us to write to file even when the program has been requested to exit. Sync write THEN exit.
-    fs.appendFileSync('./logs/error.log', JSON.stringify({
-        ztime: new Date(),
-        userid: userid, 
-        error: util.inspect(error || "undefined error")
-    }) + os.EOL)
-}
-
-function logRequest(request){
-    //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
-    var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
-    fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
-        userid: userid, 
-        method: request.method,
-        path:   request.url.split('?')[0],
-        query:  decodeURI(request.url.split('?')[1]),
-        ipaddr: request.connection.remoteAddress,
-        ztime: new Date()
-    }) + os.EOL, () => undefined)
-}
-
 /***************************************************/
 
-function createTransforms(){
-	var logInput = new stream.Transform()
-	logInput._transform = function(chunk, encoding, done){
-		this.push(chunk)
-		fs.appendFile(`./logs/stdin.log`, JSON.stringify({stdin: chunk.toString() + os.EOL}), done)
-	}
+function blob2successOnly(result){
+    result = JSON.parse(result)
+    return result.bashData 
+        || result.successfulChat
+        || result.successEval 
+        || result.successBash
+}
 
-	var successOnly = new stream.Transform()
-	successOnly._transform = function(chunk, encoding, done){
-		var mostSuccessful = result => result.bashData 
-                                    || result.successfulChat
-                                    || result.successEval 
-                                    || result.successBash
-		chunk.toString()
-			 .split(/\n(?={)/g)
-			 .map(JSON.parse)
-			 .forEach(result => {
-                result = mostSuccessful(result)
-                result = typeof result === 'object' ? util.inspect(result) : String(result)
-                this.push(result + os.EOL)
-			 })
-		done()
-	}
-
-	var allInfo = new stream.Transform()
-	allInfo._transform = function(chunk, encoding, done){
-		var result = JSON.parse(chunk.toString())
-		this.push(Object.keys(result)
-						.map(key => key + ': ' + util.inspect(result[key]))
-						.join(os.EOL) + os.EOL)
-		done()
-	}
-	return {logInput, successOnly, allInfo}
+function blob2allInfo(result){
+    result = JSON.parse(result)
+    return Object.keys(result)
+                 .map(key => key + ': ' + util.inspect(result[key]))
+                 .join(os.EOL) + os.EOL
 }
