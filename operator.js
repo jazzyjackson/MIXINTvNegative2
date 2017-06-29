@@ -32,6 +32,7 @@ http.createServer((request, response) => {
 function identify(request){
 
     request.destination = '/branches/root/'
+    request.bot = 'shelly'
     return request.userid = 'colten'
 
     // request can set a cookie, and set ephemeral properties on the request object

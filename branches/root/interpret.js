@@ -4,31 +4,26 @@ const fs = require('fs')
 /* ChatScriptConnection exports a constructor function for a class with a '.chat' method, 
 which creates a new TCP socket and returns a promise to communicate with a ChatScript server */
 const ChatScriptConnection = require('./ChatScriptConnection.js')
-const chatscript_config = { port: process.env.CSPORT || 1024, 
-                            host: process.env.CSHOST || 'localhost',
-                            defaultUser: process.env.CSUSER || 'guest',
-                            defaultBot: process.env.CSBOT || 'Harry',
-                            debug: false } //set debug to true to print a bunch of status messages when connecting.
-
-const ChatScript = new ChatScriptConnection(chatscript_config)
+const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024, 
+                                              host: process.env.CSHOST || 'localhost',
+                                              defaultUser: process.env.CSUSER || 'devsession',
+                                              defaultBot: process.env.CSBOT || 'shelly',
+                                              debug: false })
 
 const interpret = {
-    bashFirst: input =>  tryBash(input)
+    bashFirst: input => tryBash(input)
                         .then(successBash => close({successBash}))
                         .catch(bashErr => {
-                            tryEval(input)
-                            .then(successEval => close({bashErr, successEval}))
-                            .catch(evalErr => {
-                                ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-                                .then(successfulChat => close(Object.assign({bashErr, evalErr}, successfulChat)))
-                                .catch(chatErr => close({bashErr, evalErr, chatErr}))
-                            })
+                            ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
+                            .then(successfulChat => close(successfulChat))
+                            .catch(chatErr => close({bashErr, chatErr}))
                         }),
 
     botFirst: input => ChatScript.chat(input)
                        .then(successChat => {
-                           successChat.bash && tryBash(successChat.bash)
+                           successChat.bash && tryBash(successChat.bash) // here is a good place to ChatScript.createfact associations of bash failing & completing, simple pid exit OK, pid exit Error
                        })
+                       .catch(console.error.bind(console))
     
 }
 

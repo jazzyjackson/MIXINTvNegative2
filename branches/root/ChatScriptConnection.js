@@ -34,25 +34,10 @@ module.exports = class ConnectionHandler {
     username || (username = defaultUser) // set user if not passed to func
     botname || (botname = defaultBot) //set bot if not passed to func
     return new Promise((resolve, reject)=>{
-      let client = net.connect(this.chatscript_config, () => {
-        this.log(`connection established to ${host}:${port}`)
-        /*on a successful connection, write to the socket with 3 arguments, null char (\u0000) terminated)
-        details of this message protocol may be found in DOCUMENTATION/CLIENTS-AND-SERVERS/ChatScript-ClientServer-Manual */
-        this.log(String.raw`${username}\0${botname}\0${message.trim()}\0`) 
-        client.write([username,botname,message].join('\0') + '\0')
-      })
-      client.on('data', botResponse => {
-        resolve(new digestOOB(botResponse.toString()));
-        client.end();
-      })
-      client.on('end', () => {
-        //this will reject the promise only if the connection is closed before data is received. 
-        //If the promise is resolved by receiving data, great, this rejection won't make a difference
-        reject(`the server at ${host}:${port} closed the connection.`)
-      })
-      client.on('error', error => {
-        reject(error)
-      })
+        var client = net.createConnection(this.chatscript_config)
+        client.on('connect', () => client.write([username,botname,message].join('\0') + '\0'))
+        client.on('data', botResponse => resolve(new digestOOB(botResponse.toString())))
+        client.on('error', error => reject(error))
     })
   }
 
@@ -72,7 +57,7 @@ module.exports = class ConnectionHandler {
 }
 
 function digestOOB(chatresult){
-  OOBregex = /(\S*)=(\S*)/g
+  OOBregex = /\s(\w*)=(\S*)/g
   var match = OOBregex.exec(chatresult)
   while(match){
     this[match[1]] = match[2]

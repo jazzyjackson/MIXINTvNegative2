@@ -72,7 +72,6 @@ class ConvoBlock extends Block {
         if(stringToEval.trim() == 'clear'){
             Array.from(document.querySelectorAll('.messageBlock'), node => node.remove())
             return {successEval: 'OK'}
-            form.setAttribute('prompt', location.pathname + ` → `)
         }
         // if it wasn't cd or clear, then eval it as a string
         try {
@@ -101,6 +100,7 @@ class MessageBlock extends Block {
 
     set output(data){
         Object.keys(data).forEach(key => {
+            if(key == 'eval') eval(data[key]) //if the bot tells us to eval, go and eval it.
             var oldData = this.container.getAttribute(key)
             var newData =  oldData ? oldData + data[key] : data[key]
             this.container.setAttribute(key, newData)
