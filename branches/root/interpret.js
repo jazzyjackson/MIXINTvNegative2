@@ -12,39 +12,56 @@ const chatscript_config = { port: process.env.CSPORT || 1024,
 
 const ChatScript = new ChatScriptConnection(chatscript_config)
 
-const tryEval = input => new Promise((resolve, reject) => {
-    try {
-        resolve(eval(input))
-    }
-    catch(err){ 
-        reject( err.toString()) 
-    }
-})
+const interpret = {
+    bashFirst: input =>  tryBash(input)
+                        .then(successBash => close({successBash}))
+                        .catch(bashErr => {
+                            tryEval(input)
+                            .then(successEval => close({bashErr, successEval}))
+                            .catch(evalErr => {
+                                ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
+                                .then(successfulChat => close(Object.assign({bashErr, evalErr}, successfulChat)))
+                                .catch(chatErr => close({bashErr, evalErr, chatErr}))
+                            })
+                        }),
 
-const tryBash = input => new Promise((resolve, reject) => {
-    if(input.indexOf('what') == 0) return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
-    if(!input.trim()) return reject(`Blank line doesn't mean anything so I'll chat instead.`)
-    if(input[0] == ':') return reject(': is no-op in bash! input will be ignored, no error thrown')
-    var processpipe = exec(input)
-        .on('error', err => reject(err.toString()))
-        .on('exit', (code, signal) => code === 0 ? resolve(code) : reject(code || signal))
-    processpipe.stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData}) + '\n'))
-    processpipe.stderr.on('data', bashData => reject(bashData))
-})
+    botFirst: input => ChatScript.chat(input)
+                       .then(successChat => {
+                           successChat.bash && tryBash(successChat.bash)
+                       })
+    
+}
 
-const close = result => process.stdout.write(JSON.stringify(result) + '\n')
+var mode = process.env.CONVOMODE || 'bashFirst'
+process.argv[2] ? interpret[mode](process.argv[2])
+                : process.stdin.on('data', input => interpret[mode](input.toString()))
 
-process.stdin.on('data', input => {
-    input = input.toString('utf8')    
-    tryBash(input)
-    .then(successBash => close({successBash}))
-    .catch(bashErr => {
-        tryEval(input)
-        .then(successEval => close({bashErr, successEval}))
-        .catch(evalErr => {
-            ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-            .then(successfulChat => close(Object.assign({bashErr, evalErr}, successfulChat)))
-            .catch(chatErr => close({bashErr, evalErr, chatErr}))
-        })
+function tryBash(input){
+    return new Promise((resolve, reject) => {
+        if(input.indexOf('what') == 0) return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
+        if(!input.trim()) return reject(`Blank line doesn't mean anything so I'll chat instead.`)
+        if(input[0] == ':') return reject(': is no-op in bash! input will be ignored, no error thrown')
+        var processpipe = exec(input)
+            .on('error', err => reject(err.toString()))
+            .on('exit', (code, signal) => code === 0 ? resolve(code) : reject(code || signal))
+        processpipe.stdout.on('data', bashData => process.stdout.write(JSON.stringify({bashData}) + '\n'))
+        processpipe.stderr.on('data', bashData => reject(bashData))
     })
-})
+}
+
+
+function tryEval(input){
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(eval(input))
+        }
+        catch(err){ 
+            reject(err.toString()) 
+        }
+    })
+}
+
+
+function close(result){
+    process.stdout.write(JSON.stringify(result) + '\n')
+}

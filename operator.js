@@ -21,12 +21,21 @@ var pipeOptions    = createTransforms()
 http.createServer((request, response) => {
 	logRequest(request)
 	response.setHeader('x-powered-by','multi-interpreter')
-	var userid = request.headers.host.split(hostname)[0] || null
+	var userid = identify(request) || null
 	var redirectHeaders = { 'Location': '//guest.' + request.headers.host + request.url }
 	if( userid == null ) return response.writeHead(302, redirectHeaders) || response.end()
 	if( port4u(userid) ) return proxy(request, response, port4u(userid))
 	else return createPort4u(request, response, userid)
 }).listen(process.env.PROD_PORT || 3000)
+
+/********* identify user, check if magic link is associated *******************/
+
+function identify(request){
+	return 'colten'
+	//check if cookie is still valid
+	//check if request is coming with a query
+	//check if query is registered to a username, return username
+}
 
 /********** interpret requests on stdin for REPL interactiviy in host's shell **************/
 
@@ -44,8 +53,13 @@ process.on('uncaughtException',  error => logError('system', error)) // && proce
 
 /*********** function definitions for the above server ******************/
 
+// gotta move logging to bookkeeper and pipe stuff into it.
+// gotta create authentication - identity routing. Generate a magic link accessible via API, 
+// 
+
 function createPort4u(request, response, userid){
-	var shell = exec('node switchboard', {cwd: __dirname + '/branches/root'})//+ path.sep + 'index'})
+	var shell = exec('node switchboard', {cwd: __dirname + '/branches/root',
+																				env: { CSUSER: userid }})//+ path.sep + 'index'})
 
 	shell.stdout.on('data', port => {
 		portCollection[userid] = {shell, port, userid}

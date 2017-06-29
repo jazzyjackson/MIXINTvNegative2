@@ -32,3 +32,6 @@
 .convoBlock .messageBlock {
     margin: 0 5px;
 }
+.convoBlock .messageBlock textarea {
+  resize: none;
+}

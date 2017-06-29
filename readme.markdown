@@ -12,14 +12,20 @@ Multi-intrepreter aims to make it easy to do all the things computers are good a
 - Message passing between friends and co-workers
 - Modify the user interface to access and edit messages, files, and programs
 - Scheduling assistance to set alarms and run programs
-- Explain what programs do and offer you many options on how to run them
-- Archiving files, keeping records and notes and tracking changes to them all
+- Explain what available programs do and offer you many options on how to run them
+- Archiving files, keeping records and tracking changes to all of them
+
+On top of this central functionality, an application can be cloned and modified. 
+- Serve a simple static website
+- allow user actions to fire off specific functions - store or fetch data, send a text message...
+- give a custom interface to the chatbot, even design a video game around the chat script.
 
 # The Sphinx, the Bookkeeper, and the Operator
 
 **Sphinx.html blocks your passage until you answer a riddle.**
 
 It gets returned to any request made without authorization. ChatScript is used to ask a security question, or a riddle, or even a series of questions to decide if a visitor is trustworthy (or you!), and then returns a cookie identifying you to the Operator, who spins up a node server just for you called switchboard.js. This subprocess is started with a unix user-id attached, allowing for granular control of file and executable permissions. This means you can let the public at large read files to access your web page, but maybe you don't let them write messages to disk unless they answered the question a certain way. This also allows you to write web interfaces to any program - to write to databases or deploy spiders or send an SMS message - that are only allowed to be executed when requested by a user with appropriate permissions. The server still fulfills the request, but if Switchboard doesn't have permission, the write/execute process will throw an error, and the error will be passed back to the client. However, this also means Windows computers don't get the security benefits, as they don't implement *nixy owner-group-other read-write-execute permissions. So running multi-interpreter on a Windows machine is a bit of a free for all, and I can only encourage it on a local network with people you trust.
+
 
 **Bookkeeper.js takes note of every transaction made by the Operator.**
 
@@ -42,6 +48,31 @@ They can be accessed via POST requests from client side applications or by a Cha
 Convologs are JSON files with a single message per line, one file for each user.
 This allows the recording and interweaving of messages from many users, so anyone within a particular directory has the option to leave public messages. Chatroom functionality can be had if you connect to a "log watch" program to stream new file changes to you.
 Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
+
+# Interpret Modes: Bash-first | Bot-first
+
+The heart of multi-interpreter are promise-chains that try a series of functions until one succeeds. By default, I try bash, then node, then chatscript. I'm assuming the first person to use the application is the person who installed it, so the chatbot stays transparent at first, only popping up when your input caused bash and node to throw an error. Subsequently, chatbot can be programmed to digest those errors and respond according to their content. 
+
+New users are signed in as a nobody by default, so they don't have rights to delete files or reboot the system and otherwise f*** ur s*** up.
+
+However, if you want certain users (say, everyone except you) to talk only to the bot, it is simple a matter of specifying a different interpreter mode.
+Bot-first prohibits the execution of arbitrary bash commands. Instead, the chatbot decides how to respond to a request, which MAY INCLUDE a bash command. That is, you can write chatscript that triggers bash commands on an untrusted users' behalf. So system administrators could set up bash scripts that are run when requested by a particular user (by the way chatbot also knows your username and can withhold or provide information based on username, it's all up to how you write the chatscript)
+
+# Magic Links and Session Cookies
+
+ Multi-interpreter uses magic links and session cookies to provide security to your application. As opposed to serving the full application to every web request, any incoming request that does not include a valid cookie is redirected to 'shinx.html' - where the chatbot determines your identity and retrieves a one-time-use, time-limited magic link in the form of a large random number attached as query.
+ When operator.js is hit with that magic link, it looks up the user that was associated with that link and then deletes the property. 
+
+ Essentially, 
+
+ Keep it secure by keeping it simple
+ 
+
+# Customizing and Building your own applications
+
+The included application aims to provide essential features to allow online collaboration with zero set up. But you might want your website to have less interactions - 
+
+If you're interested in a basic interface to allow anyone on the internet to chat with your chatbot, you don't even have to go past here. Sphinx.html includes a basic chat interface, and if you write a script that never redirects users to the application, they can talk to your bot all day long. The default usage is to determine if a user is human and/or trustworthy and redirect users to the website at that point.
 
 ## Compatibility notes
 I'm developing multi-interpreter with Node 7+, but everything I'm using has been standard since 0.12, I think.
