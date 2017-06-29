@@ -70,8 +70,8 @@ class ConvoBlock extends Block {
             }
         }
         if(stringToEval.trim() == 'clear'){
-            Array.from(document.querySelectorAll('.messageBlock'), node => node.remove())
-            return {successEval: 'OK'}
+            setTimeout(()=>Array.from(document.querySelectorAll('.messageBlock'), node => node.remove()),0)
+            return {successEval: 'OK'} // remove all the message blocks AFTER returning 'OK'
         }
         // if it wasn't cd or clear, then eval it as a string
         try {

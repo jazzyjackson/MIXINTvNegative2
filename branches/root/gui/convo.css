@@ -27,6 +27,7 @@
 .convoBlock input {
   /* in the future, there will be a prompt width attribute to get this from, calculated from a hidden div containing the prompt to compute its width */
   width: 80%;
+  background-color: inherit;
 }
 
 .convoBlock .messageBlock {
