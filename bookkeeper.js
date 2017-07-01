@@ -15,18 +15,6 @@ function logError(userid, error){
     }) + os.EOL)
 }
 
-// function logRequest(request){
-//     //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
-//     var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
-//     fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
-//         userid: userid, 
-//         method: request.method,
-//         path:   request.url.split('?')[0],
-//         query:  decodeURI(request.url.split('?')[1]),
-//         ipaddr: request.connection.remoteAddress,
-//         ztime: new Date()
-//     }) + os.EOL, () => undefined)
-// }
 /***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
 
 // process.on('SIGHUP', error => logError('system', 'SIGHUP'))
@@ -64,7 +52,9 @@ function observe(request, response){
             logInfo.responseSize += chunk.length,
             done()            
         }
-    }).on('end', () => {
+    })
+    
+    watchResponse.on('end', () => {
         logInfo.ms = Date.now() - starttime
         logInfo.status = response.statusCode        
         fs.appendFile(`./logs/responses.log`, JSON.stringify(logInfo) + os.EOL, () => undefined)
@@ -74,4 +64,4 @@ function observe(request, response){
 }
 
 
-module.exports = {observe}
+module.exports = {observe, logError}
