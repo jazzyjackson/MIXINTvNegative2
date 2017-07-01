@@ -26,8 +26,9 @@ var os = require('os')
 var util = require('util')
 
 function observe(request, response){
+    var now = new Date()
     var logInfo = {
-        ztime: new Date(),
+        ztime: now,
         userid: request.userid,
         method: request.method,
         path:   request.url.split('?')[0],
@@ -39,7 +40,7 @@ function observe(request, response){
 
     var watchRequest = new stream.Transform({
         transform: function(chunk, encoding, done){
-            this.push(chunk)
+            this.push(chunk)            
             logInfo.requestSize += chunk.length,
             done()            
         }
@@ -55,12 +56,28 @@ function observe(request, response){
     
     watchResponse.on('end', () => {
         logInfo.ms = new Date() - logInfo.ztime //roundtrip time
-        logInfo.status = response.statusCode        
-        fs.appendFile(`./logs/responses.log`, JSON.stringify(logInfo) + os.EOL, () => undefined)
+        logInfo.status = response.statusCode
+        var cpuTotal = process.cpuUsage()
+        logInfo.cpu = (cpuTotal.user + cpuTotal.system) / 1000 // milliseconds spent holding the processor
+        logInfo.rss = process.memoryUsage().rss / 1000000
+        appendLog(request.userid, 'traffic', JSON.stringify(logInfo))
+        // could be a good place to start git operations if method = PUT. Have access to path...
     })
 
     return {watchRequest, watchResponse}
 }
 
+function appendLog(username, logType, data){
+    var now = new Date()
+    var filename = logType + '-' + now.getFullYear() + '-' + (now.getMonth() + 1) +'-' + now.getDate() + '.log' // since left most expression returns string, all the numbers will get stringified instead of summed
+    fs.appendFile(`./logs/${username}/${filename}`, data + os.EOL, err => {
+            if(err && err.code == 'ENOENT'){
+                // block thread if the user directory didn't exist, this only needs to happen once. Sync so it's done by the time the next request tries to write.
+                fs.mkdirSync(`./logs/${username}`)
+                fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+            }
+    })
+}
 
-module.exports = {observe, logError}
+
+module.exports = {observe, logError, appendLog}

@@ -1,6 +1,7 @@
 const repl = require('repl')
 const exec = require('child_process').exec
 const fs = require('fs')
+const bookkeeper = require('./../../bookkeeper')
 /* ChatScriptConnection exports a constructor function for a class with a '.chat' method, 
 which creates a new TCP socket and returns a promise to communicate with a ChatScript server */
 const ChatScriptConnection = require('./ChatScriptConnection.js')
