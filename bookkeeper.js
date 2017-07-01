@@ -27,7 +27,7 @@ var util = require('util')
 
 function observe(request, response){
     var logInfo = {
-        ztime: new Date().toISOString(),
+        ztime: new Date(),
         userid: request.userid,
         method: request.method,
         path:   request.url.split('?')[0],
@@ -36,7 +36,6 @@ function observe(request, response){
         responseSize: 0,
         requestSize: 0
     }
-    var starttime = Date.now()
 
     var watchRequest = new stream.Transform({
         transform: function(chunk, encoding, done){
@@ -55,7 +54,7 @@ function observe(request, response){
     })
     
     watchResponse.on('end', () => {
-        logInfo.ms = Date.now() - starttime
+        logInfo.ms = new Date() - logInfo.ztime //roundtrip time
         logInfo.status = response.statusCode        
         fs.appendFile(`./logs/responses.log`, JSON.stringify(logInfo) + os.EOL, () => undefined)
     })
