@@ -15,15 +15,63 @@ function logError(userid, error){
     }) + os.EOL)
 }
 
-function logRequest(request){
-    //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
-    var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
-    fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
-        userid: userid, 
+// function logRequest(request){
+//     //host will be like guest.localhost.com. Split domain, slice off trailing dot, use no-user if that's an empty string.
+//     var userid = request.headers.host.split(hostname)[0].slice(0,-1) || 'no-user' 
+//     fs.appendFile(`./logs/${userid}.log`, JSON.stringify({
+//         userid: userid, 
+//         method: request.method,
+//         path:   request.url.split('?')[0],
+//         query:  decodeURI(request.url.split('?')[1]),
+//         ipaddr: request.connection.remoteAddress,
+//         ztime: new Date()
+//     }) + os.EOL, () => undefined)
+// }
+/***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
+
+// process.on('SIGHUP', error => logError('system', 'SIGHUP'))
+// process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
+// process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
+var stream = require('stream')
+var fs = require('fs')
+var os = require('os')
+var util = require('util')
+
+function observe(request, response){
+    var logInfo = {
+        ztime: new Date().toISOString(),
+        userid: request.userid,
         method: request.method,
         path:   request.url.split('?')[0],
         query:  decodeURI(request.url.split('?')[1]),
         ipaddr: request.connection.remoteAddress,
-        ztime: new Date()
-    }) + os.EOL, () => undefined)
+        responseSize: 0,
+        requestSize: 0
+    }
+    var starttime = Date.now()
+
+    var watchRequest = new stream.Transform({
+        transform: function(chunk, encoding, done){
+            this.push(chunk)
+            logInfo.requestSize += chunk.length,
+            done()            
+        }
+    })
+
+    var watchResponse = new stream.Transform({
+        transform: function(chunk, encoding, done){
+            this.push(chunk)
+            logInfo.responseSize += chunk.length,
+            done()            
+        }
+    }).on('end', () => {
+        logInfo.ms = Date.now() - starttime
+        logInfo.status = response.statusCode        
+        fs.appendFile(`./logs/responses.log`, JSON.stringify(logInfo) + os.EOL, () => undefined)
+    })
+
+    return {watchRequest, watchResponse}
 }
+
+
+module.exports = {observe}
