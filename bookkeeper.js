@@ -1,14 +1,12 @@
-/*
-Bookkeeper keeps busy, intercepting all proxy'd streamed, it does a few things for every chunk of data: 
-- record current memory and cpu usage of associated process
-- sum bandwidth up, each chunk will have a length proerty, sum sum sum until end, then record the data transfer
-- on PUT, intercept the x-commmit-message header, the PUT socket isn't closed until the file is closed, so you should be able to watch for the end event, and then git commit.
-*/
+var stream = require('stream')
+var fs = require('fs')
+var os = require('os')
+var util = require('util')
 
 function logError(userid, error){
     // hopefully there's not enough errors for blocking to be a big deal
     // appendFileSync allows us to write to file even when the program has been requested to exit. Sync write THEN exit.
-    fs.appendFileSync('./logs/error.log', JSON.stringify({
+    appendLog(userid, 'error', JSON.stringify({
         ztime: new Date(),
         userid: userid, 
         error: util.inspect(error || "undefined error")
@@ -17,13 +15,9 @@ function logError(userid, error){
 
 /***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
 
-// process.on('SIGHUP', error => logError('system', 'SIGHUP'))
-// process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
-// process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
-var stream = require('stream')
-var fs = require('fs')
-var os = require('os')
-var util = require('util')
+process.on('SIGHUP', error => logError('system', 'SIGHUP'))
+process.on('SIGINT', error => logError('system', 'SIGINT') || process.exit())
+process.on('uncaughtException',  error => logError('system', error)) // && process.exit() here if you want to
 
 function observe(request, response){
     var now = new Date()
@@ -68,9 +62,10 @@ function observe(request, response){
 }
 
 function appendLog(username, logType, data){
+    var appendMode = logType == 'error' ? 'appendFileSync' : 'appendFile' // use synchronous for errors and exits
     var now = new Date()
     var filename = logType + '-' + now.getFullYear() + '-' + (now.getMonth() + 1) +'-' + now.getDate() + '.log' // since left most expression returns string, all the numbers will get stringified instead of summed
-    fs.appendFile(`./logs/${username}/${filename}`, data + os.EOL, err => {
+    fs[appendMode](`./logs/${username}/${filename}`, data + os.EOL, err => {
         if(err && err.code == 'ENOENT'){
             // block thread if the user directory didn't exist, this only needs to happen once. Sync so it's done by the time the next request tries to write.
             fs.mkdirSync(`./logs/${username}`)
