@@ -147,7 +147,7 @@ class Block {
 
 
 function edit(filename){
-    fetch(filename)
+    fetch(filename, {credentials: 'same-origin'})
     .then(res => res.text())
     .then(plainText => {
         document.body.appendChild(new Block({

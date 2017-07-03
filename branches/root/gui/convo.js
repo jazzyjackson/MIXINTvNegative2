@@ -30,7 +30,7 @@ class ConvoBlock extends Block {
         var evalAttempt = this._evalledInWindow(submit)  // try to eval submit in window first
         messageBlock.output = evalAttempt             // add the result of evalling to the DOM whether it succeeded or not
         if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (submit)
-            fetch('./?' + encodeURI(submit), { method: 'POST' })
+            fetch('./?' + encodeURI(submit), { method: 'POST', credentials: "same-origin" })
             .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
             .then(reader => messageBlock._consumeStream(reader, messageBlock))
             // .then(()=> this.form.scrollIntoView())

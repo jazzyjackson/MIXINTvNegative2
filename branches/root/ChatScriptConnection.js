@@ -18,7 +18,7 @@ module.exports = class ConnectionHandler {
   }
 
   log(output){
-    if(this.chatscript_config.debug == true) console.log(output)
+    if(this.chatscript_config.debug == true) console.log(JSON.stringify({debug: output}))
   }
 
   //Someday you'll be able to ask the bot why its broken, but until then, this switch case diagnosis will have to do
