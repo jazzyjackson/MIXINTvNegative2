@@ -36,11 +36,20 @@ function testKey(key){
 }
 
 function unlockEnvironmentFor(request){
-    const BashFirst = 'bashFirst'
-    const BotFirst = 'botFirst'
+    var rootEnvironment = {
+        cwd: './branches/root/', 
+        env: { bot: 'shelly', convoMode: 'bashFirst'}
+    }
+
+    var defaultEnvironment = {
+        cwd: './branches/root/', 
+        env: { bot: 'shelly', convoMode: 'botFirst'}
+    }
 
     switch(request.userid){
-        case 'root': Object.assign(request, { destination: '/branches/root/', bot: 'shelly', convoMode: BashFirst}); break;
-        default: Object.assign(request, { destination: '/branches/root/', bot: 'shelly', convoMode: BotFirst });
+        case 'root': request.environment = rootEnvironment; break;
+        default: request.environment = defaultEnvironment;
     }
+
+    request.environment.env.PATH = process.env.PATH
 }

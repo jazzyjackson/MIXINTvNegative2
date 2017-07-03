@@ -51,11 +51,7 @@ repl.start({eval: (cmd, context, filename, callback) => {
 
 function createPort4u(request, response){
     var userid = request.userid
-	var shellOptions = {
-		cwd: __dirname + '/branches/root',
-		env: { CSUSER: userid, CSBOT: request.bot, PATH: process.env.PATH }
-	}
-	var shell = spawn('node',['switchboard.js'], shellOptions)
+	var shell = spawn('node',['switchboard.js'], request.environment)
 
 	shell.stdout.on('data', port => {
         var port = port.toString()
