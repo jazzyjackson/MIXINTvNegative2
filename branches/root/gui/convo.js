@@ -105,7 +105,7 @@ class MessageBlock extends Block {
             var newData =  oldData ? oldData + data[key] : data[key]
             this.container.setAttribute(key, newData)
         })
-        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash
+        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash || result.basherr
         this.textContent = mostSuccessful(this.attributes)
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
         setTimeout(()=>{

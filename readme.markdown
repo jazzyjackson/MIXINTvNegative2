@@ -5,9 +5,9 @@ Kind of like that cow in the Restaurant at the End of the Universe that recommen
 
 The first step is to build a platform that can do all the work of your typical webserver, but has the power to change its own configuration and read its own error messages.
 
-But before trying to explain what a self-aware web server looks like, I want to provide a minimal configuration that is useful right away.
+But before trying to explain what a self-aware web server looks like, I want to provide a minimal configuration that is immediately useful.
 
-Multi-intrepreter aims to make it easy to do all the things computers are good at, from highest priority:
+Multi-intrepreter aims to make it easy to do all the things computers are good at, including:
 - Sharing files on a local network, or uploading files to a server to share online
 - Message passing between friends and co-workers
 - Modify the user interface to access and edit messages, files, and programs
@@ -17,24 +17,22 @@ Multi-intrepreter aims to make it easy to do all the things computers are good a
 
 On top of this central functionality, an application can be cloned and modified. 
 - Serve a simple static website
-- allow user actions to fire off specific functions - store or fetch data, send a text message...
+- allow user actions to fire off specific functions - store or fetch data, send a text message
 - give a custom interface to the chatbot, even design a video game around the chat script.
 
-# The Sphinx, the Bookkeeper, and the Operator
-
-**Sphinx.html blocks your passage until you answer a riddle.**
-
-It gets returned to any request made without authorization. ChatScript is used to ask a security question, or a riddle, or even a series of questions to decide if a visitor is trustworthy (or you!), and then returns a cookie identifying you to the Operator, who spins up a node server just for you called switchboard.js. This subprocess is started with a unix user-id attached, allowing for granular control of file and executable permissions. This means you can let the public at large read files to access your web page, but maybe you don't let them write messages to disk unless they answered the question a certain way. This also allows you to write web interfaces to any program - to write to databases or deploy spiders or send an SMS message - that are only allowed to be executed when requested by a user with appropriate permissions. The server still fulfills the request, but if Switchboard doesn't have permission, the write/execute process will throw an error, and the error will be passed back to the client. However, this also means Windows computers don't get the security benefits, as they don't implement *nixy owner-group-other read-write-execute permissions. So running multi-interpreter on a Windows machine is a bit of a free for all, and I can only encourage it on a local network with people you trust.
-
-
-**Bookkeeper.js takes note of every transaction made by the Operator.**
-
-Each user gets a separate log file, including the system itself. System errors are kept in error.log. They are written in JSON for easy interpretation by other programs. Each log includes information about GET/POST/PUT/DELETE request made by that user, how many bytes of data were transfered, along with CPU and RAM usage by that users' Switchboard.
+# Operator, Bookkeeper, and Keymaker
 
 **Operator.js connects your calls.**
 
 It is the top level script that does all the process creation and supervising, so once you git clone, you can run 'node operator' to start listening for HTTP requests. It also listens for input on stdin, so once you start the operator, you can still use the shell. Input is piped to the interpret function, explained further down, allowing you to run bash commands, javascript one-liners, or plain English to be replied to by the system's ChatScript personality.
 
+**Bookkeeper.js takes note of every transaction made by the Operator.**
+
+Each user gets a separate log file, including the system itself. System errors are kept in error.log. They are written in JSON for easy interpretation by other programs. Each log includes information about GET/POST/PUT/DELETE request made by that user, how many bytes of data were transfered, along with CPU and RAM usage by that users' Switchboard.
+
+**Keymaker.js sets cookies and reads magic URLs**
+
+By designing a server meant to serve only a few hundred people, I get to cut a big corner in authorization - I don't have to store user sessions in a database. Keymaker simply maps random numbers to user ids. Keymaker also provides the function allowing you to decide what environment variables are set in that users sessions - you can decide what usernames have what unix uids, whether they talk to the bot or can execute arbitrary bash commands, and which directory they're contained in (e.g. what application they are served.)
 
 # Logs, Branches, and Spiders
 You can think of logs as slices of a branch, an artifact that lets analyze the rings to determine what happened over time. Thankfully for our computer program, we don't have to destroy the tree to read its logs.
@@ -68,7 +66,7 @@ Bot-first prohibits the execution of arbitrary bash commands. Instead, the chatb
  Keep it secure by keeping it simple
  
 
-# Customizing and Building your own applications
+# From Sphinx to Root, duplicating and modifying applications
 
 The included application aims to provide essential features to allow online collaboration with zero set up. But you might want your website to have less interactions - 
 
@@ -93,18 +91,16 @@ So multi-interpreter paired with a ChatScript personality aims to provide an ass
 
 ## Why free?
 
-To give my regards to Linus and Stallman.
-
 Because all the technology its built on was given away for free, and because it's really not my idea and I'm not going to patent it and take credit.
 
 Third party software used by multi-interpreter includes:
 - CodeMirror, under MIT license by Marijn Haverbeke
 - ChatScript, under MIT license by Bruce Wilcox
-
-
+- git, under General Public License by many authors
+- the rest of GNU/Linux under General Public License
 
 ## License
-License is UIUC/NCSA: Do the thing! No restriction on commercial use, no warranty.
+License is UIUC/NCSA: Do the thing! No restriction on commercial use, no warranty. Your derivative application shouldn't imply endorsement by me.
 
 Copyright (c) 2017 Colten Jackson
 
