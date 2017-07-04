@@ -83,7 +83,9 @@ class Block {
         },options)
 
         this.block.remove_from_window = this.remove_from_window
-        this.block.remove_from_window = this.remove_from_window
+        this.block.write_to_disk = this.write_to_disk
+        if(this.block.getAttribute('filename')) this.block.update_from_disk = this.update_from_disk
+        if(this.block.getAttribute('filename')) this.block.delete_from_disk = this.delete_from_disk
     }
 
     set style(newStyle){
@@ -114,18 +116,39 @@ class Block {
 
     write_to_disk(){
         // grab filename and PUT to it
-        var destination = this.block.getAttribute('filename')
+        var destination = this.getAttribute('filename')
         if(!destination) destination = prompt("I need a filename. You can include a directory if the directory already exists.")
-
+        if(!destination) return null //user may have cancelled
+        this.setAttribute('filename',destination)
         fetch(destination, {
             method: 'PUT',
             credentials: 'same-origin',
-            body: this.textContent
+            body: this.querySelector('textarea').value
         })
     }
 
     update_from_disk(){
         // grab filename and GET from it, replace textContent
+        var destination = this.getAttribute('filename')
+        if(!destination) return prompt("Updating from disk is not possible without a filename.")
+        this.setAttribute('filename',destination)
+        fetch(destination, {
+            credentials: 'same-origin',
+        })
+        .then(response => response.text())
+        .then(plainText => this.querySelector('textarea').value = plainText)
+        .catch(err => this.querySelector('textarea').value = plainText)
+    }
+
+    delete_from_disk(){
+        var destination = this.getAttribute('filename')
+        if(!destination) return prompt("Deleting from disk is not possible without a filename.")
+        this.setAttribute('filename',destination)
+        fetch(destination, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        })
+        this.remove_from_window()
     }
 
     become_codemirror(){

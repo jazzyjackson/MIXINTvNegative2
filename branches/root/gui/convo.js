@@ -16,22 +16,23 @@ class ConvoBlock extends Block {
 
         this.input = this.block.querySelector('input')
         this.form = this.block.querySelector('form')
-        this.form.onsubmit = this._handleSubmit.bind(this)
+        this.form.onsubmit = this.handleSubmit.bind(this)
+        window.autoSubmit = this.autoSubmit.bind(this)
 
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
         document.body.addEventListener('click', event => event.target === document.body && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
     }
 
-    _handleSubmit(event){
-        event.preventDefault()                 // suppress default action of reloading the page
-        var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for q gambit'
-        this.input.value = ''                  //reset input to blank
+    handleSubmit(event){
+        event && event.preventDefault()            // suppress default action of reloading the page if handleSubmit was called by event listener
+        var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for a gambit'
+        this.input.value = ''                      // reset input to blank
 
         var messageBlock = new MessageBlock({input:  location.pathname + ` → ` + inputValue})
-        var evalAttempt = this._evalledInWindow(inputValue)  // try to eval submit in window first
-        messageBlock.output = evalAttempt             // add the result of evalling to the DOM whether it succeeded or not
-        if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
+        var evalAttempt = this.evalledInWindow(inputValue)  // try to eval submit in window first
+        messageBlock.output = evalAttempt                    // add the result of evalling to the DOM whether it succeeded or not
+        if(evalAttempt.localError){                          // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
             fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
             .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
             .then(reader => messageBlock._consumeStream(reader, messageBlock))
@@ -42,7 +43,12 @@ class ConvoBlock extends Block {
         this.form.scrollIntoView() // maybe the messages can grab their parent conversation to set scrollIntoView
     }
 
-    _evalledInWindow(stringToEval){
+    autoSubmit(string2submit){
+        this.input.value = string2submit
+        this.handleSubmit()
+    }
+
+    evalledInWindow(stringToEval){
         if(stringToEval.indexOf('cd') == 0){
             var newDir = stringToEval.slice(3).trim()
 
@@ -108,7 +114,7 @@ class MessageBlock extends Block {
             var newData =  oldData ? oldData + data[key] : data[key]
             this.block.setAttribute(key, newData)
         })
-        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash || result.basherr || ''
+        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || (result.successbash && 'ok') || result.basherr || ''
         this.textarea.value = mostSuccessful(this.attributes)
 
         setTimeout(()=>{
