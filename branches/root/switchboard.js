@@ -9,7 +9,7 @@ var server = http.createServer((request,response) => ({
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                  .stdout.pipe(response),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
-                    .on('finish', () => { response.writeHead(201); response.end() })
-                    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) }),
+                        .on('finish', () => { response.writeHead(201); response.end() })
+                        .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) }),
     'DELETE': () => fs.unlink('.' + request.url, err => { response.writeHead( err ? 500 : 204); response.end(JSON.stringify(err))})
 })[request.method]()).listen().on('listening', () => console.log(server.address().port))
