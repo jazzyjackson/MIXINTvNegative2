@@ -44,37 +44,61 @@ class BlockMenu {
 
 class BlockHeader {
     constructor(options){
-        this.header = document.createElement('header')
-        this.header.textContent = options.title
-        this.button = document.createElement('button')
-        this.header.appendChild(this.button)
-        this.button.addEventListener('click', event => {
+        this.header = parseHTML(`
+            <header>
+                ${options.title}
+                <button></button>
+            </header>
+        `)
+        this.header.querySelector('button').addEventListener('click', event => {
             document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
         })
+        this.header.addEventListener('mousedown', handleDrag)
+
+        // this.header = document.createElement('header')
+        // this.header.textContent = options.title
+        // this.button = document.createElement('button')
+        // this.header.appendChild(this.button)
+        // this.button.addEventListener('click', event => {
+            // document.body.appendChild(new BlockMenu(this.header.parentElement).menu)            
+        // })
     }
 }
 
 class Block {
     constructor(options = {}){
-        this.header = new BlockHeader(options).header
-        this.next = document.createElement('div')
-        this.next.className = 'next'
+        this.block = parseHTML(`
+            <div>
+                <div class='next'></div>
+                <textarea spellcheck=false 
+                          onfocus="focus(this.parentElement)" 
+                          onblur="focus()">
+                          ${options.text || ''}
+                </textarea>
+            </div>
+        `)
 
-        this.textArea = document.createElement('textarea')
-        this.textArea.textContent = options.text || ''
+        this.block.insertBefore(new BlockHeader(options).header, this.block.firstChild)
+        this.textarea = this.block.querySelector('textarea')
 
-        this.container = document.createElement('div')
-        this.container.appendChild(this.header)
-        this.container.appendChild(this.next)
-        this.container.appendChild(this.textArea)
+        // this.header = new BlockHeader(options).header
+        // this.next = document.createElement('div')
+        // this.next.className = 'next'
+
+        // this.textArea = document.createElement('textarea')
+        // this.textArea.textContent = options.text || ''
+
+        // this.container = document.createElement('div')
+        // this.container.appendChild(this.header)
+        // this.container.appendChild(this.next)
+        // this.container.appendChild(this.textArea)
         /* remidner to re-do handleDrag to use default ondragstart event handler */
-        this.header.addEventListener('mousedown', handleDrag)
-        this.container.onfocus = event => focus(this.container)
-        this.container.onblur = event => focus()
-        this.textArea.onfocus = event => focus(this.container)
-        this.textArea.onblur = event => focus()
-        this.textArea.setAttribute('spellcheck','false')
-        this.container.constructor = this
+        // this.container.onfocus = event => focus(this.container)
+        // this.container.onblur = event => focus()
+        // this.textArea.onfocus = event => focus(this.container)
+        // this.textArea.onblur = event => focus()
+        // this.textArea.setAttribute('spellcheck','false')
+        // this.container.constructor = this
         /* Default Style, properties provided here are overrided by a style object on options */
         this.style = Object.assign({
             left: '0px', 
@@ -83,50 +107,47 @@ class Block {
             width: '400px', 
             height: '200px'
         }, options.style)
+
         delete options.style
         delete options.text
-        this.attributes = Object.assign({type: "Block", id: 't' + Date.now()},options)
+
+        this.attributes = Object.assign({
+            type: "Block", 
+            id: 't' + Date.now()
+        },options)
     }
 
     set style(newStyle){
         var {width, height} = newStyle
         delete newStyle.width
         delete newStyle.height
-        Object.assign(this.container.style, newStyle) //new Position might have left, top, position, width, height properties
-        Object.assign(this.textArea.style, {width, height})
+        Object.assign(this.block.style, newStyle) //new Position might have left, top, position, width, height properties
+        Object.assign(this.textarea.style, {width, height})
     }
-
-    set textContent(newString){
-        this.textArea.textContent = newString
-    }
-
-    get textContent(){
-        return this.textArea.value
-    }
-
 
     set attributes(updateObject){
         for(var key in updateObject){
-            this.container.setAttribute(key, updateObject[key])
+            this.block.setAttribute(key, updateObject[key])
         }
     }
 
     get attributes(){
         var tempObj = {}
-        Array.from(this.container.attributes).forEach(attribute => {
+        Array.from(this.block.attributes).forEach(attribute => {
             tempObj[attribute.name] = attribute.value
         })
         return tempObj
     }
 
     remove_from_window(){
-        this.container.remove()
+        this.block.remove()
     }
 
     write_to_disk(){
         // grab filename and PUT to it
-        fetch(this.container.getAttribute('filename'), {
+        fetch(this.block.getAttribute('filename'), {
             method: 'PUT',
+            credentials: 'same-origin',
             body: this.textContent
         })
     }
@@ -162,7 +183,7 @@ function edit(filename){
             tabIndex: 1,
             class: 'block',
             text: plainText
-        }).container)
+        }).block)
     })
     .catch(error => {
         console.error(error)

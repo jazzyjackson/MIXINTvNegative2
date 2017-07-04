@@ -12,7 +12,7 @@ function isElement(htmlNode){
 
 function parseHTML(string){
     var tempNode = document.createElement('div')
-    tempNode.innerHTML = string
+    tempNode.innerHTML = string.trim()
     return tempNode.firstChild
 }
 

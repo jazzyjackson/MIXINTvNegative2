@@ -7,35 +7,45 @@ class ConvoBlock extends Block {
             title: location.hostname + location.pathname,
             type: "ConvoBlock"
         },options))
-        this.input = document.createElement('input')
-        this.input.placeholder = 'what do you say'
-        this.input.autofocus = true
-        this.form = document.createElement('form')
-        this.form.appendChild(this.input)
+
+
+        this.block.replaceChild(parseHTML(`
+            <form prompt="${location.pathname + ' → '}">
+                <input placeholder="what do you say" autofocus="true"></input>
+            </form>
+        `),this.textarea)
+        this.input = this.block.querySelector('input')
+        this.form = this.block.querySelector('form')
         this.form.onsubmit = this._handleSubmit.bind(this)
-        this.form.setAttribute('prompt', location.pathname + ` → `)
-        this.container.replaceChild(this.form, this.textArea)
+
+        // this.input = document.createElement('input')
+        // this.input.placeholder = 'what do you say'
+        // this.input.autofocus = true
+        // this.form = document.createElement('form')
+        // this.form.appendChild(this.input)
+
+        // this.form.setAttribute('prompt', location.pathname + ` → `)
+        // this.container.replaceChild(this.form, this.textArea)
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
         document.body.addEventListener('click', event => event.target === document.body && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
-        delete this.textArea
     }
 
     _handleSubmit(event){
         event.preventDefault()                 // suppress default action of reloading the page
-        var submit = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for q gambit'
+        var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for q gambit'
         this.input.value = ''                  //reset input to blank
 
-        var messageBlock = new MessageBlock({input:  location.pathname + ` → ` + submit})
-        var evalAttempt = this._evalledInWindow(submit)  // try to eval submit in window first
+        var messageBlock = new MessageBlock({input:  location.pathname + ` → ` + inputValue})
+        var evalAttempt = this._evalledInWindow(inputValue)  // try to eval submit in window first
         messageBlock.output = evalAttempt             // add the result of evalling to the DOM whether it succeeded or not
-        if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (submit)
-            fetch('./?' + encodeURI(submit), { method: 'POST', credentials: "same-origin" })
+        if(evalAttempt.localError){                              // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
+            fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
             .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
             .then(reader => messageBlock._consumeStream(reader, messageBlock))
             // .then(()=> this.form.scrollIntoView())
         }
-        this.next.appendChild(messageBlock.container)
+        this.block.querySelector('.next').appendChild(messageBlock.block)
         this.form.setAttribute('prompt', location.pathname + ` → `)
         this.form.scrollIntoView() // maybe the messages can grab their parent conversation to set scrollIntoView
     }
@@ -95,21 +105,23 @@ class MessageBlock extends Block {
                 height: "1.1em"
             },
         },options))
-        this.textArea.setAttribute('disabled',true)
+        this.textarea.setAttribute('disabled',true)
     }
 
     set output(data){
         Object.keys(data).forEach(key => {
             if(key == 'eval') eval(data[key]) //if the bot tells us to eval, go and eval it.
-            var oldData = this.container.getAttribute(key)
+            // set attributes from incoming data from this fetch, if property values are repeated, append the new value to the old one
+            var oldData = this.block.getAttribute(key)
             var newData =  oldData ? oldData + data[key] : data[key]
-            this.container.setAttribute(key, newData)
+            this.block.setAttribute(key, newData)
         })
-        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash || result.basherr
-        this.textContent = mostSuccessful(this.attributes)
+        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash || result.basherr || ''
+        this.textarea.value = mostSuccessful(this.attributes)
+
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
         setTimeout(()=>{
-            this.textArea.style.height = this.textArea.scrollHeight + 1
+            this.textarea.style.height = this.textarea.scrollHeight + 1
             /* I don't want to do it like this */
             document.querySelector('input').scrollIntoView()
         })
