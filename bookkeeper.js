@@ -2,6 +2,7 @@ var stream = require('stream')
 var fs = require('fs')
 var os = require('os')
 var util = require('util')
+var execSync = require('child_process').execSync
 
 /***** Handle shell hang ups and uncaught errors. SIGHUP is when shell exits, SIGINT is ^-C ***/
 
@@ -52,10 +53,11 @@ function observe(request, response){
 }
 
 function appendLog(username, logType, data){
-    var appendMode = logType == 'error' ? 'appendFileSync' : 'appendFile' // use synchronous for errors and exits
     var now = new Date()
     var filename = logType + '-' + now.getFullYear() + '-' + (now.getMonth() + 1) +'-' + now.getDate() + '.log' // since left most expression returns string, all the numbers will get stringified instead of summed
-    fs[appendMode](`./logs/${username}/${filename}`, data + os.EOL, err => { //calling fs.appendFileSync will take 3rd arg as options object instead of callback, but its not a problem, function is an object that doesn't include properties that fs.appendFile cares about.
+    
+    if(logType == 'error') fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+    else fs.appendFile(`./logs/${username}/${filename}`, data + os.EOL, err => {
         if(err && err.code == 'ENOENT'){
             // block thread if the user directory didn't exist, this only needs to happen once. 
             // Sync so it's done by the time the next request tries to write.
@@ -70,7 +72,8 @@ function logError(userid, error){
     console.log(error)
     appendLog(userid, 'error', JSON.stringify({
         ztime: new Date(),
-        userid: userid, 
+        userid: userid,
+        version: execSync('git rev-parse HEAD').toString().slice(0,6),
         error: util.inspect(error || "undefined error")
     }) + os.EOL)
 }
