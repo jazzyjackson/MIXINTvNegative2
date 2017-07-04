@@ -8,24 +8,16 @@ class ConvoBlock extends Block {
             type: "ConvoBlock"
         },options))
 
-
         this.block.replaceChild(parseHTML(`
             <form prompt="${location.pathname + ' → '}">
                 <input placeholder="what do you say" autofocus="true"></input>
             </form>
         `),this.textarea)
+
         this.input = this.block.querySelector('input')
         this.form = this.block.querySelector('form')
         this.form.onsubmit = this._handleSubmit.bind(this)
 
-        // this.input = document.createElement('input')
-        // this.input.placeholder = 'what do you say'
-        // this.input.autofocus = true
-        // this.form = document.createElement('form')
-        // this.form.appendChild(this.input)
-
-        // this.form.setAttribute('prompt', location.pathname + ` → `)
-        // this.container.replaceChild(this.form, this.textArea)
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
         document.body.addEventListener('click', event => event.target === document.body && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
@@ -119,10 +111,9 @@ class MessageBlock extends Block {
         var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || result.successbash || result.basherr || ''
         this.textarea.value = mostSuccessful(this.attributes)
 
-        /* basically 'set immediate' - calculate height after event loop becomes empty*/
         setTimeout(()=>{
+        /* basically 'set immediate' - calculate height after event loop becomes empty*/
             this.textarea.style.height = this.textarea.scrollHeight + 1
-            /* I don't want to do it like this */
             document.querySelector('input').scrollIntoView()
         })
     }

@@ -1,14 +1,7 @@
 class BlockMenu {
     constructor(nodeToMenufy){
-        var blockType = nodeToMenufy.getAttribute('type')            
-        var blockConstructor = window.constructors[blockType]            
-        var blockMethodNames = Object.getOwnPropertyNames(blockConstructor.prototype)
-        var blockMethodDescriptors = Object.getOwnPropertyDescriptors(blockConstructor.prototype)
-        var menuMethods = blockMethodNames.filter(name => {
-            // inspect the Object Property Descriptor to determine whether this is a method or a getter/setter
-            // also filter out the constructor function, its not useful on the menu
-            return !(blockMethodDescriptors[name].set || blockMethodDescriptors[name].get) && name != 'constructor'
-        })
+     
+        var menuMethods = Object.getOwnPropertyNames(nodeToMenufy)
 
         this.menu = document.createElement('menu')
         var container = nodeToMenufy.getClientRects()[0]
@@ -26,10 +19,11 @@ class BlockMenu {
 
         menuMethods.forEach(name => {
             var menuItem = document.createElement('li')
+            console.log(name)
+            var methodName = name
             menuItem.textContent = name.replace(/_/g,' ')
-            menuItem.addEventListener('click', () => console.log(name) )
+            menuItem.addEventListener('mousedown', () => nodeToMenufy[name]())
             this.menu.appendChild(menuItem)
-            
         })
 
         var dissolveMenu = () => {
@@ -48,20 +42,11 @@ class BlockHeader {
             <header>
                 ${options.title}
                 <button></button>
-            </header>
-        `)
+            </header>`)
         this.header.querySelector('button').addEventListener('click', event => {
             document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
         })
         this.header.addEventListener('mousedown', handleDrag)
-
-        // this.header = document.createElement('header')
-        // this.header.textContent = options.title
-        // this.button = document.createElement('button')
-        // this.header.appendChild(this.button)
-        // this.button.addEventListener('click', event => {
-            // document.body.appendChild(new BlockMenu(this.header.parentElement).menu)            
-        // })
     }
 }
 
@@ -73,32 +58,13 @@ class Block {
                 <textarea spellcheck=false 
                           onfocus="focus(this.parentElement)" 
                           onblur="focus()">
-                          ${options.text || ''}
                 </textarea>
             </div>
         `)
 
         this.block.insertBefore(new BlockHeader(options).header, this.block.firstChild)
         this.textarea = this.block.querySelector('textarea')
-
-        // this.header = new BlockHeader(options).header
-        // this.next = document.createElement('div')
-        // this.next.className = 'next'
-
-        // this.textArea = document.createElement('textarea')
-        // this.textArea.textContent = options.text || ''
-
-        // this.container = document.createElement('div')
-        // this.container.appendChild(this.header)
-        // this.container.appendChild(this.next)
-        // this.container.appendChild(this.textArea)
-        /* remidner to re-do handleDrag to use default ondragstart event handler */
-        // this.container.onfocus = event => focus(this.container)
-        // this.container.onblur = event => focus()
-        // this.textArea.onfocus = event => focus(this.container)
-        // this.textArea.onblur = event => focus()
-        // this.textArea.setAttribute('spellcheck','false')
-        // this.container.constructor = this
+        this.textarea.value = options.text || ''
         /* Default Style, properties provided here are overrided by a style object on options */
         this.style = Object.assign({
             left: '0px', 
@@ -115,6 +81,9 @@ class Block {
             type: "Block", 
             id: 't' + Date.now()
         },options)
+
+        this.block.remove_from_window = this.remove_from_window
+        this.block.remove_from_window = this.remove_from_window
     }
 
     set style(newStyle){
@@ -140,12 +109,15 @@ class Block {
     }
 
     remove_from_window(){
-        this.block.remove()
+        this.remove()
     }
 
     write_to_disk(){
         // grab filename and PUT to it
-        fetch(this.block.getAttribute('filename'), {
+        var destination = this.block.getAttribute('filename')
+        if(!destination) destination = prompt("I need a filename. You can include a directory if the directory already exists.")
+
+        fetch(destination, {
             method: 'PUT',
             credentials: 'same-origin',
             body: this.textContent
@@ -189,6 +161,3 @@ function edit(filename){
         console.error(error)
     })
 }
-makeConstructorGlobal(Block)
-makeConstructorGlobal(BlockHeader)
-makeConstructorGlobal(BlockMenu)
