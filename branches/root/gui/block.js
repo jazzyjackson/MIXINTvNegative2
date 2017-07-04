@@ -1,8 +1,5 @@
 class BlockMenu {
     constructor(nodeToMenufy){
-     
-        var menuMethods = Object.getOwnPropertyNames(nodeToMenufy)
-
         this.menu = document.createElement('menu')
         var container = nodeToMenufy.getClientRects()[0]
         var containerStyle = getComputedStyle(nodeToMenufy)
@@ -11,15 +8,13 @@ class BlockMenu {
         var top = container.top + header.height
         var width = container.width
         var height = container.height - header.height
-        var newMenuStyle = { 
+        Object.assign(this.menu.style, { 
             width, height, left, top, 
             border: containerStyle.borderWidth + ' solid transparent',
-        }
-        Object.assign(this.menu.style, newMenuStyle)
+        })
 
-        menuMethods.forEach(name => {
+        Object.getOwnPropertyNames(nodeToMenufy).forEach(name => {
             var menuItem = document.createElement('li')
-            console.log(name)
             var methodName = name
             menuItem.textContent = name.replace(/_/g,' ')
             menuItem.addEventListener('mousedown', () => nodeToMenufy[name]())
@@ -55,9 +50,7 @@ class Block {
         this.block = parseHTML(`
             <div>
                 <div class='next'></div>
-                <textarea spellcheck=false 
-                          onfocus="focus(this.parentElement)" 
-                          onblur="focus()">
+                <textarea spellcheck=false>
                 </textarea>
             </div>
         `)
@@ -65,6 +58,10 @@ class Block {
         this.block.insertBefore(new BlockHeader(options).header, this.block.firstChild)
         this.textarea = this.block.querySelector('textarea')
         this.textarea.value = options.text || ''
+        this.textarea.onfocus = () => focus(this.block)
+        this.textarea.onblur = () => focus()
+        this.block.onfocus = () => focus(this.block)
+        this.block.onblur = () => focus()
         /* Default Style, properties provided here are overrided by a style object on options */
         this.style = Object.assign({
             left: '0px', 
@@ -168,8 +165,8 @@ function edit(filename){
     .then(plainText => {
         document.body.appendChild(new Block({
             style: {
-                left: screen.availWidth / 4 + ( Math.random() * ( screen.availWidth / 3 ) ),
-                top:  Math.random() * ( screen.availHeight  /  4 ),
+                left: screen.availWidth / 3 + Math.random() * screen.availWidth / 4,
+                top:  screen.availHeight  /  4 + Math.random() * screen.availHeight  /  4,
                 position: 'fixed'
             },
             // draggable: true,
