@@ -19,7 +19,7 @@ var keymaker = require('./keymaker')
 
 var portCollection = {}
 var proxyRequest   = http.request
-var port 	       = process.env.PORT_PORT || 3000
+var port 	       = process.env.PORT || 3000
 
 /********* stream responses to shell created for your user id ****************/
 
