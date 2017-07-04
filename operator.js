@@ -51,47 +51,47 @@ repl.start({eval: (cmd, context, filename, callback) => {
 
 function createPort4u(request, response){
     var userid = request.userid
-	var shell = spawn('node',['switchboard.js'], request.environment)
+    var shell = spawn('node',['switchboard.js'], request.environment)
 
-	shell.stdout.on('data', port => {
+    shell.stdout.on('data', port => {
         var port = port.toString()
-		portCollection[userid] = {shell, port, userid}
-		proxy(request, response, port)
-	})
+        portCollection[userid] = {shell, port, userid}
+        proxy(request, response, port)
+    })
 
-	shell.stderr.on('data', error => {
-		response.writeHead(500)
-		response.end(util.inspect(error))
-		bookkeeper.logError(userid, error)
-	})
+    shell.stderr.on('data', error => {
+        response.writeHead(500)
+        response.end(util.inspect(error))
+        bookkeeper.logError(userid, error)
+    })
 
-	shell.on('error', error => {
-		response.writeHead(500)
-		response.end(util.inspect(error))
-		bookkeeper.logError(userid, error)
-	})
+    shell.on('error', error => {
+        response.writeHead(500)
+        response.end(util.inspect(error))
+        bookkeeper.logError(userid, error)
+    })
 }
 
 function proxy(request, response, port){
-	var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
+    var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
 
     portCollection[request.userid].lastRequest = Date.now()
 
-	request.pipe(watchRequest).pipe(proxyRequest({
-		hostname: 'localhost',
-		port: port,
-		path: request.url, 
-		headers: request.headers, 
-		method: request.method,
-		agent: false
-	}, proxyResponse => {
-		response.writeHeader(proxyResponse.statusCode, proxyResponse.headers)
-		proxyResponse.pipe(watchResponse).pipe(response)
-	}))
+    request.pipe(watchRequest).pipe(proxyRequest({
+        hostname: 'localhost',
+        port: port,
+        path: request.url, 
+        headers: request.headers, 
+        method: request.method,
+        agent: false
+    }, proxyResponse => {
+        response.writeHeader(proxyResponse.statusCode, proxyResponse.headers)
+        proxyResponse.pipe(watchResponse).pipe(response)
+    }))
 }
 
 function port4u(userid){
-	return portCollection[userid] && portCollection[userid].port
+    return portCollection[userid] && portCollection[userid].port
 }
 
 /***************************************************/
@@ -104,21 +104,21 @@ function blob2successOnly(result){
 }
 
 function blob2allInfo(result){
-	return Object.keys(result)
-				 .map(key => key + ': ' + util.inspect(result[key]))
-				 .join(os.EOL) + os.EOL
+    return Object.keys(result)
+                 .map(key => key + ': ' + util.inspect(result[key]))
+                 .join(os.EOL) + os.EOL
 }
 
 function parseBuffer(resultBlob){
-	result = {}
-	resultBlob.toString().split(/\n(?={)/g).map(jsonchunk => {
-		objectchunk = JSON.parse(jsonchunk)
-		Object.keys(objectchunk).forEach(prop => {
+    result = {}
+    resultBlob.toString().split(/\n(?={)/g).map(jsonchunk => {
+        objectchunk = JSON.parse(jsonchunk)
+        Object.keys(objectchunk).forEach(prop => {
 			result[prop] ? result[prop] += objectchunk[prop]
-						 : result[prop] = objectchunk[prop]
+                         : result[prop] = objectchunk[prop]
 		})
-	})
-	return result
+    })
+    return result
 }
 
 function getLocalIP(){
