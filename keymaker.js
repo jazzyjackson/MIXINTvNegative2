@@ -11,9 +11,8 @@ function identify(request, response){
         response.setHeader('set-cookie','key=' + findKey(request.url) )//+ '; Path=%x2F; HttpOnly')
         return request.userid = userFromQuery
     }
+    return request.userid = 'nobody'
 }
-
-
 
 function allow(username){
     var yourKey = Math.random().toString(16).slice(2)
@@ -36,17 +35,25 @@ function testKey(key){
 }
 
 function unlockEnvironmentFor(request){
+    // maybe have the option for priveledged users to request a certain working directory, to switch what application you're in
+    // from within the application
+    var sphinx = {
+        cwd: './branches/sphinx/', 
+        env: { bot: 'harry', user: request.userid, convoMode: 'botFirst' }
+    }
     var rootEnvironment = {
         cwd: './branches/root/', 
-        env: { bot: 'shelly', convoMode: 'bashFirst'}
+        env: { bot: 'harry', cuser: request.userid, onvoMode: 'bashFirst' }
     }
 
     var defaultEnvironment = {
         cwd: './branches/root/', 
-        env: { bot: 'shelly', convoMode: 'botFirst'}
+        env: { bot: 'harry', user: request.userid, convoMode: 'botFirst' }
     }
 
+
     switch(request.userid){
+        case 'nobody': request.environment = sphinx; break;
         case 'root': request.environment = rootEnvironment; break;
         default: request.environment = defaultEnvironment;
     }

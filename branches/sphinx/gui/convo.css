@@ -1,0 +1,38 @@
+.convoBlock {
+  padding-top: 30px;
+  font-family: monospace;  
+}
+
+.convoBlock > header {
+    position: fixed;
+    padding: 4px;
+    color: white;
+    background: black;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.convoBlock > header button {
+  width: 18px;
+  height: 18px;
+  background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
+
+}
+
+.convoBlock > form {
+  padding: 5px;
+}
+.convoBlock input {
+  /* in the future, there will be a prompt width attribute to get this from, calculated from a hidden div containing the prompt to compute its width */
+  width: 80%;
+  background-color: inherit;
+}
+
+.convoBlock .messageBlock {
+    margin: 0 5px;
+}
+.convoBlock .messageBlock textarea {
+  resize: none;
+}
