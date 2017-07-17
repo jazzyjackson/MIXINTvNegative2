@@ -1,6 +1,6 @@
 .convoBlock {
   padding-top: 30px;
-  font-family: monospace;  
+  /*font-family: monospace !important;*/
 }
 
 .convoBlock > header {
@@ -14,16 +14,17 @@
     display: flex;
     justify-content: space-between;
 }
+
 .convoBlock > header button {
   width: 18px;
   height: 18px;
   background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
-
 }
 
 .convoBlock > form {
   padding: 5px;
 }
+
 .convoBlock input {
   /* in the future, there will be a prompt width attribute to get this from, calculated from a hidden div containing the prompt to compute its width */
   width: 80%;
@@ -35,4 +36,27 @@
 }
 .convoBlock .messageBlock textarea {
   resize: none;
+  font-family: unset;
+}
+.messageBlock header {
+  float: left;
+  margin-left: 5px;
+}
+.messageBlock button {
+  display: none;
+}
+
+
+.messageBlock::before {
+  content: attr(path) ' ' attr(prompt);
+  float: left;
+}
+
+input {
+  outline: transparent;
+  border: none;
+}
+
+form::before {
+  content: attr(path) ' ' attr(prompt);
 }

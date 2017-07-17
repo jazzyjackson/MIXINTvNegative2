@@ -43,7 +43,7 @@ function unlockEnvironmentFor(request){
     }
     var rootEnvironment = {
         cwd: './branches/root/', 
-        env: { bot: 'harry', cuser: request.userid, onvoMode: 'bashFirst' }
+        env: { bot: 'harry', cuser: request.userid, onvoMode: 'botFirst' }
     }
 
     var defaultEnvironment = {

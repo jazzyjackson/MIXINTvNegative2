@@ -13,19 +13,19 @@ const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024,
 
 const interpret = {
     bashFirst: input => tryBash(input)
-                        .then(successBash => close({successBash}))
-                        .catch(bashErr => {
+                        .then(goodBash => close({goodBash}))
+                        .catch(badBash => {
                             ChatScript.chat(input) //here is a good place to pipe error messages as OOB into chatscript for this user.  User is set via environment variable.
-                            .then(successfulChat => close(successfulChat))
-                            .catch(chatErr => close({bashErr, chatErr}))
+                            .then(goodChat => close(goodChat))
+                            .catch(badChat => close({badBash, badChat}))
                         }),
 
     botFirst: input => ChatScript.chat(input)
-                       .then(successChat => {
-                           successChat.bash && tryBash(successChat.bash) // here is a good place to ChatScript.createfact associations of bash failing & completing, simple pid exit OK, pid exit Error
-                           close(successChat)
+                       .then(goodChat => {
+                           goodChat.bash && tryBash(goodChat.bash) // here is a good place to ChatScript.createfact associations of bash failing & completing, simple pid exit OK, pid exit Error
+                           close(goodChat)
                         })
-                       .catch(console.error.bind(console))
+                       .catch(chatErr => close({chatErr}))
 }
 
 var mode = process.env.CONVOMODE || 'bashFirst'

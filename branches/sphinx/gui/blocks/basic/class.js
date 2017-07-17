@@ -36,9 +36,9 @@ class BlockHeader {
         this.header = parseHTML(`
             <header>
                 ${options.title}
-                <button></button>
+                <div class="button"></div>
             </header>`)
-        this.header.querySelector('button').addEventListener('click', event => {
+        this.header.querySelector('.button').addEventListener('click', event => {
             document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
         })
         this.header.addEventListener('mousedown', handleDrag)
