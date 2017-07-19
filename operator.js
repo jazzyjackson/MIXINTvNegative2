@@ -4,9 +4,9 @@ var keymaker = require('./keymaker')
 var switchboard = require('./root/switchboard')
 
 http.createServer(async (request, response) => {
-	await keymaker.identify(request, response)
-	keymaker.setEnvironment(request)
-	if( request.userid == undefined ){
+    await keymaker.identify(request, response)
+    keymaker.setEnvironment(request)
+    if( request.userid == undefined ){
         response.writeHead(302, { 'Location': keymaker.redirurl })
         response.end()
     } else if(request.url.includes('key')){
