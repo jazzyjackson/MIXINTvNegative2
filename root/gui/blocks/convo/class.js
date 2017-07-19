@@ -111,7 +111,10 @@ class MessageBlock extends Block {
                 height: "1.1em"
             },
         },options))
-        this.textarea.setAttribute('disabled',true)
+        var newtextareaDiv = document.createElement('div')
+        newtextareaDiv.className = 'textarea'
+        this.block.replaceChild(newtextareaDiv, this.textarea)
+        this.textarea = newtextareaDiv
     }
 
     set output(data){
@@ -123,7 +126,9 @@ class MessageBlock extends Block {
             this.block.setAttribute(key, newData)
         })
         var anyGood = result => result.bashdata || result.goodchat || result.goodeval || (result.goodbash && 'ok') || result.badbash || ''
-        this.textarea.value = anyGood(this.attributes)
+        this.textarea.innerHTML = anyGood(this.attributes)
+
+
 
         setTimeout(()=>{
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
