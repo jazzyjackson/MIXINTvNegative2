@@ -74,7 +74,7 @@ function logError(userid, error){
         ztime: new Date(),
         userid: userid,
         version: execSync('git rev-parse HEAD').toString().slice(0,6),
-        error: util.inspect(error || "undefined error")
+        error: error.toString()
     }) + os.EOL)
 }
 

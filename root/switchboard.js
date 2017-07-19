@@ -1,10 +1,11 @@
 var fs = require('fs')
 var http = require('http')
+var path = require('path')
 var spawn = require('child_process').spawn
 var figjam = require('./figjam.js')
 var interpret = require('./interpret.js')
 
-var server = http.createServer((request,response) => ({
+var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
                    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                    .pipe(response),
@@ -15,13 +16,25 @@ var server = http.createServer((request,response) => ({
                         .on('finish', () => { response.writeHead(201); response.end() })
                         .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) }),
     'DELETE': () => fs.unlink('.' + request.url, err => { response.writeHead( err ? 500 : 204); response.end(JSON.stringify(err))})
-})[request.method]()).listen().on('listening', () => console.log(server.address().port))
+})[request.method]()
 
-/* timeshare branch only. stateless shouldn't keep per user config files laying around */
 function streamFileOrFigtree(pathname){
-    return pathname ? fs.createReadStream(pathname)
-                    : figjam('figtree.json')
+    // figure out if you're running within root already
+    var prefix = process.cwd().includes('root') ? '' : 'root/'
+    return pathname ? fs.createReadStream(prefix + pathname)
+                    : figjam(prefix + 'figtree.json')
 }
-/* code for stateless: 
-    fs.createReadStream(pathname || 'gui/index.html')
-*/
+
+/* This works whether you call it as a standalone process, or import the function as a module */
+/* node interpret hello */
+var switchboardCalledDirectly = process.argv[1].split(path.sep).slice(-1)[0].includes('switchboard')
+
+if(switchboardCalledDirectly){
+    var server = http.createServer()
+    server.listen()
+    server.on('listening', () => console.log(server.address().port))
+    server.on('request', handleRequest)
+}
+
+/* require('./interpret')('hello') */
+module.exports = handleRequest

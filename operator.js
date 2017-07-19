@@ -37,7 +37,7 @@ repl.start({eval: (cmd, context, filename, callback) => {
     try {
         callback(util.inspect(eval(cmd))) //this eval is in the server's scope so we can check server variables form terminal
     } catch(e) {
-        interpreter = spawn('node', ['interpret',cmd], { cwd: __dirname + '/branches/root/' })
+        interpreter = spawn('node', ['interpret',cmd], { cwd: __dirname + '/root/' })
         var buffers = []
         interpreter.stdout.on('data', data => buffers.push(data))
         interpreter.stderr.on('data', data => buffers.push(data))
