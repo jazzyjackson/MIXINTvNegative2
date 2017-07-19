@@ -39,7 +39,7 @@ function observe(request, response){
         }
     })
     
-    watchResponse.on('end', () => {
+    response.on('finish', () => {
         logInfo.ms = new Date() - logInfo.ztime //roundtrip time
         logInfo.status = response.statusCode
         var cpuTotal = process.cpuUsage()
