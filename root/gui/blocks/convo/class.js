@@ -27,33 +27,26 @@ class ConvoBlock extends Block {
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
     }
 
-    handleSubmit(event){
-        event && event.preventDefault()            // suppress default action of reloading the page if handleSubmit was called by event listener
-        var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for a gambit'
-        this.input.value = ''                      // reset input to blank
-        var message = {
-            path:  location.pathname, 
-            prompt: this.form.getAttribute('prompt'), 
-            input: inputValue
-        }
-        // if window['convomode'] fetch(PUT append JSONstringify Object.assign({},message,username,time))
-        var messageBlock = new MessageBlock(message)
-        var evalAttempt = this.evalledInWindow(inputValue)  // try to eval submit in window first
-        messageBlock.output = evalAttempt                    // add the result of evalling to the DOM whether it succeeded or not
-        if(evalAttempt.badEval){                          // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
-            fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
-            .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
-            .then(reader => messageBlock._consumeStream(reader, messageBlock))
-            // .then(()=> this.form.scrollIntoView())
-        }
+    handleSubmit(event, options = {}){
+        event && event.preventDefault()             // suppress default action of reloading the page if handleSubmit was called by event listener
+        var inputValue = this.input.value || '...'  // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for a gambit'
+        this.input.value = '' // reset input to blank (if there's not a keepInput prop on options)
+
+        var messageBlock = new MessageBlock({input: inputValue})
+        options.headless && messageBlock.block.setAttribute('headless', true)
+
+        fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
+        .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
+        .then(reader => messageBlock._consumeStream(reader, messageBlock))
+
         this.block.querySelector('.next').appendChild(messageBlock.block)
-        this.form.setAttribute('path', location.pathname)
-        this.form.scrollIntoView() // maybe the messages can grab their parent conversation to set scrollIntoView
     }
 
     autoSubmit(string2submit){
+        var oldstring = this.input.value
         this.input.value = string2submit
-        this.handleSubmit()
+        this.handleSubmit(null, { headless: true })
+        this.input.value = oldstring
     }
 
     evalledInWindow(stringToEval){
@@ -108,10 +101,13 @@ class MessageBlock extends Block {
             type: "MessageBlock",
             style: {
                 width: "100%",
-                height: "1.1em"
+                // height: "1.1em"
             },
         },options))
-        this.textarea.setAttribute('disabled',true)
+        var newtextareaDiv = document.createElement('div')
+        newtextareaDiv.className = 'textarea'
+        this.block.replaceChild(newtextareaDiv, this.textarea)
+        this.textarea = newtextareaDiv
     }
 
     set output(data){
@@ -123,12 +119,11 @@ class MessageBlock extends Block {
             this.block.setAttribute(key, newData)
         })
         var anyGood = result => result.bashdata || result.goodchat || result.goodeval || (result.goodbash && 'ok') || result.badbash || ''
-        this.textarea.value = anyGood(this.attributes)
+        this.textarea.innerHTML = anyGood(this.attributes)
 
         setTimeout(()=>{
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
-            this.textarea.style.height = this.textarea.scrollHeight + 1
-            document.querySelector('input').scrollIntoView()
+            document.querySelector('.messageBlock:last-child .textarea').scrollIntoView()
         })
     }
 
@@ -156,4 +151,5 @@ class MessageBlock extends Block {
 
 window.onload = () => {
     document.body.appendChild(new ConvoBlock().block)
+    autoSubmit(':reset')
 }

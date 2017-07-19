@@ -41,7 +41,7 @@ class BlockHeader {
         this.header.querySelector('.button').addEventListener('click', event => {
             document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
         })
-        this.header.addEventListener('mousedown', handleDrag)
+        window.handleDrag && this.header.addEventListener('mousedown', handleDrag)
     }
 }
 
