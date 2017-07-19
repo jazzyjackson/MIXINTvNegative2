@@ -38,22 +38,22 @@ function unlockEnvironmentFor(request){
     // maybe have the option for priveledged users to request a certain working directory, to switch what application you're in
     // from within the application
     var sphinx = {
-        cwd: './branches/sphinx/', 
-        env: { bot: 'harry', user: request.userid, convoMode: 'botFirst' }
+        cwd: './sphinx/', 
+        env: { bot: 'harry', user: request.userid, convomode: 'botFirst' }
     }
     var rootEnvironment = {
-        cwd: './branches/root/', 
-        env: { bot: 'harry', cuser: request.userid, onvoMode: 'botFirst' }
+        cwd: './root/', 
+        env: { bot: 'harry', cuser: request.userid, convomode: 'bashFirst' }
     }
 
     var defaultEnvironment = {
-        cwd: './branches/root/', 
-        env: { bot: 'harry', user: request.userid, convoMode: 'botFirst' }
+        cwd: './root/', 
+        env: { bot: 'harry', user: request.userid, convomode: 'botFirst' }
     }
 
 
     switch(request.userid){
-        case 'nobody': request.environment = sphinx; break;
+        // case 'nobody': request.environment = sphinx; break;
         case 'root': request.environment = rootEnvironment; break;
         default: request.environment = defaultEnvironment;
     }

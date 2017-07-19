@@ -34,7 +34,7 @@ Each user gets a separate log file, including the system itself. System errors a
 
 By designing a server meant to serve only a few hundred people, I get to cut a big corner in authorization - I don't have to store user sessions in a database. Keymaker simply maps random numbers to user ids. Keymaker also provides the function allowing you to decide what environment variables are set in that users sessions - you can decide what usernames have what unix uids, whether they talk to the bot or can execute arbitrary bash commands, and which directory they're contained in (e.g. what application they are served.)
 
-# Logs, Branches, and Spiders
+# Root, Logs, and Spiders
 You can think of logs as slices of a branch, an artifact that lets analyze the rings to determine what happened over time. Thankfully for our computer program, we don't have to destroy the tree to read its logs.
 
 If you're familiar with git branches, you'll have to zoom out a bit - a repository may have many branches, but it will at least have a master branch, which implies that there is a larger tree to attach to. The host machine's filesystem is that tree that contains many repos and their master branches.
@@ -42,10 +42,17 @@ If you're familiar with git branches, you'll have to zoom out a bit - a reposito
 Spiders are programs that crawl filesystems and computer networks and carry out some task for you. Basic spiders might include, download any new messages from a POP server, fetch the weather.
 They can be accessed via POST requests from client side applications or by a ChatScript server, allowing your chatbot to digest data from the wider internet.
 
-# Convologs, Figtrees, Interpret, Switchboard, and GUI
+# Root: Interpret, Switchboard, and GUI
 Convologs are JSON files with a single message per line, one file for each user.
 This allows the recording and interweaving of messages from many users, so anyone within a particular directory has the option to leave public messages. Chatroom functionality can be had if you connect to a "log watch" program to stream new file changes to you.
 Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
+# Root: Convologs, Figtrees, and FigJam
+
+# Server Options: Timeshare | Stateless
+
+Timeshare is designed for a single persistent unix machine with many users. It 'logs on' visitors to your server with a node server just for them. All requests will be executed within this environment, which can have permissions and environment variables of its own.
+
+Stateless has a lot of functionality thrown out the window - its purpose is to authenticate and serve. It's appropriate if you don't want the added complexity of a multi-user machine and/or your app lives in cloud containers and you need it to not care who's who.
 
 # Interpret Modes: Bash-first | Bot-first
 
@@ -53,18 +60,16 @@ The heart of multi-interpreter are promise-chains that try a series of functions
 
 New users are signed in as a nobody by default, so they don't have rights to delete files or reboot the system and otherwise f*** ur s*** up.
 
-However, if you want certain users (say, everyone except you) to talk only to the bot, it is simple a matter of specifying a different interpreter mode.
+However, if you want certain users (say, everyone except you) to talk only to the bot, it is simply a matter of specifying a different interpreter mode.
 Bot-first prohibits the execution of arbitrary bash commands. Instead, the chatbot decides how to respond to a request, which MAY INCLUDE a bash command. That is, you can write chatscript that triggers bash commands on an untrusted users' behalf. So system administrators could set up bash scripts that are run when requested by a particular user (by the way chatbot also knows your username and can withhold or provide information based on username, it's all up to how you write the chatscript)
 
 # Magic Links and Session Cookies
 
- Multi-interpreter uses magic links and session cookies to provide security to your application. As opposed to serving the full application to every web request, any incoming request that does not include a valid cookie is redirected to 'shinx.html' - where the chatbot determines your identity and retrieves a one-time-use, time-limited magic link in the form of a large random number attached as query.
- When operator.js is hit with that magic link, it looks up the user that was associated with that link and then deletes the property. 
+ Multi-interpreter uses magic links and session cookies to provide security to your application. As opposed to serving the full application to every web request, any incoming request that does not include a valid cookie can be redirected to a page prompting the user to acquire a magic link - a random token that the server creates and identifies you as a unique user.
 
- Essentially, 
+# Timeshare or Stateless
 
- Keep it secure by keeping it simple
- 
+
 
 # From Sphinx to Root, duplicating and modifying applications
 

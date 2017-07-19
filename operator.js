@@ -6,8 +6,6 @@ var http   = require('http')
 var os     = require('os')
 var path   = require('path')
 var repl   = require('repl')
-var stream = require('stream')
-var url    = require('url')
 var util   = require('util')
 
 /************** locally defined modules *******************/

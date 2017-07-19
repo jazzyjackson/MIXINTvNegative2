@@ -8,8 +8,9 @@ class ConvoBlock extends Block {
             type: "ConvoBlock"
         },options))
 
+        var prompt = '>'
         this.block.replaceChild(parseHTML(`
-            <form prompt="${location.pathname + ' → '}">
+            <form prompt="${prompt}" path="${location.pathname}">
                 <input placeholder="what do you say" autofocus="true"></input>
             </form>
         `),this.textarea)
@@ -20,7 +21,9 @@ class ConvoBlock extends Block {
         window.autoSubmit = this.autoSubmit.bind(this)
 
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
-        document.body.addEventListener('click', event => event.target === document.body && this.input.focus())
+        document.documentElement.addEventListener('click', event => event.target === document.body 
+                                                                 || event.target === document.documentElement 
+                                                                 && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
     }
 
@@ -28,18 +31,23 @@ class ConvoBlock extends Block {
         event && event.preventDefault()            // suppress default action of reloading the page if handleSubmit was called by event listener
         var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for a gambit'
         this.input.value = ''                      // reset input to blank
-
-        var messageBlock = new MessageBlock({input:  location.pathname + ` → ` + inputValue})
+        var message = {
+            path:  location.pathname, 
+            prompt: this.form.getAttribute('prompt'), 
+            input: inputValue
+        }
+        // if window['convomode'] fetch(PUT append JSONstringify Object.assign({},message,username,time))
+        var messageBlock = new MessageBlock(message)
         var evalAttempt = this.evalledInWindow(inputValue)  // try to eval submit in window first
         messageBlock.output = evalAttempt                    // add the result of evalling to the DOM whether it succeeded or not
-        if(evalAttempt.localError){                          // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
+        if(evalAttempt.badEval){                          // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
             fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
             .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
             .then(reader => messageBlock._consumeStream(reader, messageBlock))
             // .then(()=> this.form.scrollIntoView())
         }
         this.block.querySelector('.next').appendChild(messageBlock.block)
-        this.form.setAttribute('prompt', location.pathname + ` → `)
+        this.form.setAttribute('path', location.pathname)
         this.form.scrollIntoView() // maybe the messages can grab their parent conversation to set scrollIntoView
     }
 
@@ -52,41 +60,41 @@ class ConvoBlock extends Block {
         if(stringToEval.indexOf('cd') == 0){
             var newDir = stringToEval.slice(3).trim()
 
-            if(newDir == '.') return {successEval: 'OK'}
+            if(newDir == '.') return {goodEval: 'OK'}
             if(newDir == '..'){
                 var newPath = location.pathname.split('/')
                 newPath.pop()
                 newPath.pop()
                 newPath = newPath.join('/') + '/' 
                 location.pathname = newPath
-                return {successEval: 'OK'}
+                return {goodEval: 'OK'}
                 //new url is the rest of the string after you slice off the first slash and slice after the second slash
             }
             if(newDir == '~'){
                 location.pathname = '' 
-                return {successEval: 'OK'}
+                return {goodEval: 'OK'}
             }
             if(/[^\\/]/.test(newDir)){
                 //if the last character is a black slash or forwardslash, and the first character is not,
                 //append the new path to the pathname
                 location.pathname += /\\\/\$/.test(newDir) ? newDir : newDir + '/'
-                return {successEval: 'OK'}
+                return {goodEval: 'OK'}
             } else if (/^[\\/]/.test(newDir)){
                 //if the first character is a slash
                 location.pathname = /\\\/\$/.test(newDir) ? newDir : newDir + '/'
-                return {successEval: 'OK'}
+                return {goodEval: 'OK'}
             }
         }
         if(stringToEval.trim() == 'clear'){
             setTimeout(()=>Array.from(document.querySelectorAll('.messageBlock'), node => node.remove()),0)
-            return {successEval: 'OK'} // remove all the message blocks AFTER returning 'OK'
+            return {goodEval: 'OK'} // remove all the message blocks AFTER returning 'OK'
         }
         // if it wasn't cd or clear, then eval it as a string
         try {
             var success = eval(stringToEval)
-            return {successEval: success || String(success)} //coerce falsey values to string
+            return {goodEval: success || String(success)} //coerce falsey values to string
         } catch(localError) {
-            return {localError: localError.toString()} //errors are objects but can't be parsed by JSON stringify
+            return {badEval: localError.toString()} //errors are objects but can't be parsed by JSON stringify
         }
     }
     // delete this.textArea
@@ -114,8 +122,8 @@ class MessageBlock extends Block {
             var newData =  oldData ? oldData + data[key] : data[key]
             this.block.setAttribute(key, newData)
         })
-        var mostSuccessful = result => result.bashdata || result.successfulchat || result.successeval || (result.successbash && 'ok') || result.basherr || ''
-        this.textarea.value = mostSuccessful(this.attributes)
+        var anyGood = result => result.bashdata || result.goodchat || result.goodeval || (result.goodbash && 'ok') || result.badbash || ''
+        this.textarea.value = anyGood(this.attributes)
 
         setTimeout(()=>{
         /* basically 'set immediate' - calculate height after event loop becomes empty*/
@@ -146,5 +154,6 @@ class MessageBlock extends Block {
     }
 }
 
-makeConstructorGlobal(ConvoBlock)
-makeConstructorGlobal(MessageBlock)
+window.onload = () => {
+    document.body.appendChild(new ConvoBlock().block)
+}

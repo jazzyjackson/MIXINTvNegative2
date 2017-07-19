@@ -31,8 +31,8 @@ module.exports = class ConnectionHandler {
   chat(message, username, botname){ 
     //guest and harry are default values if chat is called with only a message
     let {port, host, defaultBot, defaultUser} = this.chatscript_config
-    username || (username = defaultUser) // set user if not passed to func
-    botname || (botname = defaultBot) //set bot if not passed to func
+    username = username || defaultUser // set user if not passed to func
+    botname = botname || defaultBot //set bot if not passed to func
     return new Promise((resolve, reject)=>{
         var client = net.createConnection(this.chatscript_config)
         client.on('connect', () => client.write([username,botname,message].join('\0') + '\0'))
