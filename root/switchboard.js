@@ -19,15 +19,17 @@ var handleRequest = (request,response) => ({
 })[request.method]()
 
 function streamFileOrFigtree(pathname){
-    return pathname ? fs.createReadStream(path.join('root',pathname))
-                    : figjam('root/figtree.json')
+    // figure out if you're running within root already
+    var prefix = process.cwd().includes('root') ? '' : 'root/'
+    return pathname ? fs.createReadStream(prefix + pathname)
+                    : figjam(prefix + 'figtree.json')
 }
 
 /* This works whether you call it as a standalone process, or import the function as a module */
 /* node interpret hello */
-var switchboardCalledDirectly = process.argv[1].split(path.sep).slice(-1)[0] == 'switchboard'
+var switchboardCalledDirectly = process.argv[1].split(path.sep).slice(-1)[0].includes('switchboard')
 
-if(switchboardCalledDirectly && process.argv[2]){
+if(switchboardCalledDirectly){
     var server = http.createServer()
     server.listen()
     server.on('listening', () => console.log(server.address().port))
