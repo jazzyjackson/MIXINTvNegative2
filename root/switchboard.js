@@ -8,13 +8,13 @@ var interpret = require('./interpret.js')
 var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
                 .on('open', () => { 
-                    // the setHeader functionality doesn't rely on the open event. on open is just a convenient event that fires once before the stream closes.
+                    // the setHeader functionality doesn't rely on the open event occuring. on open is just a convenient event that fires once before the stream closes.
                     request.url.split('?')[0].includes('.svg') && response.setHeader('Content-Type','image/svg+xml')
                     request.url.split('?')[0].includes('.css') && response.setHeader('Content-Type','text/css')
                 })
                 .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                 .pipe(response),
-    'POST': () => interpret(decodeURI(request.url.split('?')[1]))
+    'POST': () => interpret(decodeURI(request.url.split('?')[1]), request.user, request.bot)
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                  .pipe(response),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))

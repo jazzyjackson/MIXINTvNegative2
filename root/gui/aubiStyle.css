@@ -82,8 +82,8 @@ body {
 .messageBlock:first-child {
     margin-top: 100vh;
 }
-.messageBlock:last-child textarea {
-    margin-bottom: 100px;
+.messageBlock:last-child .textarea {
+    margin-bottom: 115px;
 }
 
 .messageBlock[headless="true"] header {

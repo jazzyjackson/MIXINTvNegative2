@@ -13,29 +13,31 @@ const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024,
                                               debug: false })
 
 class interpretation {
-    constructor(readable, string2interpret){
+    constructor(readable, string2interpret, username, botname){
         this.readable = readable
-        this.interpret(string2interpret)
+        this.interpret(string2interpret, username, botname)
     }
 
-    interpret(input){
-        switch(process.env.convomode.toLowerCase()){
+    interpret(input, username, botname){
+        // convomode could be switched to 'bashfirst' by setting an environment variable.
+        var convomode = process.env.convomode ? process.env.convomode.toLowerCase : 'botfirst'
+        switch(convomode){
             case 'bashfirst': 
                 this.tryBash(input).then(goodBash => this.end({goodBash}))
                     .catch(badBash => {
-                        ChatScript.chat(input).then(goodChat =>  {
+                        ChatScript.chat(input, username, botname).then(goodChat =>  {
                             goodChat.bash && this.tryBash(goodChat.bash)
                             this.end(goodChat)
                         })
                         .catch(badChat => this.end({badBash, badChat}));
                     }); break;
             case 'botfirst':
-                ChatScript.chat(input).then(goodChat => {
+                ChatScript.chat(input, username, botname).then(goodChat => {
                     goodChat.bash && this.tryBash(goodChat.bash)
                     this.end(goodChat)
                 })
                 .catch(chatErr => this.end({chatErr})); break;
-            default: this.end({debug: "no convomode specified via environment variable"})
+            default: this.end({debug: "convomode should be bashfirst or botfirst, found " + convomode})
         }
     }
 
@@ -80,8 +82,8 @@ if(interpretCalledDirectly && process.argv[2]){
 }
 
 /* require('./interpret')('hello') */
-module.exports = string2interpret => {
+module.exports = (string2interpret, username, botname) => {
     var readable = new PassThrough 
-    new interpretation(readable, string2interpret)
+    new interpretation(readable, string2interpret, username, botname)
     return readable
 }

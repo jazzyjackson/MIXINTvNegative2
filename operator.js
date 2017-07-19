@@ -9,8 +9,11 @@ http.createServer(async (request, response) => {
 	if( request.userid == undefined ){
         response.writeHead(302, { 'Location': keymaker.redirurl })
         response.end()
+    } else if(request.url.includes('ANsid')){
+        response.writeHead(302, { 'Location': '//' + request.headers.host })
+        response.end()
     } else {
-        bookkeeper.observe(request, response) /* stateless branch only */
-        switchboard(request, response) /* stateless branch only */
+        bookkeeper.observe(request, response)
+        switchboard(request, response)
     }
 }).listen(process.env.PORT || 3000)

@@ -32,7 +32,6 @@ var formatCookie = key => 'ANsid=' + key + ';Path=/;Domain=' + cookieDomain
 
 async function identify(request, response){
     /* first check if there is a key in the cookie or in the url. If not, exit.  */
-    // redirect withot query string
     var key = findKey(request.url) || findKey(request.headers.cookie)
     if(!key) return key
 
@@ -55,12 +54,11 @@ function setEnvironment(request){
     // bash scripts and sub processes will be spawned in this environment, so you can stick variables and credentials in here
     // but mostly it's a place to stick the username so Aubi knows who its talking to
     // different usernames could be directed to different bots here
+    /* stateless sets chat properties on request object, timeshare sets environment variables for subprocess */
     switch(request.userid){
-        default: Object.assign(process.env, {
-                bot: 'harry', 
-                user: request.userid,
-                convomode: 'botFirst',
-                PATH: process.env.PATH
+        default: Object.assign(request, {
+                bot: 'aubi',
+                user: request.userid
             })
     }
 }
