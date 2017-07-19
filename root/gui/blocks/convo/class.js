@@ -156,4 +156,5 @@ class MessageBlock extends Block {
 
 window.onload = () => {
     document.body.appendChild(new ConvoBlock().block)
+    autoSubmit(':reset')
 }

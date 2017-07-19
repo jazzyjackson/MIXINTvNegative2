@@ -1,6 +1,6 @@
 {
-    "styles":["blocks/basic/style.css","blocks/convo/style.css"],
-    "scripts":["utils.js","vanillaClickAndDrag.js","blocks/basic/class.js","blocks/convo/class.js"],
+    "styles":["blocks/basic/style.css","blocks/convo/style.css","annalectStyle.css","aubiStyle.css"],
+    "scripts":["utils.js","blocks/basic/class.js","blocks/convo/class.js"],
     "head": {
         "link": {
             "rel":"icon",
