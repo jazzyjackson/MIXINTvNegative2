@@ -1,6 +1,4 @@
-const repl = require('repl')
 const exec = require('child_process').exec
-const fs = require('fs')
 const path = require('path')
 const { PassThrough } = require('stream')
 /* ChatScriptConnection exports a constructor function for a class with a '.chat' method, 
@@ -13,42 +11,29 @@ const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024,
                                               debug: false })
 
 class interpretation {
-    constructor(readable, string2interpret){
+    constructor(readable, string2interpret, username, botname){
         this.readable = readable
-        this.interpret(string2interpret)
+        this.interpret(string2interpret, username, botname)
     }
 
-    interpret(input){
-        switch(process.env.convomode.toLowerCase()){
-            case 'bashfirst': 
-                this.tryBash(input).then(goodBash => this.end({goodBash}))
-                    .catch(badBash => {
-                        ChatScript.chat(input).then(goodChat =>  {
-                            goodChat.bash && this.tryBash(goodChat.bash)
-                            this.end(goodChat)
-                        })
-                        .catch(badChat => this.end({badBash, badChat}));
-                    }); break;
-            case 'botfirst':
-                ChatScript.chat(input).then(goodChat => {
-                    goodChat.bash && this.tryBash(goodChat.bash)
-                    this.end(goodChat)
-                })
-                .catch(chatErr => this.end({chatErr})); break;
-            default: this.end({debug: "no convomode specified via environment variable"})
-        }
+    interpret(input, username, botname){
+        ChatScript.chat(input, username, botname)
+        .then(goodchat => this.send(goodchat) && this.tryBash(goodchat.bash)) // .bash might not exist, that's fine, tryBash will simply resolve
+        .then(goodbash => this.end(goodbash ? {goodbash} : null)) // I have to keep an eye out for some case where close() would be called twice. like a .then fires, and later, a .catch tries to close. Will throw a 'cant set headers after they're sent' error
+        .catch(rejection => this.end(rejection))
     }
 
     tryBash(input){
         return new Promise((resolve, reject) => {
-            if(input.indexOf('what') == 0) return reject('what with no arguments hangs the shell on some systems. maybe just Mac')
-            if(!input.trim()) return reject(`Blank line doesn't mean anything so I'll chat instead.`)
-            if(input[0] == ':') return reject(': is no-op in bash! input will be ignored, no error thrown')
+            if(!input) return resolve()
+            if(input.indexOf('what') == 0) return reject({bashReject: 'unixy systems have a what program that hangs the shell without an argument'})
+            if(!input.trim()) return reject({bashReject: `Blank line doesn't mean anything`})
+            if(input[0] == ':') return reject({bashReject: ': is no-op in bash! input will be ignored, no error thrown'})
             var processpipe = exec(input)
-                .on('error', err => reject(err.toString()))
-                .on('exit', (code, signal) => code === 0 ? resolve(code) : reject(code || signal))
-            processpipe.stdout.on('data', bashData => this.readable.push(JSON.stringify({bashData}) + '\n'))
-            processpipe.stderr.on('data', bashData => reject(bashData))
+                .on('error', err => reject({tryBashErr: err.toString()}))
+                .on('exit', (code, signal) => resolve(String(code || signal))) // 0 is falsey, but "0" is not, lets resolve to a string
+            processpipe.stdout.on('data', bashData => this.send({bashData}))
+            processpipe.stderr.on('data', bashErr => this.send({bashErr}))
         })
     }
 
@@ -63,12 +48,17 @@ class interpretation {
         })
     }
 
+    send(result){
+        this.readable.push(JSON.stringify(result) + '\n')
+        return result
+    }
+
     end(result){
-        this.readable.push(JSON.stringify(result))
+        /* closes the stream by pushing null byte, optionally sending one last object if passed an argument */
+        result && this.readable.push(JSON.stringify(result) + '\n')
         this.readable.push(null)
     }
 }
-
 /* This works whether you call it as a standalone process, or import the function as a module */
 /* node interpret hello */
 var interpretCalledDirectly = process.argv[1].split(path.sep).slice(-1)[0] == 'interpret'
@@ -80,8 +70,8 @@ if(interpretCalledDirectly && process.argv[2]){
 }
 
 /* require('./interpret')('hello') */
-module.exports = string2interpret => {
+module.exports = (string2interpret, username, botname) => {
     var readable = new PassThrough 
-    new interpretation(readable, string2interpret)
+    new interpretation(readable, string2interpret, username, botname)
     return readable
 }

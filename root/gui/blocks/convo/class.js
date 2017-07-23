@@ -1,159 +1,88 @@
-const textDecoder = new TextDecoder('utf8')
 
-class ConvoBlock extends Block {
-    constructor(options){
-        super(Object.assign({
-            class: "convoBlock",
-            title: location.hostname + location.pathname,
-            type: "ConvoBlock"
-        },options))
+class MessageBlock extends ResponseBlock {
+    /* options = {action, method, input, headless} */
+    constructor(options){ 
+        super(options)
+        this.head.textContent = options.input
+        this.setAttribute('headless', options.headless)
+    }
 
-        var prompt = '>'
-        this.block.replaceChild(parseHTML(`
-            <form prompt="${prompt}" path="${location.pathname}">
-                <input placeholder="what do you say" autofocus="true"></input>
-            </form>
-        `),this.textarea)
+    set output(data){
+        this.body.innerHTML = data.goodchat
+        Object.keys(data).forEach(key => {
+            if(key == 'eval') eval(data[key]) //if the bot tells us to eval, go and eval it.
+            // set attributes from incoming data from this fetch, if property values are repeated, append the new value to the old one
+            var oldData = this.getAttribute(key)
+            var newData =  oldData ? oldData + data[key] : data[key]
+            this.setAttribute(key, newData)
+        })
+    }
 
-        this.input = this.block.querySelector('input')
-        this.form = this.block.querySelector('form')
+    static get observedAttributes() {
+        /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
+        /* attributeChangedCallback can attach special behavior to the block when these properties are set */
+        return ['image','eval','goodchat']
+    }
+
+    appendImage(imageURL){
+        var image = document.createElement('img')
+        image.setAttribute('src', imageURL)
+        this.body.appendChild(image)
+    }
+
+    /* afterOutputUpdate can be overwritten by deriviative classes, still get called by prototypal output setter */
+    attributeChangedCallback(attr, oldValue, newValue){
+        switch(attr){
+            case 'image': 
+                this.appendImage('/gui/static/img/' + newValue)
+                break
+            case 'eval':
+                console.log(eval(newValue))
+                break
+            default:
+                console.log(arguments)
+        }
+        setTimeout(() => this.body.scrollIntoView()) // aka setImmediate, scroll when event loop empties
+    }
+}
+
+class ConvoBlock extends BasicBlock {
+    constructor(){
+        super({template: 'convo-template'})
+        this.head.textContent = location.host
+        this.input = this.body.querySelector('input')
+        this.form = this.body.querySelector('form')
         this.form.onsubmit = this.handleSubmit.bind(this)
         window.autoSubmit = this.autoSubmit.bind(this)
 
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
         document.documentElement.addEventListener('click', event => event.target === document.body 
-                                                                 || event.target === document.documentElement 
+                                                                 || event.target === document.documentElement
+                                                                 || event.target === this
                                                                  && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
+        this.autoSubmit(':reset')
     }
 
-    handleSubmit(event){
-        event && event.preventDefault()            // suppress default action of reloading the page if handleSubmit was called by event listener
-        var inputValue = this.input.value || '...' // push a symbol of silence, otherwise you'll get undefined from eval, this will reach chatbot for a gambit'
-        this.input.value = ''                      // reset input to blank
-        var message = {
-            path:  location.pathname, 
-            prompt: this.form.getAttribute('prompt'), 
-            input: inputValue
-        }
-        // if window['convomode'] fetch(PUT append JSONstringify Object.assign({},message,username,time))
-        var messageBlock = new MessageBlock(message)
-        var evalAttempt = this.evalledInWindow(inputValue)  // try to eval submit in window first
-        messageBlock.output = evalAttempt                    // add the result of evalling to the DOM whether it succeeded or not
-        if(evalAttempt.badEval){                          // and if that doesn't work, ask the server if it knows what to do with this string (inputValue)
-            fetch('./?' + encodeURI(inputValue), { method: 'POST', credentials: "same-origin" })
-            .then(response => response.body ? response.body.getReader() : response.text().then( text => messageBlock._consumeText(text)))
-            .then(reader => messageBlock._consumeStream(reader, messageBlock))
-            // .then(()=> this.form.scrollIntoView())
-        }
-        this.block.querySelector('.next').appendChild(messageBlock.block)
-        this.form.setAttribute('path', location.pathname)
-        this.form.scrollIntoView() // maybe the messages can grab their parent conversation to set scrollIntoView
+    handleSubmit(event, options = {headless: false}){
+        event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener
+        this.next.appendChild(new MessageBlock({
+            action: '/?' + encodeURI(this.input.value || '...'),
+            method: 'POST',
+            input: this.input.value || '...',
+            headless: options.headless
+        }))
+        this.input.value = '' // reset input to blank (if there's not a keepInput prop on options)
     }
 
-    autoSubmit(string2submit){
+    /* programmatically submit input for chatbot to response to. defaults to headless, ie, don't show the input */
+    autoSubmit(string2submit, options = {headless: true}){
+        var oldstring = this.input.value
         this.input.value = string2submit
-        this.handleSubmit()
-    }
-
-    evalledInWindow(stringToEval){
-        if(stringToEval.indexOf('cd') == 0){
-            var newDir = stringToEval.slice(3).trim()
-
-            if(newDir == '.') return {goodEval: 'OK'}
-            if(newDir == '..'){
-                var newPath = location.pathname.split('/')
-                newPath.pop()
-                newPath.pop()
-                newPath = newPath.join('/') + '/' 
-                location.pathname = newPath
-                return {goodEval: 'OK'}
-                //new url is the rest of the string after you slice off the first slash and slice after the second slash
-            }
-            if(newDir == '~'){
-                location.pathname = '' 
-                return {goodEval: 'OK'}
-            }
-            if(/[^\\/]/.test(newDir)){
-                //if the last character is a black slash or forwardslash, and the first character is not,
-                //append the new path to the pathname
-                location.pathname += /\\\/\$/.test(newDir) ? newDir : newDir + '/'
-                return {goodEval: 'OK'}
-            } else if (/^[\\/]/.test(newDir)){
-                //if the first character is a slash
-                location.pathname = /\\\/\$/.test(newDir) ? newDir : newDir + '/'
-                return {goodEval: 'OK'}
-            }
-        }
-        if(stringToEval.trim() == 'clear'){
-            setTimeout(()=>Array.from(document.querySelectorAll('.messageBlock'), node => node.remove()),0)
-            return {goodEval: 'OK'} // remove all the message blocks AFTER returning 'OK'
-        }
-        // if it wasn't cd or clear, then eval it as a string
-        try {
-            var success = eval(stringToEval)
-            return {goodEval: success || String(success)} //coerce falsey values to string
-        } catch(localError) {
-            return {badEval: localError.toString()} //errors are objects but can't be parsed by JSON stringify
-        }
-    }
-    // delete this.textArea
-}
-
-class MessageBlock extends Block {
-    constructor(options){
-        super(Object.assign({
-            class: "messageBlock",
-            title: options.input,
-            type: "MessageBlock",
-            style: {
-                width: "100%",
-                height: "1.1em"
-            },
-        },options))
-        this.textarea.setAttribute('disabled',true)
-    }
-
-    set output(data){
-        Object.keys(data).forEach(key => {
-            if(key == 'eval') eval(data[key]) //if the bot tells us to eval, go and eval it.
-            // set attributes from incoming data from this fetch, if property values are repeated, append the new value to the old one
-            var oldData = this.block.getAttribute(key)
-            var newData =  oldData ? oldData + data[key] : data[key]
-            this.block.setAttribute(key, newData)
-        })
-        var anyGood = result => result.bashdata || result.goodchat || result.goodeval || (result.goodbash && 'ok') || result.badbash || ''
-        this.textarea.value = anyGood(this.attributes)
-
-        setTimeout(()=>{
-        /* basically 'set immediate' - calculate height after event loop becomes empty*/
-            this.textarea.style.height = this.textarea.scrollHeight + 1
-            document.querySelector('input').scrollIntoView()
-        })
-    }
-
-    _consumeText(text){
-        text.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
-    }
-
-    _consumeStream(reader){
-        if(!reader) return null
-        this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
-        return reader.read().then(sample => {
-            if(sample.value){
-                this.streambuffer += textDecoder.decode(sample.value)
-                // if the last character of a chunk of data is a closing bracket, parse the JSON. Otherwise, keep consuming stream until it hits a closing bracket.
-                // this leaves the very unfortunate possible bug of a chunk of data coming in with an escaped bracket at the end, and to detect this condition we'd have to pay attention to opening and closing quotes, except for escaped qutoes
-                if(this.streambuffer.match(/}\s*$/)){
-                    this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
-                    delete this.streambuffer
-                }
-                return this._consumeStream(reader)
-            }
-        })
+        this.handleSubmit(null, options)
+        this.input.value = oldstring
     }
 }
 
-window.onload = () => {
-    document.body.appendChild(new ConvoBlock().block)
-}
+customElements.define('message-block', MessageBlock)
+customElements.define('convo-block', ConvoBlock)

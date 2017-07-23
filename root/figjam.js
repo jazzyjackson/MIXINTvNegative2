@@ -21,11 +21,18 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push('<html><head>')
     for(var thisStyle of figtree.styles) {
         jam.push(`<style filename="${thisStyle}">\n`)
-        var thisStyleFilePath = path.join(figDirectory,'gui',thisStyle)
+        var thisStyleFilePath = path.join(figDirectory,'gui', thisStyle)
         await promise2pipe(thisStyleFilePath, jam)
         jam.push(`</style>\n`)
     }
     /* followed by any other nodes in the head. Link, Title, Meta, etc. */
+    for(var each in figtree.blocks){
+        var blockName = figtree.blocks[each]        
+        var blockStyle = path.join(figDirectory, 'gui/blocks', blockName, 'style.css')
+        jam.push(`<style filename="${blockStyle}">\n`)
+        await promise2pipe(blockStyle, jam)
+        jam.push(`</style>\n`)
+    }
     for(var node in figtree.head){
         jam.push(`<${node} `)
         for(var attribute in figtree.head[node]){
@@ -34,15 +41,31 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         jam.push(`/>\n`)
     }
     /* finished with head. Render the graph of the body object */
-    jam.push('</head><body>')
+    jam.push('</head>\n<body>\n')
     for(var block in figtree.body){
-        jam.push(`<div class="${block}"`)
+        jam.push(`<${block}`)
         for(var attribute in figtree.body[block]){
             jam.push(` ${attribute}="${figtree.body[block][attribute]}"`)
         }
-        jam.push(`></div>\n`)
+        jam.push(`></${block}>\n`)
     }
     /* before ending the body tag, append a script tag for every javascript file */
+    for(var each in figtree.blocks){
+        var blockName = figtree.blocks[each]
+        var blockTemplate = path.join(figDirectory, 'gui/blocks/', blockName,'/template.html')
+        jam.push(`<template id="${blockName}-template" filename="${blockTemplate}">`)
+        await promise2pipe(blockTemplate, jam)
+        jam.push(`</template>`)
+    }
+    for(var each in figtree.blocks){
+        var blockName = figtree.blocks[each]        
+        var blockClass = path.join(figDirectory, 'gui/blocks/', blockName,'/class.js')
+        jam.push(`<script filename="${blockClass}">\n`)
+        /* if you needed to transpile, this is a good place
+        just launch a child process to run Babel on the script and push that */
+        await promise2pipe(blockClass, jam)
+        jam.push(`</script>\n`)
+    }
     for(var thisScript of figtree.scripts){
         jam.push(`<script filename="${thisScript}">\n`)
         var thisScriptFilePath = path.join(figDirectory,'gui',thisScript)
@@ -51,7 +74,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         await promise2pipe(thisScriptFilePath, jam)
         jam.push(`</script>\n`)
     }
-    jam.push('</body></html>')
+    jam.push('</body>\n</html>')
     jam.push(null)
 }
 

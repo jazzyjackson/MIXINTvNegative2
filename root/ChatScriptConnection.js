@@ -68,9 +68,9 @@ function digestOOB(chatresult){
   chatregex = /\[.*\](.*)/
   chatmatch = chatregex.exec(chatresult)
   if(chatmatch){
-    this.goodChat = chatmatch[1]
+    this.goodchat = chatmatch[1]
   } else {
-    this.goodChat = chatresult
+    this.goodchat = chatresult
   }
 }
 

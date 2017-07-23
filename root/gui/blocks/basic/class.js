@@ -1,183 +1,82 @@
-class BlockMenu {
-    constructor(nodeToMenufy){
-        this.menu = document.createElement('menu')
-        var container = nodeToMenufy.getClientRects()[0]
-        var containerStyle = getComputedStyle(nodeToMenufy)
-        var header = nodeToMenufy.querySelector("header").getClientRects()[0]
-        var left = container.left
-        var top = container.top + header.height
-        var width = container.width
-        var height = container.height - header.height
-        Object.assign(this.menu.style, { 
-            width, height, left, top, 
-            border: containerStyle.borderWidth + ' solid transparent',
-        })
+// class BlockHead extends HTMLElement {
+//     constructor(){
+//         super()
+//     }
+// }
 
-        Object.getOwnPropertyNames(nodeToMenufy).forEach(name => {
-            var menuItem = document.createElement('li')
-            var methodName = name
-            menuItem.textContent = name.replace(/_/g,' ')
-            menuItem.addEventListener('mousedown', () => nodeToMenufy[name]())
-            this.menu.appendChild(menuItem)
-        })
-
-        var dissolveMenu = () => {
-            this.menu.remove() // creating a function reference to add and remove lisener
-            document.body.removeEventListener('mouseup', dissolveMenu)
-            nodeToMenufy.removeEventListener('mousedown', dissolveMenu)
-        }
-        document.body.addEventListener('mouseup', dissolveMenu)
-        nodeToMenufy.addEventListener('mousedown', dissolveMenu)
+class BasicBlock extends HTMLElement {
+    constructor({template} = {}){
+        super()
+        /* I could have used a ShadowRoot, which web components can do lots of cool things with,
+         * but I want to seamlessly traverse the graph of nodes by stepping through next
+         * ShadowRoot lets you do this with mode: open, but I think it's an extra step. could be wrong */
+        console.log(template)
+        console.log(document.getElementById(template || 'basic-template'))
+        this.appendChild(document.getElementById(template || 'basic-template').content.cloneNode(true))
+        console.log(this)
+        this.head = this.querySelector('b-head')
+        this.next = this.querySelector('b-next')
+        this.body = this.querySelector('b-body')
+        console.log(this)
+        this.id = 'block' + String(Math.random()).slice(-5) //random id for convenience. yea yea possible collisions.
     }
+}   
+
+const textDecoder = new TextDecoder('utf8')
+
+class ResponseBlock extends BasicBlock {
+    constructor({action, method} = {}){
+        super()
+        if(!action || !method) throw new Error("I need an action and method to construct a response block")
+        /* if this element is programmatically created, set action and method, 
+         * if action and method were declared in markup, fine, get 'em */
+        action ? this.setAttribute('action', action)
+               : action = this.getAttribute('action')
+        method ? this.setAttribute('method', method)
+               : method = this.getAttribute('method')
+
+        /* to allow for progressive loading of partial response via Chrome body.getReader(),
+         * but if I'm inside a browser without the body property, 
+         * just wait til response is over and return the entire text response */
+        action && method && fetch(action, { method, credentials: "same-origin" })
+        .then(response => response.body ? response.body.getReader() 
+                                        : response.text().then(text => this.consumeText(text)))
+        .then(reader => this.consumeStream(reader))
+
+    }
+
+    set output(data){
+        // for the basic ResponseBlock, maybe you get a string back, maybe 
+        this.body.textContent += typeof data == 'object' ? JSON.stringify(data) : data
+    }
+
+    consumeText(text){
+        text.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
+    }
+
+    consumeStream(reader, contentType = 'application/json'){
+        if(!reader) return null  // consumeStream will exit if the text was consumed already
+        this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
+        /* recursively call consumeStream. reader.read() is a promise that resolves as soon as a chunk of data is available */
+        return reader.read().then(sample => {
+            if(sample.value){
+                this.streambuffer += textDecoder.decode(sample.value)
+                // if the last character of a chunk of data is a closing bracket, parse the JSON. Otherwise, keep consuming stream until it hits a closing bracket.
+                // this leaves the very unfortunate possible bug of a chunk of data coming in with an escaped bracket at the end, and to detect this condition we'd have to pay attention to opening and closing quotes, except for escaped qutoes
+                if(contentType = 'application/json' && this.streambuffer.match(/}\s*$/)){
+                    this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
+                    delete this.streambuffer
+                } else if(contentType = 'plain/text'){
+                    this.output = this.streambuffer
+                    delete this.streambuffer
+                }
+                return this.consumeStream(reader)
+            }
+        })
+    }
+
 }
 
-class BlockHeader {
-    constructor(options){
-        this.header = parseHTML(`
-            <header>
-                ${options.title}
-                <div class="button"></div>
-            </header>`)
-        this.header.querySelector('.button').addEventListener('click', event => {
-            document.body.appendChild(new BlockMenu(this.header.parentElement).menu)
-        })
-        this.header.addEventListener('mousedown', handleDrag)
-    }
-}
-
-class Block {
-    constructor(options = {}){
-        this.block = parseHTML(`
-            <div>
-                <div class='next'></div>
-                <textarea spellcheck=false>
-                </textarea>
-            </div>
-        `)
-
-        this.block.insertBefore(new BlockHeader(options).header, this.block.firstChild)
-        this.textarea = this.block.querySelector('textarea')
-        this.textarea.value = options.text || ''
-        this.textarea.onfocus = () => focus(this.block)
-        this.textarea.onblur = () => focus()
-        this.block.onfocus = () => focus(this.block)
-        this.block.onblur = () => focus()
-        /* Default Style, properties provided here are overrided by a style object on options */
-        this.style = Object.assign({
-            left: '0px', 
-            top: '0px', 
-            position: 'relative', 
-            width: '400px', 
-            height: '200px'
-        }, options.style)
-
-        delete options.style
-        delete options.text
-
-        this.attributes = Object.assign({
-            type: "Block", 
-            id: 't' + Date.now()
-        },options)
-
-        this.block.remove_from_window = this.remove_from_window
-        this.block.write_to_disk = this.write_to_disk
-        if(this.block.getAttribute('filename')) this.block.update_from_disk = this.update_from_disk
-        if(this.block.getAttribute('filename')) this.block.delete_from_disk = this.delete_from_disk
-    }
-
-    set style(newStyle){
-        var {width, height} = newStyle
-        delete newStyle.width
-        delete newStyle.height
-        Object.assign(this.block.style, newStyle) //new Position might have left, top, position, width, height properties
-        Object.assign(this.textarea.style, {width, height})
-    }
-
-    set attributes(updateObject){
-        for(var key in updateObject){
-            this.block.setAttribute(key, updateObject[key])
-        }
-    }
-
-    get attributes(){
-        var tempObj = {}
-        Array.from(this.block.attributes).forEach(attribute => {
-            tempObj[attribute.name] = attribute.value
-        })
-        return tempObj
-    }
-
-    remove_from_window(){
-        this.remove()
-    }
-
-    write_to_disk(){
-        // grab filename and PUT to it
-        var destination = this.getAttribute('filename')
-        if(!destination) destination = prompt("I need a filename. You can include a directory if the directory already exists.")
-        if(!destination) return null //user may have cancelled
-        this.setAttribute('filename',destination)
-        fetch(destination, {
-            method: 'PUT',
-            credentials: 'same-origin',
-            body: this.querySelector('textarea').value
-        })
-    }
-
-    update_from_disk(){
-        // grab filename and GET from it, replace textContent
-        var destination = this.getAttribute('filename')
-        if(!destination) return prompt("Updating from disk is not possible without a filename.")
-        this.setAttribute('filename',destination)
-        fetch(destination, {
-            credentials: 'same-origin',
-        })
-        .then(response => response.text())
-        .then(plainText => this.querySelector('textarea').value = plainText)
-        .catch(err => this.querySelector('textarea').value = plainText)
-    }
-
-    delete_from_disk(){
-        var destination = this.getAttribute('filename')
-        if(!destination) return prompt("Deleting from disk is not possible without a filename.")
-        this.setAttribute('filename',destination)
-        fetch(destination, {
-            method: 'DELETE',
-            credentials: 'same-origin'
-        })
-        this.remove_from_window()
-    }
-
-    become_codemirror(){
-        // grab own attributes, return an object to generate new block derivative
-        // replace self with new Child
-    }
-
-    share_link(){
-        // determine link to pull this node
-    }
-}
-
-
-function edit(filename){
-    fetch(filename, {credentials: 'same-origin'})
-    .then(res => res.text())
-    .then(plainText => {
-        document.body.appendChild(new Block({
-            style: {
-                left: screen.availWidth / 3 + Math.random() * screen.availWidth / 4,
-                top:  screen.availHeight  /  4 + Math.random() * screen.availHeight  /  4,
-                position: 'fixed'
-            },
-            // draggable: true,
-            filename: filename,
-            title: filename,
-            tabIndex: 1,
-            class: 'block',
-            text: plainText
-        }).block)
-    })
-    .catch(error => {
-        console.error(error)
-    })
-}
+customElements.define('basic-block', BasicBlock)
+customElements.define('response-block', ResponseBlock)
+// customElements.define('b-head', BlockHead)

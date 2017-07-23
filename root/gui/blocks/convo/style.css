@@ -1,9 +1,10 @@
-.convoBlock {
-  padding-top: 30px;
-  /*font-family: monospace !important;*/
+convo-block {
+    padding-top: 30px;
+    display: block;
+    /*font-family: monospace !important;*/
 }
 
-.convoBlock > header {
+convo-block > b-head {
     position: fixed;
     padding: 4px;
     color: white;
@@ -13,50 +14,58 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    font-family: monospace;
+    font-size: xx-small;
 }
 
-.convoBlock > header button {
-  width: 18px;
-  height: 18px;
-  background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
+convo-block > header button {
+    width: 18px;
+    height: 18px;
+    background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
 }
 
-.convoBlock > form {
-  padding: 5px;
+convo-block > form {
+    padding: 5px;
 }
 
-.convoBlock input {
-  /* in the future, there will be a prompt width attribute to get this from, calculated from a hidden div containing the prompt to compute its width */
-  width: 80%;
-  background-color: inherit;
-}
-
-.convoBlock .messageBlock {
+convo-block message-block {
     margin: 0 5px;
 }
-.convoBlock .messageBlock textarea {
-  resize: none;
-  font-family: unset;
+
+message-block > b-body {
+    display: block;
+    float: left;
+    clear: both;
+    margin: 5px;    
 }
-.messageBlock header {
-  float: left;
-  margin-left: 5px;
+
+message-block > b-head {
+    display: block;
+    float: right;
+    clear: both;
+    margin: 5px;
 }
-.messageBlock button {
-  display: none;
+
+message-block[headless="true"] b-head {
+    display: none;
 }
 
 
-.messageBlock::before {
-  content: attr(path) ' ' attr(prompt);
-  float: left;
+message-block img {
+    width: 100%;
 }
 
-input {
-  outline: transparent;
-  border: none;
+convo-block input {
+    outline: transparent;
+    border: none;
+}
+convo-block form  {
+    clear: both;
+    margin: 3px;
 }
 
-form::before {
-  content: attr(path) ' ' attr(prompt);
-}
+/*form::before {
+    content: attr(path) ' ' attr(prompt);
+}*/
+
+

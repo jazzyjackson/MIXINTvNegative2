@@ -56,7 +56,16 @@ function appendLog(username, logType, data){
     var now = new Date()
     var filename = logType + '-' + now.getFullYear() + '-' + (now.getMonth() + 1) +'-' + now.getDate() + '.log' // since left most expression returns string, all the numbers will get stringified instead of summed
     
-    if(logType == 'error') fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+    if(logType == 'error'){
+        try {
+            fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+        } catch(err) {
+            if(err && err.code == 'ENOENT'){
+                fs.mkdirSync(`./logs/${username}`)
+                fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+            }
+        }
+    }
     else fs.appendFile(`./logs/${username}/${filename}`, data + os.EOL, err => {
         if(err && err.code == 'ENOENT'){
             // block thread if the user directory didn't exist, this only needs to happen once. 
@@ -69,7 +78,7 @@ function appendLog(username, logType, data){
 
 function logError(userid, error){
     /*** you can choose to expose errors in the console or not */
-    console.log(error)
+    console.log(error.toString())
     appendLog(userid, 'error', JSON.stringify({
         ztime: new Date(),
         userid: userid,

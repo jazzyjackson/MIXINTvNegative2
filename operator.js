@@ -1,6 +1,7 @@
 /********* node built ins, nothing to install ***********/
 
 var spawn  = require('child_process').spawn
+var exec  = require('child_process').exec
 var fs     = require('fs')
 var http   = require('http')
 var os     = require('os')
@@ -21,17 +22,25 @@ var port 	       = process.env.PORT || 3000
 
 /********* stream responses to shell created for your user id ****************/
 
-http.createServer((request, response) => {
-	keymaker.identify(request, response) //synchronously attaches userid to request object, set cookie on response
-	keymaker.unlockEnvironmentFor(request)    //synchronously attaches working directectory and environment variables for this user
-	if( !request.userid ) { response.writeHead(401); return response.end("401 Not Authorized. You did not receive an identity from the keymaker") }
-	if( port4u(request.userid) ) return proxy(request, response, port4u(request.userid))
-	else return createPort4u(request, response)
+http.createServer(async (request, response) => {
+    await keymaker.identify(request, response)
+    keymaker.setEnvironment(request)
+    if( request.userid == undefined ){
+        response.writeHead(302, { 'Location': keymaker.redirurl })
+        response.end()
+    } else if(request.url.includes('key')){
+        response.writeHead(302, { 'Location': '//' + request.headers.host })
+        response.end()
+    } else {
+        proxy(request, response, port4u(request.userid)) || createPort4u(request, response)
+    }
 }).listen(port)
 
 /********** interpret requests on stdin for REPL interactiviy in host's shell **************/
 
-console.log(getLocalIP() + ':' + port + '/?key=' + keymaker.allow('root'))
+var rootLoginURL = 'http://' + getLocalIP() + ':' + port + '/?key=' + keymaker.allow('root')
+console.log(rootLoginURL)
+exec(os.platform() == 'win32' ? 'start ' + rootLoginURL : 'open ' + rootLoginURL)
 
 repl.start({eval: (cmd, context, filename, callback) => {
     try {
@@ -71,6 +80,7 @@ function createPort4u(request, response){
 }
 
 function proxy(request, response, port){
+    if(!port) return port /* if port is undefined, exit function with falsey value */
     var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
 
     portCollection[request.userid].lastRequest = Date.now()
@@ -86,9 +96,13 @@ function proxy(request, response, port){
         response.writeHeader(proxyResponse.statusCode, proxyResponse.headers)
         proxyResponse.pipe(watchResponse).pipe(response)
     }))
+
+    return port /* if proxy was successful, exit with truthy value. hopefully port is not 0 lol. */
+    /* oh wow I just learned that to request a system port you just ask the system to bind to port 0 */
 }
 
 function port4u(userid){
+    /* don't try to access port property if port[userid] is undefined, just return undefined */
     return portCollection[userid] && portCollection[userid].port
 }
 
