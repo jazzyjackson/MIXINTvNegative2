@@ -1,33 +1,23 @@
-// class BlockHead extends HTMLElement {
-//     constructor(){
-//         super()
-//     }
-// }
+/* to allow for progressive loading of partial response via Chrome body.getReader(),
+* but if I'm inside a browser without the body property, 
+* just wait til response is over and return the entire text response */
+const textDecoder = TextDecoder ? new TextDecoder('utf8') : undefined
 
-class BasicBlock extends HTMLElement {
-    constructor({template} = {}){
+class ReadBlock extends HTMLElement {
+    constructor(options){
         super()
-        /* I could have used a ShadowRoot, which web components can do lots of cool things with,
-         * but I want to seamlessly traverse the graph of nodes by stepping through next
-         * ShadowRoot lets you do this with mode: open, but I think it's an extra step. could be wrong */
-        console.log(template)
-        console.log(document.getElementById(template || 'basic-template'))
-        this.appendChild(document.getElementById(template || 'basic-template').content.cloneNode(true))
-        console.log(this)
+        Object.assign(this, options)
+        console.log(this.template)
+        console.log(`[renders="${this.template || 'read-block'}"]`)
+        this.appendChild(document.querySelector(`[renders="${this.template || 'read-block'}"]`).content.cloneNode(true))  
         this.head = this.querySelector('b-head')
         this.next = this.querySelector('b-next')
         this.body = this.querySelector('b-body')
-        console.log(this)
-        this.id = 'block' + String(Math.random()).slice(-5) //random id for convenience. yea yea possible collisions.
+        this.id = 'block' + String(Math.random()).slice(-4) + String(Date.now()).slice(-4) //random id for convenience. random number + time to reduce likelihood of collisions
     }
-}   
-
-const textDecoder = new TextDecoder('utf8')
-
-class ResponseBlock extends BasicBlock {
-    constructor({action, method} = {}){
-        super()
-        if(!action || !method) throw new Error("I need an action and method to construct a response block")
+    
+    connectedCallback(){
+        var {action, method} = this
         /* if this element is programmatically created, set action and method, 
          * if action and method were declared in markup, fine, get 'em */
         action ? this.setAttribute('action', action)
@@ -35,18 +25,15 @@ class ResponseBlock extends BasicBlock {
         method ? this.setAttribute('method', method)
                : method = this.getAttribute('method')
 
-        /* to allow for progressive loading of partial response via Chrome body.getReader(),
-         * but if I'm inside a browser without the body property, 
-         * just wait til response is over and return the entire text response */
+        /* if action & method are defined, set the textContent of this node by fetching */
         action && method && fetch(action, { method, credentials: "same-origin" })
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))
-
     }
 
     set output(data){
-        // for the basic ResponseBlock, maybe you get a string back, maybe 
+        // for the basic ReadBlock, maybe you get a string back, maybe an object.
         this.body.textContent += typeof data == 'object' ? JSON.stringify(data) : data
     }
 
@@ -66,7 +53,7 @@ class ResponseBlock extends BasicBlock {
                 if(contentType = 'application/json' && this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
                     delete this.streambuffer
-                } else if(contentType = 'plain/text'){
+                } else if(contentType == 'plain/text'){
                     this.output = this.streambuffer
                     delete this.streambuffer
                 }
@@ -77,6 +64,5 @@ class ResponseBlock extends BasicBlock {
 
 }
 
-customElements.define('basic-block', BasicBlock)
-customElements.define('response-block', ResponseBlock)
+customElements.define('read-block', ReadBlock)
 // customElements.define('b-head', BlockHead)

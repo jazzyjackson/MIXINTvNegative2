@@ -1,7 +1,7 @@
 {
     "styles":[],
     "scripts":["utils.js","vanillaClickAndDrag.js"],
-    "blocks":["basic","convo"],
+    "blocks":["read","message","convo"],
     "head": {
         "link": {
             "rel":"icon",

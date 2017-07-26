@@ -1,54 +1,6 @@
-
-class MessageBlock extends ResponseBlock {
-    /* options = {action, method, input, headless} */
-    constructor(options){ 
-        super(options)
-        this.head.textContent = options.input
-        this.setAttribute('headless', options.headless)
-    }
-
-    set output(data){
-        this.body.innerHTML = data.goodchat
-        Object.keys(data).forEach(key => {
-            if(key == 'eval') eval(data[key]) //if the bot tells us to eval, go and eval it.
-            // set attributes from incoming data from this fetch, if property values are repeated, append the new value to the old one
-            var oldData = this.getAttribute(key)
-            var newData =  oldData ? oldData + data[key] : data[key]
-            this.setAttribute(key, newData)
-        })
-    }
-
-    static get observedAttributes() {
-        /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
-        /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['image','eval','goodchat']
-    }
-
-    appendImage(imageURL){
-        var image = document.createElement('img')
-        image.setAttribute('src', imageURL)
-        this.body.appendChild(image)
-    }
-
-    /* afterOutputUpdate can be overwritten by deriviative classes, still get called by prototypal output setter */
-    attributeChangedCallback(attr, oldValue, newValue){
-        switch(attr){
-            case 'image': 
-                this.appendImage('/gui/static/img/' + newValue)
-                break
-            case 'eval':
-                console.log(eval(newValue))
-                break
-            default:
-                console.log(arguments)
-        }
-        setTimeout(() => this.body.scrollIntoView()) // aka setImmediate, scroll when event loop empties
-    }
-}
-
-class ConvoBlock extends BasicBlock {
+class ConvoBlock extends ReadBlock {
     constructor(){
-        super({template: 'convo-template'})
+        super({template: 'convo-block'})
         this.head.textContent = location.host
         this.input = this.body.querySelector('input')
         this.form = this.body.querySelector('form')

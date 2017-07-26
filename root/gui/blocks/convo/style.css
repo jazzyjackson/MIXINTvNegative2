@@ -32,29 +32,6 @@ convo-block message-block {
     margin: 0 5px;
 }
 
-message-block > b-body {
-    display: block;
-    float: left;
-    clear: both;
-    margin: 5px;    
-}
-
-message-block > b-head {
-    display: block;
-    float: right;
-    clear: both;
-    margin: 5px;
-}
-
-message-block[headless="true"] b-head {
-    display: none;
-}
-
-
-message-block img {
-    width: 100%;
-}
-
 convo-block input {
     outline: transparent;
     border: none;

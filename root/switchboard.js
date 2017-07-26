@@ -7,8 +7,8 @@ var interpret = require('./interpret.js')
 
 var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
-                    .on('error', err => console.log(err))
-                //    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
+                    // .on('error', err => console.log(err))
+                   .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                    .pipe(response),
     'POST': () => interpret(decodeURI(request.url.split('?')[1]))
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
@@ -19,15 +19,10 @@ var handleRequest = (request,response) => ({
     'DELETE': () => fs.unlink('.' + request.url, err => { response.writeHead( err ? 500 : 204); response.end(JSON.stringify(err))})
 })[request.method]()
 
-var fs = require('fs')
-var figjam = require('./figjam.js')
-var interpret = require('./interpret.js')
-
-/* if a file is requested, stream it right back, setting content-type headers if necessary */
+/* if a file is requested, stream it right back */
 /* but if there's no pathname a.k.a. '/' index route, read figtree.json and concatanate files in a continuous stream */ 
-
 function streamFileOrFigtree(pathname){
-    // figure out if you're running within root already
+    // figure out if you're running within root already. this is pretty inelegant, but it's to re-use this code whether switchboard is running with cwd of this directory or of the directory above
     var prefix = process.cwd().includes('root') ? '' : 'root/'
     return pathname ? fs.createReadStream(prefix + pathname)
                     : figjam(prefix + 'figtree.json')

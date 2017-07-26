@@ -53,7 +53,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]
         var blockTemplate = path.join(figDirectory, 'gui/blocks/', blockName,'/template.html')
-        jam.push(`<template id="${blockName}-template" filename="${blockTemplate}">`)
+        jam.push(`<template renders="${blockName}-block" filename="${blockTemplate}">`)
         await promise2pipe(blockTemplate, jam)
         jam.push(`</template>`)
     }
