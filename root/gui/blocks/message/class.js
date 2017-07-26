@@ -7,7 +7,14 @@ class MessageBlock extends ReadBlock {
     }
 
     set output(data){
-        this.body.innerHTML = data.goodchat
+        if(this.head.textContent[0] == ':' && this.head.textContent.indexOf(':reset') != 0){
+            var pre = document.createElement('pre')
+            pre.textContent = data.goodchat
+            this.body.appendChild(pre)
+        } else {
+            this.body.innerHTML = data.goodchat
+        }
+        
         Object.keys(data).forEach(key => {
             if(key == 'eval') eval(data[key])
             var oldData = this.getAttribute(key)
