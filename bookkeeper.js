@@ -39,12 +39,13 @@ function observe(request, response){
         }
     })
     
-    watchResponse.on('end', () => {
+    response.on('end', () => {
         logInfo.ms = new Date() - logInfo.ztime //roundtrip time
         logInfo.status = response.statusCode
         var cpuTotal = process.cpuUsage()
         logInfo.cpu = (cpuTotal.user + cpuTotal.system) / 1000 // microseconds / 1000 = milliseconds spent holding the processor
         logInfo.rss = process.memoryUsage().rss / 1000000 // divide by a million, bytes -> megabytes
+        Object.keys(logInfo).forEach(each => logInfo[each] || delete logInfo[each]) // if logInfo[each] is falsey, delete it
         appendLog(request.userid, 'traffic', JSON.stringify(logInfo))
         // could be a good place to start git operations if method = PUT. Have access to path...
     })

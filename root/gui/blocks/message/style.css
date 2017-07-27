@@ -12,6 +12,11 @@ message-block > b-head {
     margin: 5px;
 }
 
+message-block[bashdata] {
+    white-space: pre;
+    font-family: monospace;
+}
+
 message-block[headless="true"] b-head {
     display: none;
 }

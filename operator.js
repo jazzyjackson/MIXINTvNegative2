@@ -17,7 +17,6 @@ var keymaker = require('./keymaker')
 /************** and some global variables for convenience *******************/
 
 var portCollection = {}
-var proxyRequest   = http.request
 var port 	       = process.env.PORT || 3000
 
 /********* stream responses to shell created for your user id ****************/
@@ -61,7 +60,9 @@ function createPort4u(request, response){
     var shell = spawn('node',['switchboard.js'], request.environment)
 
     shell.stdout.on('data', port => {
-        var port = port.toString()
+        var port = port.toString() //comes back as a buffer. so decode it to string.
+        /* if all goes well, switchboard will simply return the port number it booted on. If it returns something else, throw it. */
+        if(isNaN(Number(port))) throw new Error(port)
         portCollection[userid] = {shell, port, userid}
         proxy(request, response, port)
     })
@@ -85,7 +86,7 @@ function proxy(request, response, port){
 
     portCollection[request.userid].lastRequest = Date.now()
 
-    request.pipe(watchRequest).pipe(proxyRequest({
+    request.pipe(watchRequest).pipe(http.request({
         hostname: 'localhost',
         port: port,
         path: request.url, 

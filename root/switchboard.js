@@ -4,11 +4,12 @@ var path = require('path')
 var spawn = require('child_process').spawn
 var figjam = require('./figjam.js')
 var interpret = require('./interpret.js')
+var bookkeeper = require('../bookkeeper.js')
 
 var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
-                    // .on('error', err => console.log(err))
-                   .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
+                    .on('error', err => console.log('onerr',err))
+                //    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                    .pipe(response),
     'POST': () => interpret(decodeURI(request.url.split('?')[1]))
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })

@@ -15,7 +15,6 @@ convo-block > b-head {
     display: flex;
     justify-content: space-between;
     font-family: monospace;
-    font-size: xx-small;
 }
 
 convo-block > header button {
