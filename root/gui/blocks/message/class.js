@@ -7,16 +7,15 @@ class MessageBlock extends ReadBlock {
     }
 
     set output(data){
-        if(this.head.textContent[0] == ':' && this.head.textContent.indexOf(':reset') != 0){
-            var pre = document.createElement('pre')
-            pre.textContent = data.goodchat
-            this.body.appendChild(pre)
-        } else {
-            this.body.innerHTML = data.goodchat
-        }
+        // if(this.head.textContent[0] == ':' && this.head.textContent.indexOf(':reset') != 0){
+        //     var pre = document.createElement('pre')
+        //     pre.textContent = data.goodchat
+        //     this.body.appendChild(pre)
+        // } else {
+        //     this.body.innerHTML = data.goodchat
+        // }
 
         Object.keys(data).forEach(key => {
-            if(key == 'eval') eval(data[key])
             var oldData = this.getAttribute(key)
             var newData =  oldData ? oldData + data[key] : data[key]
             this.setAttribute(key, newData)
@@ -32,18 +31,32 @@ class MessageBlock extends ReadBlock {
     attributeChangedCallback(attr, oldValue, newValue){
         switch(attr){
             case 'image': 
-                this.body.appendImage('/gui/static/img/' + newValue)
+                this.appendImage('/gui/static/img/' + newValue)
                 break
             case 'eval':
-                console.log(eval(newValue))
+                /* eval properties returned from ChatScript will be executed in the browser's global scope. Console log the result. */            
+                console.log('evalling command from ChatScript:', eval(newValue))
                 break
             case 'bashdata':
-                // this.body.textContent = this.getAttribute('goodchat')
-                this.body.textContent = newValue
+                this.updatePreFormattedText(newValue)
+                break
+            case 'goodchat':
+                this.updatePreFormattedText(newValue)
             default:
                 console.log(arguments)
         }
         setTimeout(() => this.body.scrollIntoView()) // aka setImmediate, scroll when event loop empties
+    }
+
+    updatePreFormattedText(newText){
+        var oldPreText = this.body.querySelector('pre')        
+        if( oldPreText ){
+            oldPreText.textContent = newText
+        } else {
+            var data = document.createElement('pre')
+            data.textContent = newText
+            this.body.appendChild(data)
+        }
     }
 
     appendImage(imageURL){

@@ -52,7 +52,8 @@ function setEnvironment(request){
                 env: {
                     bot: 'harry',
                     user: request.userid,
-                    PATH: process.env.PATH
+                    PATH: process.env.PATH,
+                    interpretMode: 'bashFirst'
                 }
             }
     }

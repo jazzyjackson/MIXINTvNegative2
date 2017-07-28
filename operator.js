@@ -16,8 +16,8 @@ var keymaker = require('./keymaker')
 
 /************** and some global variables for convenience *******************/
 
+var port = process.env.PORT || 3000
 var portCollection = {}
-var port 	       = process.env.PORT || 3000
 
 /********* stream responses to shell created for your user id ****************/
 

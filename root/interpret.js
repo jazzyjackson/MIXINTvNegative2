@@ -23,9 +23,9 @@ class interpretation {
         .catch(rejection => this.end(rejection))
     }
 
-    bashFirst(input){
+    bashFirst(input, username, botname){
         this.tryBash(input)
-        .then(goodbash => this.end(goodbash))
+        .then(goodbash => this.end({goodbash}))
         .catch(badbash => {
             ChatScript.chat(input, username, botname)
             .then(goodchat => this.send(goodchat) && this.tryBash(goodchat.bash)) // .bash might not exist, that's fine, tryBash will simply resolve
@@ -33,8 +33,9 @@ class interpretation {
             .catch(rejection => this.end(rejection))
         })
     }
+
     interpret(input, username, botname){
-        this['bashFirst'](input, username, botname)
+        this[process.env.interpretMode](input, username, botname)
         // selected MODE will simply invoked by name, 'bashFirst' or 'botFirst'
     }
 
@@ -46,7 +47,7 @@ class interpretation {
             if(input[0] == ':') return reject({bashReject: ': is no-op in bash! input will be ignored, no error thrown'})
             var processpipe = exec(input)
                 .on('error', err => reject({tryBashErr: err.toString()}))
-                .on('exit', (code, signal) => resolve(String(code || signal))) // 0 is falsey, but "0" is not, lets resolve to a string
+                .on('exit', (code, signal) => code == 0 ? resolve(0) : reject(code)) // 0 is falsey, but "0" is not, lets resolve to a string
             processpipe.stdout.on('data', bashData => this.send({bashData}))
             processpipe.stderr.on('data', bashErr => this.send({bashErr}))
         })
