@@ -6,14 +6,14 @@ which creates a new TCP socket and returns a promise to communicate with a ChatS
 const ChatScriptConnection = require('./ChatScriptConnection.js')
 const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024, 
                                               host: process.env.CSHOST || 'localhost',
-                                              defaultUser: process.env.user || 'devsession',
+                                              defaultUser: process.env.user || 'unknown', /* not to be confused with 'nobody' */
                                               defaultBot: process.env.bot || 'harry',
                                               debug: false })
 
 class interpretation {
     constructor(readable, string2interpret, username, botname){
         this.readable = readable
-        this.interpret(string2interpret, username, botname)
+        this[process.env.interpretMode](string2interpret, username, botname)
     }
 
     chatFirst(input, username, botname){
@@ -32,11 +32,6 @@ class interpretation {
             .then(goodbash => this.end(goodbash ? {goodbash} : null)) // I have to keep an eye out for some case where close() would be called twice. like a .then fires, and later, a .catch tries to close. Will throw a 'cant set headers after they're sent' error
             .catch(rejection => this.end(rejection))
         })
-    }
-
-    interpret(input, username, botname){
-        this[process.env.interpretMode](input, username, botname)
-        // selected MODE will simply invoked by name, 'bashFirst' or 'botFirst'
     }
 
     tryBash(input){

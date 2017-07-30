@@ -41,6 +41,10 @@ var rootLoginURL = 'http://' + getLocalIP() + ':' + port + '/?key=' + keymaker.a
 console.log(rootLoginURL)
 exec(os.platform() == 'win32' ? 'start ' + rootLoginURL : 'open ' + rootLoginURL)
 
+process.env.interpretMode = 'bashFirst'
+process.env.userid = 'root'
+process.env.bot = 'harry'
+
 repl.start({eval: (cmd, context, filename, callback) => {
     try {
         callback(util.inspect(eval(cmd))) //this eval is in the server's scope so we can check server variables form terminal
@@ -49,7 +53,8 @@ repl.start({eval: (cmd, context, filename, callback) => {
         var buffers = []
         interpreter.stdout.on('data', data => buffers.push(data))
         interpreter.stderr.on('data', data => buffers.push(data))
-        interpreter.on('close', () => callback(blob2successOnly(parseBuffer(Buffer.concat(buffers))))) //blob2successOnly || blob2allInfo
+        // interpreter.on('close', () => callback(blob2successOnly(parseBuffer(Buffer.concat(buffers))))) //blob2successOnly || blob2allInfo
+        interpreter.on('close', () => console.log(Buffer.concat(buffers).toString())) //blob2successOnly || blob2allInfo
     }
 }})
 
@@ -111,9 +116,7 @@ function port4u(userid){
 
 function blob2successOnly(result){
     return result.bashData 
-        || result.successfulChat
-        || result.successEval 
-        || result.successBash
+        || result.goodchat
 }
 
 function blob2allInfo(result){
