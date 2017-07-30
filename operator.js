@@ -27,7 +27,7 @@ http.createServer(async (request, response) => {
     if( request.userid == undefined ){
         response.writeHead(302, { 'Location': keymaker.redirurl })
         response.end()
-    } else if(request.url.includes('key')){
+    } else if(request.url.match(/key=([0-9A-F]+)/)){
         response.writeHead(302, { 'Location': '//' + request.headers.host })
         response.end()
     } else {
