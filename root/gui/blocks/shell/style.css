@@ -1,0 +1,41 @@
+shell-block {
+    padding-top: 30px;
+    display: block;
+    /*font-family: monospace !important;*/
+}
+shell-block > b-head {
+    position: fixed;
+    padding: 4px;
+    color: white;
+    background: black;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-family: monospace;
+}
+shell-block > header button {
+    width: 18px;
+    height: 18px;
+    background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
+}
+shell-block > form {
+    padding: 5px;
+}
+shell-block message-block {
+    margin: 0 5px;
+}
+shell-block input {
+    outline: transparent;
+    border: none;
+}shell-block form  {
+    clear: both;
+    margin: 3px;
+}
+
+/*form::before {
+    content: attr(path) ' ' attr(prompt);
+}*/
+
+

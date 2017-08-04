@@ -1,7 +1,7 @@
 {
     "styles":[],
     "scripts":["utils.js","vanillaClickAndDrag.js"],
-    "blocks":["read","message","convo"],
+    "blocks":["read","message","convo","shell"],
     "head": {
         "link": {
             "rel":"icon",
@@ -10,7 +10,7 @@
         }
     },
     "body": {
-        "convo-block": {
+        "shell-block": {
         }
     }
 }
