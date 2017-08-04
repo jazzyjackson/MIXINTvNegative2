@@ -68,7 +68,13 @@ function createPort4u(request, response){
         var port = port.toString() //comes back as a buffer. so decode it to string.
         /* if all goes well, switchboard will simply return the port number it booted on. If it returns something else, throw it. */
         if(isNaN(Number(port))) throw new Error(port)
-        portCollection[userid] = {shell, port, userid}
+        portCollection[userid] = {
+            shell, 
+            port, 
+            userid, 
+            interpretMode: request.environment.env.interpretMode,
+            cwd: request.environment.cwd
+        }
         proxy(request, response, port)
     })
 
@@ -110,7 +116,7 @@ function proxy(request, response, port){
 function port4u(userid){
     /* don't try to access port property if port[userid] is undefined, just return undefined */
     return portCollection[userid] && portCollection[userid].port
-}
+} 
 
 /***************************************************/
 
