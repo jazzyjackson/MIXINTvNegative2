@@ -80,10 +80,13 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
 
 function promise2pipe(filename, readable){
     return new Promise((resolve, reject) => {
-        filestream = fs.createReadStream(filename)
-                       .on('end', resolve)
-                       .on('error', reject)
-                       .pipe(readable, {end: false})
+        fs.createReadStream(filename)
+            .on('end', resolve)
+            .on('error', error => {
+                error.code == 'ENOENT' ? resolve() : reject(error)
+            })
+            .pipe(readable, {end: false})
+
     })
 }
 
