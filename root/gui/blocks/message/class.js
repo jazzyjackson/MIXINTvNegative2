@@ -14,7 +14,6 @@ class MessageBlock extends ReadBlock {
         // } else {
         //     this.body.innerHTML = data.goodchat
         // }
-
         Object.keys(data).forEach(key => {
             var oldData = this.getAttribute(key)
             var newData =  oldData ? oldData + data[key] : data[key]
@@ -25,7 +24,7 @@ class MessageBlock extends ReadBlock {
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
         /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['image','eval','goodchat','bashdata']
+        return ['image','eval','goodchat','bashdata','goodeval']
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
@@ -42,6 +41,10 @@ class MessageBlock extends ReadBlock {
                 break
             case 'goodchat':
                 this.updatePreFormattedText(newValue)
+                break;
+            case 'goodeval':
+                this.updatePreFormattedText(newValue)
+                break;
             default:
                 console.log(arguments)
         }
