@@ -11,9 +11,10 @@ const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024,
                                               debug: false })
 
 class interpretation {
-    constructor(readable, string2interpret, username, botname){
+    constructor(readable, string2interpret, options = {}){
+        this.options = options
         this.readable = readable
-        this[process.env.interpretMode](string2interpret, username, botname)
+        this[process.env.interpretMode](string2interpret, options.username, options.botname)
     }
 
     chatFirst(input, username, botname){
@@ -40,7 +41,7 @@ class interpretation {
             if(input.indexOf('what') == 0) return reject({bashReject: 'unixy systems have a what program that hangs the shell without an argument'})
             if(!input.trim()) return reject({bashReject: `Blank line doesn't mean anything`})
             if(input[0] == ':') return reject({bashReject: ': is no-op in bash! input will be ignored, no error thrown'})
-            var processpipe = exec(input)
+            var processpipe = exec(input, {cwd: this.options.cwd || '.'})
                 .on('error', err => reject({tryBashErr: err.toString()}))
                 .on('exit', (code, signal) => code == 0 ? resolve(0) : reject(code)) // 0 is falsey, but "0" is not, lets resolve to a string
             processpipe.stdout.on('data', bashData => this.send({bashData}))
@@ -81,8 +82,8 @@ if(interpretCalledDirectly && process.argv[2]){
 }
 
 /* require('./interpret')('hello') */
-module.exports = (string2interpret, username, botname) => {
+module.exports = (string2interpret, options) => {
     var readable = new PassThrough 
-    new interpretation(readable, string2interpret, username, botname)
+    new interpretation(readable, string2interpret, options)
     return readable
 }
