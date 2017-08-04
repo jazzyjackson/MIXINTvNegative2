@@ -7,8 +7,6 @@ class ReadBlock extends HTMLElement {
     constructor(options){
         super()
         Object.assign(this, options)
-        console.log(this.template)
-        console.log(`[renders="${this.template || 'read-block'}"]`)
         this.appendChild(document.querySelector(`[renders="${this.template || 'read-block'}"]`).content.cloneNode(true))  
         this.head = this.querySelector('b-head')
         this.next = this.querySelector('b-next')
@@ -50,7 +48,7 @@ class ReadBlock extends HTMLElement {
                 this.streambuffer += textDecoder.decode(sample.value)
                 // if the last character of a chunk of data is a closing bracket, parse the JSON. Otherwise, keep consuming stream until it hits a closing bracket.
                 // this leaves the very unfortunate possible bug of a chunk of data coming in with an escaped bracket at the end, and to detect this condition we'd have to pay attention to opening and closing quotes, except for escaped qutoes
-                if(contentType = 'application/json' && this.streambuffer.match(/}\s*$/)){
+                if(contentType == 'application/json' && this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.output = JSON.parse(JSONchunk))
                     delete this.streambuffer
                 } else if(contentType == 'plain/text'){
@@ -65,4 +63,3 @@ class ReadBlock extends HTMLElement {
 }
 
 customElements.define('read-block', ReadBlock)
-// customElements.define('b-head', BlockHead)
