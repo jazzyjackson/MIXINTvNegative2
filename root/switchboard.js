@@ -8,10 +8,12 @@ var bookkeeper = require('../bookkeeper.js')
 
 var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
-                    .on('error', err => console.log('onerr',err))
-                //    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
+                   .on('open', () => {
+                       request.url.includes('.js') && response.setHeader('content-type','text/plain')
+                   })
+                   .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                    .pipe(response),
-    'POST': () => interpret(decodeURI(request.url.split('?')[1]))
+    'POST': () => interpret(decodeURI(request.url.split('?')[1]), {cwd: '.' + request.url.split('?')[0]})
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                  .pipe(response),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
