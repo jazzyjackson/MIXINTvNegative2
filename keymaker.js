@@ -1,6 +1,9 @@
 /* keymaker */
 
 const https = require('https')
+const os = require('os')
+const path = require('path')
+
 const keyStore = {
     '0': 'nobody'
 } // only exists as a local cache so I don't have to fetch profile every time
@@ -53,7 +56,9 @@ function setEnvironment(request){
                     bot: 'harry',
                     user: request.userid,
                     PATH: process.env.PATH,
-                    interpretMode: 'bashFirst'
+                    interpretMode: 'bashFirst',
+                    homeDir: os.homedir(),
+                    webRoot: path.join(process.cwd(), 'root')
                 }
             }
     }

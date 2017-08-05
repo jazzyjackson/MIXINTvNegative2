@@ -1,7 +1,6 @@
 class ShellBlock extends ConvoBlock {
     constructor(){
         super()
-
     }
     
     handleSubmit(event, options = {headless: false}){ // overwrite handleSubmit method of prototype ConvoBlock, to eval first

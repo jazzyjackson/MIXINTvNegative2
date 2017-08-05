@@ -29,7 +29,7 @@ class interpretation {
         .then(goodbash => this.end({goodbash}))
         .catch(badbash => {
             ChatScript.chat(input, username, botname)
-            .then(goodchat => this.send(goodchat) && this.tryBash(goodchat.bash)) // .bash might not exist, that's fine, tryBash will simply resolve
+            .then(goodchat => this.send(Object.assign(goodchat, {badbash, cwd: this.options.cwd})) && this.tryBash(goodchat.bash)) // .bash might not exist, that's fine, tryBash will simply resolve
             .then(goodbash => this.end(goodbash ? {goodbash} : null)) // I have to keep an eye out for some case where close() would be called twice. like a .then fires, and later, a .catch tries to close. Will throw a 'cant set headers after they're sent' error
             .catch(rejection => this.end(rejection))
         })

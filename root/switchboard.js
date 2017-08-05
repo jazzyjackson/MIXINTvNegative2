@@ -7,13 +7,13 @@ var interpret = require('./interpret.js')
 var bookkeeper = require('../bookkeeper.js')
 
 var handleRequest = (request,response) => ({
-    'GET': () => streamFileOrFigtree(request.url.split('?')[0].slice(1))
+    'GET': () => streamFileOrFigtree(decodeURI(request.url.split('?')[0]))
                    .on('open', () => {
                        request.url.includes('.js') && response.setHeader('content-type','text/plain')
                    })
                    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                    .pipe(response),
-    'POST': () => interpret(decodeURI(request.url.split('?')[1]), {cwd: '.' + request.url.split('?')[0]})
+    'POST': () => interpret(decodeURI(request.url.split('?')[1]), {cwd: decodeURI(request.url.split('?')[0])})
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
                  .pipe(response),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
@@ -27,8 +27,8 @@ var handleRequest = (request,response) => ({
 function streamFileOrFigtree(pathname){
     // figure out if you're running within root already. this is pretty inelegant, but it's to re-use this code whether switchboard is running with cwd of this directory or of the directory above
     var prefix = process.cwd().includes('root') ? '' : 'root/'
-    return pathname ? fs.createReadStream(prefix + pathname)
-                    : figjam(prefix + 'figtree.json')
+    return pathname && pathname.length > 1 ? fs.createReadStream(prefix + pathname)
+                                           : figjam(prefix + 'figtree.json')
 }
 
 /* This works whether you call it as a standalone process, or import the function as a module */

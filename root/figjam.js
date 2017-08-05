@@ -74,6 +74,10 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         await promise2pipe(thisScriptFilePath, jam)
         jam.push(`</script>\n`)
     }
+    var webroot = process.env.webroot
+    path.sep == '\\' && (webroot = webroot.replace(/\\/g, '/'))
+    webroot = webroot.slice(webroot.indexOf('/')) + '/' // does lack a trailing / on all operating systems? Do I need to check?
+    jam.push(`<script> history.pushState({}, null, "${webroot}") </script>`)
     jam.push('</body>\n</html>')
     jam.push(null)
 }
