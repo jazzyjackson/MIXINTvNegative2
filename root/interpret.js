@@ -59,6 +59,14 @@ class interpretation {
             }
         })
     }
+  
+    tryMySQL(){
+      // optional for ChatScript that runs sql for you. Connects to db from credentials file somehow, 
+      // streams rows as they come to 'goodtable' so the clientside js can build a table around the data :D
+    }
+    tryPSQL(){
+      // 
+    }
 
     send(result){
         this.readable.push(JSON.stringify(result) + '\n')
