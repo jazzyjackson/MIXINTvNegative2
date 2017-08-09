@@ -37,6 +37,9 @@ class interpretation {
 
     tryBash(input){
         return new Promise((resolve, reject) => {
+            // There's a few problems I ran into where the shell would hang waiting for input or succeed without output.
+            // so I have some useful error codes to explain why bash wasn't attempted, but I should also have a race, to reject if there's no response
+            // But I need an easily accessible switch to say "no its fine, let bash think for a while" hm hm hm 
             if(!input) return resolve()
             if(input.indexOf('what') == 0) return reject({bashReject: 'unixy systems have a what program that hangs the shell without an argument'})
             if(!input.trim()) return reject({bashReject: `Blank line doesn't mean anything`})
