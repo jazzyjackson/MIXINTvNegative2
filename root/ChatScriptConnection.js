@@ -57,21 +57,16 @@ module.exports = class ConnectionHandler {
 }
 
 function digestOOB(chatresult){
-  OOBregex = /\s(\w*)=(\S*)/g
-  var match = OOBregex.exec(chatresult)
-  // make sure the match exists, and that matches are not empty, then save key.
-  while(match && match[1] && match[2]){
-    this[match[1]] = match[2]
-    match = OOBregex.exec(chatresult)
-  }
-
-  chatregex = /\[.*\](.*)/
-  chatmatch = chatregex.exec(chatresult)
-  if(chatmatch){
-    this.goodChat = chatmatch[1]
-  } else {
-    this.goodChat = chatresult
-  }
+    var JSONREGEX = /^\s*{.*}\s*$/
+    if(JSONREGEX.exec(chatresult)){
+        Object.assign(this, JSON.parse(chatresult))
+        if(this.output){
+            this.goodchat = this.output
+            delete this.output
+        }
+    } else {
+        this.goodchat = chatresult
+    }
 }
 
 //the chatbot can modify the configuration of a page by updating a fact, reserializing the JSON, and putting to the filepath, and then the bot via eval or the server via fs watch can force the update of the path to the new configuration. 

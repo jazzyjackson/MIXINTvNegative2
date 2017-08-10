@@ -1,10 +1,9 @@
-convo-block {
+shell-block {
     padding-top: 30px;
     display: block;
     /*font-family: monospace !important;*/
 }
-
-convo-block > b-head {
+shell-block > b-head {
     position: fixed;
     padding: 4px;
     color: white;
@@ -16,41 +15,33 @@ convo-block > b-head {
     justify-content: space-between;
     font-family: monospace;
 }
-
-convo-block > header button {
+shell-block > header button {
     width: 18px;
     height: 18px;
     background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
 }
-
-convo-block > form {
+shell-block > form {
     padding: 5px;
 }
-
-.convoBlock input {
-  /* in the future, there will be a prompt width attribute to get this from, calculated from a hidden div containing the prompt to compute its width */
-  width: 80%;
-}
-
-convo-block message-block {
+shell-block message-block {
     margin: 0 5px;
 }
-
-convo-block input {
+shell-block input {
     outline: transparent;
     border: none;
 }
-convo-block form  {
+
+shell-block form  {
     clear: both;
     margin: 3px;
 }
 
-
-input {
-  outline: transparent;
-  border: none;
+shell-block pre {
+    white-space: pre-wrap;
 }
 
 /*form::before {
-  content: attr(path) ' ' attr(prompt);
+    content: attr(path) ' ' attr(prompt);
 }*/
+
+

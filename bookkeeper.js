@@ -22,22 +22,6 @@ function observe(request, response){
         responseSize: 0,
         requestSize: 0
     }
-
-    var watchRequest = new stream.Transform({
-        transform: function(chunk, encoding, done){
-            this.push(chunk)            
-            logInfo.requestSize += chunk.length,
-            done()            
-        }
-    })
-
-    var watchResponse = new stream.Transform({
-        transform: function(chunk, encoding, done){
-            this.push(chunk)
-            logInfo.responseSize += chunk.length,
-            done()            
-        }
-    })
     
     response.on('finish', () => {
         logInfo.ms = new Date() - logInfo.ztime //roundtrip time
@@ -45,18 +29,26 @@ function observe(request, response){
         var cpuTotal = process.cpuUsage()
         logInfo.cpu = (cpuTotal.user + cpuTotal.system) / 1000 // microseconds / 1000 = milliseconds spent holding the processor
         logInfo.rss = process.memoryUsage().rss / 1000000 // divide by a million, bytes -> megabytes
+        Object.keys(logInfo).forEach(each => logInfo[each] || delete logInfo[each]) // if logInfo[each] is falsey, delete it
         appendLog(request.userid, 'traffic', JSON.stringify(logInfo))
         // could be a good place to start git operations if method = PUT. Have access to path...
     })
-
-    return {watchRequest, watchResponse}
 }
 
 function appendLog(username, logType, data){
     var now = new Date()
     var filename = logType + '-' + now.getFullYear() + '-' + (now.getMonth() + 1) +'-' + now.getDate() + '.log' // since left most expression returns string, all the numbers will get stringified instead of summed
     
-    if(logType == 'error') fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+    if(logType == 'error'){
+        try {
+            fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+        } catch(err) {
+            if(err && err.code == 'ENOENT'){
+                fs.mkdirSync(`./logs/${username}`)
+                fs.appendFileSync(`./logs/${username}/${filename}`, data + os.EOL)
+            }
+        }
+    }
     else fs.appendFile(`./logs/${username}/${filename}`, data + os.EOL, err => {
         if(err && err.code == 'ENOENT'){
             // block thread if the user directory didn't exist, this only needs to happen once. 
@@ -69,7 +61,7 @@ function appendLog(username, logType, data){
 
 function logError(userid, error){
     /*** you can choose to expose errors in the console or not */
-    console.log(error)
+    console.log(error.toString())
     appendLog(userid, 'error', JSON.stringify({
         ztime: new Date(),
         userid: userid,

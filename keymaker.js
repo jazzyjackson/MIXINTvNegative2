@@ -1,13 +1,17 @@
 /* keymaker */
 
 const https = require('https')
-const keyStore = {} // only exists as a local cache so I don't have to fetch profile every time
+ // without external SSO, this isn't truly stateless, if you use keymaker to allow users onto the server, keyStore will keep track 
+ // but with external authorization, the keyStore only exists as a local cache so I don't have to fetch profile every time
+const keyStore = {
+    '0':'nobody'
+}
 // serverSelect fills out variables for local, qa, and prod environments for authorization and redirect. 
 const serverSelect = {
     localhost: {
         hostname: '',
-        pathname: '',
-        query: '',
+        pathname: '/',
+        query: '?key=0',
         checkAuthDomain: '',
         cookieDomain: ''
     },
@@ -37,16 +41,15 @@ async function identify(request, response){
 
 
 function setEnvironment(request){
-    // if you want to change the environment variables interpret has access to, this is the place to do it
-    // bash scripts and sub processes will be spawned in this environment, so you can stick variables and credentials in here
     // but mostly it's a place to stick the username so Aubi knows who its talking to
     // different usernames could be directed to different bots here
     /* stateless sets chat properties on request object, timeshare sets environment variables for subprocess */
     switch(request.userid){
         default: Object.assign(request, {
-                bot: 'aubi',
-                user: request.userid
-            })
+            botname: 'harry',
+            username: request.userid,
+            mode: 'botFirst'
+        })
     }
 }
 
@@ -59,34 +62,39 @@ function findKey(string){
     // if key is null return null, else, the key was found, and is sitting at index 1 of the regex object
     return key && key[1] 
 }
-
-/* promises checkAuth and getFullName request JSON data from SSO */
+/* if you use keymaker to explicitly give a key to each username, this checkAuth is all you need, userid will be retrieved from keyStore */
 function checkAuth(key){
-    return new Promise((resolve,reject) => {
-        https.get(checkAuthDomain + 'your_auth_api_here' + key, response => {
-            var resBuffers = []
-            response.on('data', data => resBuffers.push(data))
-            response.on('end', () => {
-                var result = JSON.parse(Buffer.concat(resBuffers).toString())
-                resolve(result.isAuthorized == true) // cuz the API sends true or 'false' (String), I want to return true or false (Bool)
-            })
-        }).on('error', error => {
-            reject(error.code)
-        })
-    })
+    return(Boolean(keyStore[key]))
 }
 
-function getFullName(key){
-    return new Promise((resolve,reject) => {
-        https.get(checkAuthDomain + 'your_profile_api_here' + key, response => {
-            var resBuffers = []
-            response.on('data', data => resBuffers.push(data))
-            response.on('end', () => {
-                var result = JSON.parse(Buffer.concat(resBuffers).toString())
-                resolve(result.fullName) 
-            })
-        }).on('error', error => {
-            reject(error.code)
-        })
-    })
-}
+/* but if you use an external authorization system (like a single-sign-on system) */
+/* you can use these promises for checkAuth and getFullName to request JSON data from your SSO server */
+
+// function checkAuth(key){
+//     return new Promise((resolve,reject) => {
+//         https.get(checkAuthDomain + 'your_auth_api_here' + key, response => {
+//             var resBuffers = []
+//             response.on('data', data => resBuffers.push(data))
+//             response.on('end', () => {
+//                 var result = JSON.parse(Buffer.concat(resBuffers).toString())
+//                 resolve(result.isAuthorized == true) // cuz the API sends true or 'false' (String), I want to return true or false (Bool)
+//             })
+//         }).on('error', error => {
+//             reject(error.code)
+//         })
+//     })
+// }
+// function getFullName(key){
+//     return new Promise((resolve,reject) => {
+//         https.get(checkAuthDomain + 'your_profile_api_here' + key, response => {
+//             var resBuffers = []
+//             response.on('data', data => resBuffers.push(data))
+//             response.on('end', () => {
+//                 var result = JSON.parse(Buffer.concat(resBuffers).toString())
+//                 resolve(result.fullName) 
+//             })
+//         }).on('error', error => {
+//             reject(error.code)
+//         })
+//     })
+// }

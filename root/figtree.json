@@ -1,6 +1,7 @@
 {
-    "styles":["blocks/basic/style.css","blocks/convo/style.css"],
-    "scripts":["utils.js","vanillaClickAndDrag.js","blocks/basic/class.js","blocks/convo/class.js"],
+    "styles":[],
+    "scripts":["utils.js","vanillaClickAndDrag.js"],
+    "blocks":["read","message","convo","shell"],
     "head": {
         "link": {
             "rel":"icon",
@@ -9,9 +10,7 @@
         }
     },
     "body": {
-        "convo": {
-        },
-        "leftpanel": {
+        "shell-block": {
         }
     }
 }
