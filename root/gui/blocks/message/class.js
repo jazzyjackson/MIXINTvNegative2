@@ -11,8 +11,6 @@ class MessageBlock extends ReadBlock {
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
-        console.log(attr)
-        console.log(newValue)
         switch(attr){
             case 'input':
                 this.head.textContent = newValue

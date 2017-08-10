@@ -18,7 +18,6 @@ class interpretation {
     }
 
     botFirst(input, username, botname){
-        console.log(input, username, botname)
         ChatScript.chat(input, username, botname)
         .then(goodchat => this.send(goodchat) && this.tryBash(goodchat.bash)) // .bash might not exist, that's fine, tryBash will simply resolve
         .then(goodbash => this.end(goodbash ? {goodbash} : null)) // I have to keep an eye out for some case where close() would be called twice. like a .then fires, and later, a .catch tries to close. Will throw a 'cant set headers after they're sent' error
