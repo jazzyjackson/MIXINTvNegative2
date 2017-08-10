@@ -40,6 +40,10 @@ convo-block form  {
     margin: 3px;
 }
 
+convo-block pre {
+    white-space: pre-wrap;
+}
+
 /*form::before {
     content: attr(path) ' ' attr(prompt);
 }*/

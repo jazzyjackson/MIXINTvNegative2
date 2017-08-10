@@ -17,6 +17,12 @@ message-block[bashdata] {
     font-family: monospace;
 }
 
+/* if input attribute begins with a colon, it was a debugging command, and result should be preformattaed monospace */
+message-block[input^=":"] b-body {
+    white-space: pre;
+    font-family: monospace;
+}
+
 message-block[headless="true"] b-head {
     display: none;
 }

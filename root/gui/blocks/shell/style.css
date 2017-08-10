@@ -29,9 +29,15 @@ shell-block message-block {
 shell-block input {
     outline: transparent;
     border: none;
-}shell-block form  {
+}
+
+shell-block form  {
     clear: both;
     margin: 3px;
+}
+
+shell-block pre {
+    white-space: pre-wrap;
 }
 
 /*form::before {

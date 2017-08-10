@@ -1,7 +1,6 @@
 class ShellBlock extends ConvoBlock {
     constructor(){
         super()
-
     }
     
     handleSubmit(event, options = {headless: false}){ // overwrite handleSubmit method of prototype ConvoBlock, to eval first
@@ -13,7 +12,7 @@ class ShellBlock extends ConvoBlock {
                 input: valueToSubmit,
                 headless: options.headless
             })
-            evalBlock.output = evalAttempt
+            evalBlock.props = evalAttempt
             this.next.appendChild(evalBlock)
         } else {
             console.log(evalAttempt)
@@ -49,7 +48,7 @@ class ShellBlock extends ConvoBlock {
             if(/[^\\/]/.test(newDir)){
                 //if the last character is a black slash or forwardslash, and the first character is not,
                 //append the new path to the pathname
-                 history.pushState({}, null, location.pathname + /[\\/]\$/.test(newDir) ? newDir + '/' : newDir)
+                history.pushState({}, null, location.pathname + /[\\/]\$/.test(newDir) ? newDir + '/' : newDir)
                 return {goodEval: 'OK'}
             } else if (/^[\\/]/.test(newDir)){
                 //if the first character is a slash
