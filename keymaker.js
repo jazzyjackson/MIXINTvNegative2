@@ -47,6 +47,16 @@ function setEnvironment(request){
     // different usernames could be directed to different bots here
     /* stateless sets chat properties on request object, timeshare sets environment variables for subprocess */
     switch(request.userid){
+        case 'nobody': request.environment = {
+            cwd: 'root',
+            uid: 65534,
+            env: {
+                bot: 'harry',
+                user: request.userid,
+                PATH: process.env.PATH,
+                interpretMode: 'bashFirst'
+            }
+        }
         default: request.environment = {
                 cwd: 'root',
                 env: {
