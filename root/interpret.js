@@ -4,11 +4,13 @@ const { PassThrough } = require('stream')
 /* ChatScriptConnection exports a constructor function for a class with a '.chat' method, 
 which creates a new TCP socket and returns a promise to communicate with a ChatScript server */
 const ChatScriptConnection = require('./ChatScriptConnection.js')
-const ChatScript = new ChatScriptConnection({ port: process.env.CSPORT || 1024, 
-                                              host: process.env.CSHOST || 'localhost',
-                                              defaultUser: process.env.user || 'unknown', /* not to be confused with 'nobody' */
-                                              defaultBot: process.env.bot || 'harry',
-                                              debug: false })
+const ChatScript = new ChatScriptConnection({ 
+    port: process.env.CSPORT || 1024, 
+    host: process.env.CSHOST || 'localhost',
+    defaultUser: process.env.user || 'unknown', /* not to be confused with 'nobody' */
+    defaultBot: process.env.bot || 'harry',
+    debug: false
+})
 
 class interpretation {
     constructor(readable, string2interpret, options = {}){
