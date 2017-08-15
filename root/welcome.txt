@@ -1,5 +1,3 @@
-
-
  ██████╗ ██████╗ ██╗  ████████╗███████╗███╗   ██╗     ██╗    ██████╗ ██████╗ ███╗   ███╗
 ██╔════╝██╔═══██╗██║  ╚══██╔══╝██╔════╝████╗  ██║     ██║   ██╔════╝██╔═══██╗████╗ ████║
 ██║     ██║   ██║██║     ██║   █████╗  ██╔██╗ ██║     ██║   ██║     ██║   ██║██╔████╔██║
@@ -9,7 +7,6 @@
 
 Welcome to my computer! 
 FreeBSD + ChatScript + Multi-Interpreter
-> Say something, anything.
 
 Coltenj.com is basically still my middle school science fair project. (Wayback Machine has me archived since 2002)
 

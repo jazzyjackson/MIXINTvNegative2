@@ -11,11 +11,7 @@
     },
     "body": {
         "shell-block": {
-<<<<<<< HEAD
             "init":"cat welcome.txt"
-=======
-            "init":":reset"
->>>>>>> timeshare
         }
     }
 }
