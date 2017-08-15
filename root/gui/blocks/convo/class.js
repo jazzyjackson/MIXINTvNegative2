@@ -13,7 +13,7 @@ class ConvoBlock extends ReadBlock {
                                                                  || event.target === this
                                                                  && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
-        this.autoSubmit(':reset')
+        this.autoSubmit(this.getAttribute('init'))
     }
 
     handleSubmit(event, options = {headless: false}){

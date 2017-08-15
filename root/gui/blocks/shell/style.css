@@ -40,6 +40,10 @@ shell-block pre {
     white-space: pre-wrap;
 }
 
+shell-block [errno="ECONNREFUSED"]::after {
+    content: 'Unable to connect to ChatScript server.'
+}
+
 /*form::before {
     content: attr(path) ' ' attr(prompt);
 }*/
