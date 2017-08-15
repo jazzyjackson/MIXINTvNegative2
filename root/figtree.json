@@ -11,6 +11,7 @@
     },
     "body": {
         "shell-block": {
+            "init":"cat welcome.txt"
         }
     }
 }
