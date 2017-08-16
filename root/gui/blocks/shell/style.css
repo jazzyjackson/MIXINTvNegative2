@@ -40,7 +40,7 @@ shell-block pre {
     white-space: pre-wrap;
 }
 
-shell-block [errno="ECONNREFUSED"]::after {
+shell-block [errno="ECONNREFUSED"] b-body::after  {
     content: 'Unable to connect to ChatScript server.'
 }
 
