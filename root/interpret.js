@@ -44,7 +44,7 @@ class interpretation {
             if(input.indexOf('what') == 0) return reject({bashReject: 'unixy systems have a what program that hangs the shell without an argument'})
             if(!input.trim()) return reject({bashReject: `Blank line doesn't mean anything`})
             if(input[0] == ':') return reject({bashReject: ': is no-op in bash! input will be ignored, no error thrown'})
-            var processpipe = exec(input, {cwd: this.options.cwd || '.'})
+            var processpipe = exec(input, {cwd: this.options.cwd || '.', shell: '/bin/sh'})
                 .on('error', err => reject({tryBashErr: err.toString()}))
                 .on('exit', (code, signal) => code == 0 ? resolve(0) : reject(code)) // 0 is falsey, but "0" is not, lets resolve to a string
             processpipe.stdout.on('data', bashData => this.send({bashData}))
