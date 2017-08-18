@@ -1,6 +1,11 @@
 class ConvoBlock extends ReadBlock {
-    constructor(){
-        super({template: 'convo-block'})
+    constructor(options){
+        super(options)
+    }
+
+    connectedCallback(){
+        this.init()
+        console.log("CONVO CALLBACK")
         this.head.textContent = location.host
         this.input = this.body.querySelector('input')
         this.form = this.body.querySelector('form')

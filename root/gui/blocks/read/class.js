@@ -6,32 +6,39 @@ const textDecoder = TextDecoder ? new TextDecoder('utf8') : undefined
 class ReadBlock extends HTMLElement {
     constructor(options){
         super()
-        /* querySelector is given a css selector looking for a renders attribute with a value passed via options or a default value of read-block */
-        /* this template is then cloned (deep=true to pull in children of template) and appended as the child inside this node */
-        this.appendChild(document.querySelector(`[renders="${options.template || 'read-block'}"]`).content.cloneNode(true))  
+        this.options = options
+    }
+
+    connectedCallback(){
+        this.init() // doesn't really do anything on ReadBlock as a base class right after HTMLElement, but stuck here just for consistency, if you're using this as a model for what you should do 
+        this.innerHTML = ''
+        this.appendChild(document.querySelector(`[renders="${this.tagName.toLowerCase()}"]`).content.cloneNode(true))  
         this.head = this.querySelector('b-head') /* Had a lot of back and forth to organize the graph with each node having a next property */
         this.next = this.querySelector('b-next') /* I thought it might be a lot more elegant to have each custom element have its own shadowroot, So that the topmost lightDOM would just be a graph of custom elements. */
         this.body = this.querySelector('b-body') /* But ShadowRoots introduce a lot of repition, loading the whole stylesheet per node, and for customization reasons I actually don't want to encapsulate style */
         this.id = 'block' + String(Math.random()).slice(-4) + String(Date.now()).slice(-4) //random id for convenience. random number + time to reduce likelihood of collisions
-        this.props = options
-    }
-
-    set props(data){
-        if(typeof data != 'object'){ // convert strings and numbers into the property data, containing the value of data, so it can be appended to and reacted to normally
-            data = {data}
-        }
-        Object.keys(data).forEach(key => {
-            var oldData = this.getAttribute(key)
-            var newData =  oldData ? oldData + data[key] : data[key]
-            this.setAttribute(key, newData)
-        })
+        this.props = this.options
+        /* if action & method are defined, set the props of this node by fetching. skip if status is already truthy, fetch already happened */
+        this.props.action && this.props.method && !this.status && this.request()    
     }
     
-    connectedCallback(){
-        var action = this.getAttribute('action')
-        var method = this.getAttribute('method')
-        /* if action & method are defined, set the props of this node by fetching */
-        action && method && fetch(action, { method, credentials: "same-origin" })
+    init(){
+        if(this.initialized) return null
+        else this.initialized = true
+        /* this calls every connectedCallback up the class inheritence chain or whatever you want to call it */
+        /* call in reverse order to invoke base class connectedCallback first. */
+        var superClassChain = []
+        var superclass = this.constructor.__proto__
+        while(superclass.name != 'HTMLElement'){
+            superClassChain.push(superclass.prototype.connectedCallback)
+            superclass = superclass.__proto__
+        }
+        superClassChain.reverse().forEach(callback => callback.call(this))
+    }
+
+    request(){
+        fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
+        .then(response => { this.props = {'status': response.status}; return response })
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))
@@ -61,6 +68,24 @@ class ReadBlock extends HTMLElement {
             }
         })
     }
+
+    set props(data){
+        if(typeof data != 'object'){ // convert strings and numbers into the property data, containing the value of data, so it can be appended to and reacted to normally
+            data = {data}
+        }
+        Object.keys(data).forEach(key => {
+            var oldData = this.getAttribute(key)
+            var newData =  oldData ? oldData + data[key] : data[key]
+            this.setAttribute(key, newData)
+        })
+    }
+
+    get props(){
+        var temp = {}
+        Array.from(this.attributes, attr => temp[attr.name] = attr.value)
+        return temp
+    }
+    
 
 }
 
