@@ -12,10 +12,11 @@ message-block > b-head {
     margin: 5px;
 }
 
-message-block[bashdata] {
+message-block[bashdata], message-block[evaldata], message-block[goodeval] {
     white-space: pre;
     font-family: monospace;
 }
+
 
 /* if input attribute begins with a colon, it was a debugging command, and result should be preformattaed monospace */
 message-block[input^=":"] b-body {

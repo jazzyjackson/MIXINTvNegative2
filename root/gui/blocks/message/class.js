@@ -11,14 +11,15 @@ class MessageBlock extends ReadBlock {
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
         /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['image','eval','goodchat','bashdata','goodeval','input']
+        return ['image','eval','goodchat','bashdata','goodeval','evaldata','input']
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
         console.log(attr)
         console.log(newValue)
+        console.log("ATTR THIS", this)
         switch(attr){
-            case 'input':
+            case 'input':      
                 this.head.textContent = newValue
                 break
             case 'image': 
@@ -33,10 +34,13 @@ class MessageBlock extends ReadBlock {
                 break
             case 'goodchat':
                 this.body.textContent = newValue
-                break;
+                break
             case 'goodeval':
                 this.body.textContent = newValue
-                break;
+                break
+            case 'evaldata':
+                this.body.textContent = newValue
+                break
             default:
                 console.log(arguments)
         }

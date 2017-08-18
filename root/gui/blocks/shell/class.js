@@ -16,8 +16,8 @@ class ShellBlock extends ConvoBlock {
                 input: valueToSubmit,
                 headless: options.headless
             })
-            evalBlock.props = evalAttempt
             this.next.appendChild(evalBlock)
+            evalBlock.props = evalAttempt
         } else {
             console.log(evalAttempt)
             this.next.appendChild(new MessageBlock({
