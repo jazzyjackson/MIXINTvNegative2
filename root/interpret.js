@@ -19,7 +19,7 @@ class interpretation {
         this.promiseChain = makeIterator({
             botFirst: [this.tryChat],
             bashFirst: [this.tryBash, this.tryEval, this.tryChat]
-        }[process.env.interpretMode])
+        }[process.env.interpretMode || 'botFirst']) // if environment wasn't set, default to bot
         this.iterateTilSuccess(this.promiseChain.next())
     }
 

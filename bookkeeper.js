@@ -79,12 +79,12 @@ function appendLog(username, logType, data){
 
 function logError(userid, error){
     /*** you can choose to expose errors in the console or not */
-    console.log(error.toString())
+    console.log(error)
     appendLog(userid, 'error', JSON.stringify({
         ztime: new Date(),
         userid: userid,
         version: execSync('git rev-parse HEAD').toString().slice(0,6),
-        error: error.toString()
+        error: util.inspect(error)
     }) + os.EOL)
 }
 
