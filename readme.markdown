@@ -43,10 +43,17 @@ Spiders are programs that crawl filesystems and computer networks and carry out 
 They can be accessed via POST requests from client side applications or by a ChatScript server, allowing your chatbot to digest data from the wider internet.
 
 # Root: Interpret, Switchboard, and GUI
+A switchboard is a lightweight node server spun up on a per-user basis ('guest' or 'nobody' may be a user that represents many different people requesting files).  
+
+If a 'GET' request is made to a directory (like '/' or '/root/gui/blocks/' ) the default figtree is used to serve the terminal interface.
+Otherwise, an attempt is made to serve the file requested by the pathname. Relative pathnames are relative to the working directory of the node server right now. Full paths are OK too.
+Note that a trailing slash is used to determine that a path represents a directory.
+
+
+# Root: Convologs, Figtrees, and FigJam
 Convologs are JSON files with a single message per line, one file for each user.
 This allows the recording and interweaving of messages from many users, so anyone within a particular directory has the option to leave public messages. Chatroom functionality can be had if you connect to a "log watch" program to stream new file changes to you.
 Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
-# Root: Convologs, Figtrees, and FigJam
 
 # Server Options: Timeshare | Stateless
 

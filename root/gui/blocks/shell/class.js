@@ -67,7 +67,8 @@ class ShellBlock extends ConvoBlock {
         // if it wasn't cd or clear, then eval it as a string
         try {
             var success = eval(stringToEval)
-            return {goodEval: success || String(success)} //coerce falsey values to string
+            var goodEval = typeof success == 'object' ? JSON.stringify(decycle(success),'',4) : String(success)
+            return { goodEval } //coerce falsey values to string
         } catch(localError) {
             return {localError: localError.toString()} //errors are objects but can't be parsed by JSON stringify
         }
@@ -76,3 +77,41 @@ class ShellBlock extends ConvoBlock {
 }
 
 customElements.define('shell-block', ShellBlock)
+
+function decycle(object) {
+    var objects = new WeakMap(); 
+    return (function derez(value, path) {
+        var old_path;   // The path of an earlier occurance of value
+        var nu;         // The new object or array
+        if (
+            typeof value === "object" && value !== null &&
+            !(value instanceof Boolean) &&
+            !(value instanceof Date) &&
+            !(value instanceof Number) &&
+            !(value instanceof RegExp) &&
+            !(value instanceof String)
+        ) {
+            old_path = objects.get(value);
+            if (old_path !== undefined) {
+                return {$ref: old_path};
+            }
+            objects.set(value, path);
+            if (Array.isArray(value)) {
+                nu = [];
+                value.forEach(function (element, i) {
+                    nu[i] = derez(element, path + "[" + i + "]");
+                });
+            } else {
+                nu = {};
+                Object.keys(value).forEach(function (name) {
+                    nu[name] = derez(
+                        value[name],
+                        path + "[" + JSON.stringify(name) + "]"
+                    );
+                });
+            }
+            return nu;
+        }
+        return value;
+    }(object, "$"));
+};

@@ -41,6 +41,7 @@ var rootLoginURL = 'http://' + getLocalIP() + ':' + port + '/?key=' + keymaker.a
 console.log(rootLoginURL)
 exec(os.platform() == 'win32' ? 'start ' + rootLoginURL : 'open ' + rootLoginURL)
 
+/* default parameters */
 process.env.interpretMode = 'bashFirst'
 process.env.userid = 'root'
 process.env.bot = 'harry'
@@ -79,8 +80,10 @@ function createPort4u(request, response){
     })
 
     shell.stderr.on('data', error => {
-        response.writeHead(500)
-        response.end(util.inspect(error))
+        /* if an error is reported before the response stream is closed, report the error the the client and close the stream */
+        /* in any case, log the error with the userid of the node process that reported the error */
+        response.writeable && response.writeHead(500)
+        response.writeable && response.end(util.inspect(error))
         bookkeeper.logError(userid, error)
     })
 

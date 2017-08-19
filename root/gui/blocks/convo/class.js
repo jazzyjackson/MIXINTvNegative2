@@ -23,12 +23,14 @@ class ConvoBlock extends ReadBlock {
 
     handleSubmit(event, options = {headless: false}){
         event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener
-        this.next.appendChild(new MessageBlock({
+        var newMessage = document.createElement('message-block')
+        newMessage.props = {
             action: '/?' + encodeURI(this.input.value || '...'),
             method: 'POST',
             input: this.input.value || '...',
             headless: options.headless
-        }))
+        }
+        this.next.appendChild(newMessage)
         this.input.value = '' // reset input to blank (if there's not a keepInput prop on options)
     }
 

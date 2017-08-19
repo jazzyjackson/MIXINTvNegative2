@@ -15,9 +15,6 @@ class MessageBlock extends ReadBlock {
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
-        console.log(attr)
-        console.log(newValue)
-        console.log("ATTR THIS", this)
         switch(attr){
             case 'input':      
                 this.head.textContent = newValue
@@ -29,27 +26,10 @@ class MessageBlock extends ReadBlock {
                 /* eval properties returned from ChatScript will be executed in the messages's local scope. Console log the result. */            
                 console.log('evalling command from ChatScript:', eval(newValue))
                 break
-            case 'bashdata':
-                this.body.textContent = newValue
-                break
-            case 'goodchat':
-                this.body.textContent = newValue
-                break
-            case 'goodeval':
-                this.body.textContent = newValue
-                break
-            case 'evaldata':
-                this.body.textContent = newValue
-                break
             default:
+                this.body.textContent = newValue
                 console.log(arguments)
         }
-        setTimeout(() => this.body.scrollIntoView(), 0) // aka setImmediate, scroll when event loop empties
-    }
-
-    appendImage(imageURL){
-        var image = document.createElement('img')
-        image.setAttribute('src', imageURL)
-        this.body.appendChild(image)
+        document.querySelector('message-block:last-child').scrollIntoView()
     }
 }

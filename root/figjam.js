@@ -100,6 +100,7 @@ if(figjamCalledDirectly && process.argv[2]){
 
 module.exports = filename => {
     var jam = new PassThrough
+    // can I fire an open event?
     figjam(filename, jam)
     return jam
 }

@@ -38,14 +38,24 @@ class ReadBlock extends HTMLElement {
 
     request(){
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
-        .then(response => { this.props = {'status': response.status}; return response })
+        .then(response => { 
+            this.props = {
+                'status': response.status,
+                'contentType': response.headers.get('content-type')
+            } 
+            return response 
+        })
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))
     }
 
     consumeText(text){
-        text.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
+        if(this.props.contentType = 'application/json') {
+            text.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
+        } else {
+            this.props = {text}
+        }
     }
 
     consumeStream(reader, contentType = 'application/json'){
@@ -61,7 +71,7 @@ class ReadBlock extends HTMLElement {
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
                     delete this.streambuffer
                 } else if(contentType == 'plain/text'){
-                    this.props = this.streambuffer
+                    this.props = {text: this.streambuffer}
                     delete this.streambuffer
                 }
                 return this.consumeStream(reader)
@@ -69,7 +79,14 @@ class ReadBlock extends HTMLElement {
         })
     }
 
+    become(blockType){
+        var newBlock = document.createElement(blockType)
+        newBlock.props = this.props
+        this.replaceWith(newBlock)
+    }
+
     set props(data){
+        console.log(data)
         if(typeof data != 'object'){ // convert strings and numbers into the property data, containing the value of data, so it can be appended to and reacted to normally
             data = {data}
         }
@@ -85,7 +102,14 @@ class ReadBlock extends HTMLElement {
         Array.from(this.attributes, attr => temp[attr.name] = attr.value)
         return temp
     }
-    
+
+    static from(url, options = {method: 'get'}){
+        var newBlock = new this
+        newBlock.props = {action: url, method: options.method}
+        var parentNode = options.parentNode || document.body
+        parentNode.appendChild(newBlock)
+        return newBlock
+    }
 
 }
 
