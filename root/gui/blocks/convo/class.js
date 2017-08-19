@@ -5,7 +5,6 @@ class ConvoBlock extends ReadBlock {
 
     connectedCallback(){
         this.init()
-        console.log("CONVO CALLBACK")
         this.head.textContent = location.host
         this.input = this.body.querySelector('input')
         this.form = this.body.querySelector('form')

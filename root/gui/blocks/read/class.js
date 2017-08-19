@@ -18,8 +18,8 @@ class ReadBlock extends HTMLElement {
         this.body = this.querySelector('b-body') /* But ShadowRoots introduce a lot of repition, loading the whole stylesheet per node, and for customization reasons I actually don't want to encapsulate style */
         this.id = 'block' + String(Math.random()).slice(-4) + String(Date.now()).slice(-4) //random id for convenience. random number + time to reduce likelihood of collisions
         this.props = this.options
-        /* if action & method are defined, set the props of this node by fetching. skip if status is already truthy, fetch already happened */
-        this.props.action && this.props.method && !this.status && this.request()    
+        /* if action & method are defined, set the props of this node by fetching. skip if concenttype is already truthy, fetch already happened */
+        this.props.action && this.props.method && !this.contenttype && this.request()    
     }
     
     init(){
@@ -38,13 +38,7 @@ class ReadBlock extends HTMLElement {
 
     request(){
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
-        .then(response => { 
-            this.props = {
-                'status': response.status,
-                'contentType': response.headers.get('content-type')
-            } 
-            return response 
-        })
+        .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))
@@ -59,6 +53,7 @@ class ReadBlock extends HTMLElement {
     }
 
     consumeStream(reader, contentType = 'application/json'){
+        var contentType = this.getAttribute('contenttype')
         if(!reader) return null  // consumeStream will exit if the text was consumed already
         this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
         /* recursively call consumeStream. reader.read() is a promise that resolves as soon as a chunk of data is available */
@@ -70,7 +65,7 @@ class ReadBlock extends HTMLElement {
                 if(contentType == 'application/json' && this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
                     delete this.streambuffer
-                } else if(contentType == 'plain/text'){
+                } else if(contentType == 'text/plain'){
                     this.props = {text: this.streambuffer}
                     delete this.streambuffer
                 }
@@ -83,10 +78,13 @@ class ReadBlock extends HTMLElement {
         var newBlock = document.createElement(blockType)
         newBlock.props = this.props
         this.replaceWith(newBlock)
+        return newBlock
     }
 
     set props(data){
-        console.log(data)
+        if(!data){
+            return this.props
+        }
         if(typeof data != 'object'){ // convert strings and numbers into the property data, containing the value of data, so it can be appended to and reacted to normally
             data = {data}
         }
@@ -95,6 +93,7 @@ class ReadBlock extends HTMLElement {
             var newData =  oldData ? oldData + data[key] : data[key]
             this.setAttribute(key, newData)
         })
+        return this.props
     }
 
     get props(){

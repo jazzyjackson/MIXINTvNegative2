@@ -11,7 +11,7 @@ class MessageBlock extends ReadBlock {
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
         /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['image','eval','goodchat','bashdata','goodeval','evaldata','input']
+        return ['image','eval','goodchat','bashdata','goodeval','evaldata','input','text']
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
@@ -28,7 +28,6 @@ class MessageBlock extends ReadBlock {
                 break
             default:
                 this.body.textContent = newValue
-                console.log(arguments)
         }
         document.querySelector('message-block:last-child').scrollIntoView()
     }

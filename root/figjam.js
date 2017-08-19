@@ -83,6 +83,7 @@ function promise2pipe(filename, readable){
         fs.createReadStream(filename)
             .on('end', resolve)
             .on('error', error => {
+                /* if the file doesn't exist that's fine, keep going */
                 error.code == 'ENOENT' ? resolve() : reject(error)
             })
             .pipe(readable, {end: false})
