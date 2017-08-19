@@ -11,21 +11,6 @@ module.exports = class ConnectionHandler {
     this.chatscript_config = chatscript_config
     this.username = chatscript_config.defaultUser
     this.botname = chatscript_config.defaultBot
-    switch(os.type()){
-      case 'Darwin': this.chatscript_config.app = 'MacChatScript'; break;
-      case 'Windows_NT': this.chatscript_config.app = 'chatscript'; break;
-    }
-  }
-
-  log(output){
-    if(this.chatscript_config.debug == true) console.log(JSON.stringify({debug: output}))
-  }
-
-  //Someday you'll be able to ask the bot why its broken, but until then, this switch case diagnosis will have to do
-  debug(){
-    switch(os.type()){
-      case 'Darwin': console.log(`I was unable to start ChatScript server. You likely need to navigate to ChatScript/SRC and run 'make server' and try again`)
-    }
   }
 
   chat(message, username, botname){ 
@@ -36,36 +21,21 @@ module.exports = class ConnectionHandler {
     return new Promise((resolve, reject)=>{
         var client = net.createConnection(this.chatscript_config)
         client.on('connect', () => client.write([username,botname,message].join('\0') + '\0'))
-        client.on('data', botResponse => resolve(new digestOOB(botResponse.toString())))
+        /* botResponse is returned as a byte buffer. Coerce to string, then parse if parseable, then resolve promise */
+        client.on('data', botResponse => resolve(digestOOB(botResponse.toString())))
         client.on('error', error => reject(error))
     })
-  }
-
-  startServer(){
-    if(this.chatscript_config.app){
-        let {port, app} = this.chatscript_config
-        let argarray = (app == 'chatscript') ? [`port=${port}`] : [] //necessary argument array for windows server
-        this.log(`cwd: ${path.join(__dirname, '../../')} \ncmd: ./BINARIES/${app} ${argarray.join('')}`) //for debugging
-        let chatserver = child_process(`./${app}`,argarray,{cwd: path.join(__dirname, '../../../BINARIES')})
-        chatserver.stdout.on('close', error => this.log('closed connection with chatscript server.'))
-        chatserver.on('error', this.debug)
-        this.log(`starting chatscript as a child process of connectionHandler.js on localhost:${port}`)
-    } else {
-        this.log(`I couldn't detect your operating system, so chatscript was not started.`)
-    }
   }
 }
 
 function digestOOB(chatresult){
-    var JSONREGEX = /^\s*{.*}\s*$/
-    if(JSONREGEX.exec(chatresult)){
-        Object.assign(this, JSON.parse(chatresult))
-        if(this.output){
-            this.goodchat = this.output
-            delete this.output
-        }
-    } else {
-        this.goodchat = chatresult
+    try {
+      var result = JSON.parse(chatresult)
+      result.goodchat = result.output
+      delete result.output
+      return result
+    } catch(e) {
+      return {goodchat: chatresult}
     }
 }
 

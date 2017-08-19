@@ -33,3 +33,5 @@ function makeIterator(array) {
        }
     };
 }
+
+const me = "I cant change"

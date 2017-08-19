@@ -32,3 +32,4 @@ class MessageBlock extends ReadBlock {
         document.querySelector('message-block:last-child').scrollIntoView()
     }
 }
+customElements.define('message-block', MessageBlock)

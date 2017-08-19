@@ -74,6 +74,12 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         await promise2pipe(thisScriptFilePath, jam)
         jam.push(`</script>\n`)
     }
+    jam.push(`<script defer id="hoist">Array.from(document.querySelectorAll('template,script'), node => {
+        node.remove()
+        document.head.appendChild(node)
+    })
+    document.getElementById("hoist").remove()
+    </script>`)
     jam.push('</body>\n</html>')
     jam.push(null)
 }

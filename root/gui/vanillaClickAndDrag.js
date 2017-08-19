@@ -2,7 +2,8 @@
 function createUpdatePos({clientX, clientY}){ //this is a function creator. When a mouse/touchdown event occurs, the initial position
   var theLastX = clientX                      //is enclosed in a function, those variables are updated on mousemove and will persist
   var theLastY = clientY                      //as long as the function exists. On touch/mouseup events, the function is destroyed (the variable it was assigned to is reassigned null)
-  return function({clientX, clientY}){    
+  return function({clientX, clientY}){
+      console.log(document.activeElement)
       var movementX = clientX - theLastX
       var movementY = clientY - theLastY
       theLastX = clientX
@@ -15,9 +16,11 @@ function createUpdatePos({clientX, clientY}){ //this is a function creator. When
 }
 
 function handleDrag(event){
+  console.log(event)
+  console.log(this)
   if(event.target != this) return undefined // exit function if a mousedown managed to bubble up to me.
   document.body.removeEventListener('mousemove', window.updatePos) // edge case where the mouseup didn't register and an updatePos stuck around - have to remove listener before we delete a reference to this function by overwriting updatePos with a new function!
-  window.updatePos = createUpdatePos(this)
+  window.updatePos = createUpdatePos(this.parentElement)
   document.body.addEventListener('mousemove', window.updatePos)
   document.body.setAttribute('dragging',true) //textArea would occasionally steal focus because it thought I wanted to type. I'll disable in during the move.'
 }

@@ -41,6 +41,4 @@ class ConvoBlock extends ReadBlock {
         this.input.value = oldstring
     }
 }
-
-customElements.define('message-block', MessageBlock)
 customElements.define('convo-block', ConvoBlock)
