@@ -3,7 +3,7 @@ class TextBlock extends ReadBlock {
     constructor(options){ 
         super(Object.assign({
             style: "top: 50px; left: 50px;",
-            tabIndex: 1
+            tabIndex: 0
         }, options))
     }
 
@@ -14,8 +14,8 @@ class TextBlock extends ReadBlock {
         this.textarea = this.body.firstElementChild
         this.textarea.onfocus = this.focus.bind(this)
         this.textarea.onblur = this.blur.bind(this)
-        this.head.onfocus = this.focus.bind(this)
-        this.head.onblur = this.blur.bind(this)
+        this.onfocus = this.focus.bind(this)
+        this.onblur = this.blur.bind(this)
     }    
 
     static get observedAttributes() {

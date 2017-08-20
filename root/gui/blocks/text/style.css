@@ -13,3 +13,12 @@ text-block b-head {
 text-block textarea {
   border: transparent;
 }
+
+text-block:focus {
+  outline: none;
+}
+
+text-block.focused {
+    z-index: 10;
+    box-shadow: black 3px 3px 5px 0px;
+}

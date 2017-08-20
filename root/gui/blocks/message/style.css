@@ -6,9 +6,11 @@ message-block > b-head {
 }
 
 /* a few conditions where output should be pre-formatted monospace */
+
 message-block[bashdata] b-body, 
 message-block[evaldata] b-body, 
 message-block[goodeval] b-body,
+message-block[localeval] b-body,
 message-block[input^=":"] b-body {
     white-space: pre;
     font-family: monospace;
