@@ -83,6 +83,7 @@ class ReadBlock extends HTMLElement {
     }
 
     set props(data){
+        console.log(data)
         if(!data){
             return this.props
         }

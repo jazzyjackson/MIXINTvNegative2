@@ -100,6 +100,13 @@ function proxy(request, response, port){
     if(!port) return port /* if port is undefined, exit function with falsey value */
     var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
 
+    if(request.url.split('?').slice(-1) == '/' && request.method == 'GET'){
+        response.setHeader('content-type', 'text/html; charset=utf-8;')
+    } else if(request.method == 'GET'){
+        response.setHeader('content-type', 'text/plain; charset=utf-8;')
+    } else if(request.method == 'POST'){
+        response.setHeader('content-type', 'application/json; charset=utf-8;')
+    }
     portCollection[request.userid].lastRequest = Date.now()
 
     request.pipe(watchRequest).pipe(http.request({
@@ -113,6 +120,8 @@ function proxy(request, response, port){
         response.writeHeader(proxyResponse.statusCode, proxyResponse.headers)
         proxyResponse.pipe(watchResponse).pipe(response)
     }))
+
+
 
     return port /* if proxy was successful, exit with truthy value. hopefully port is not 0 lol. */
     /* oh wow I just learned that to request a system port you just ask the system to bind to port 0 */
