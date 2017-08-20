@@ -100,7 +100,7 @@ function proxy(request, response, port){
     if(!port) return port /* if port is undefined, exit function with falsey value */
     var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
 
-    if(request.url.split('?').slice(-1) == '/' && request.method == 'GET'){
+    if(request.url.split('?')[0].slice(-1) == '/' && request.method == 'GET'){
         response.setHeader('content-type', 'text/html; charset=utf-8;')
     } else if(request.method == 'GET'){
         response.setHeader('content-type', 'text/plain; charset=utf-8;')
