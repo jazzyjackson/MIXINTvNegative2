@@ -107,7 +107,11 @@ class ReadBlock extends HTMLElement {
     static from(url, options = {method: 'get'}){
         var newBlock = new this
         if(url){
-            newBlock.props = {action: url, method: options.method}
+            newBlock.props = {
+                action: url, 
+                method: options.method, 
+                title: location.pathname + url
+            }
         }
         var parentNode = options.parentNode || document.body
         parentNode.appendChild(newBlock)

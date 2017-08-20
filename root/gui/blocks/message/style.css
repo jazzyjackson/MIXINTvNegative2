@@ -17,3 +17,9 @@ message-block[input^=":"] b-body {
 message-block[headless="true"] b-head {
     display: none;
 }
+
+message-block:not([headless="true"])::before {
+    content: attr(pathname) ' ' attr(prompt);
+    float: left;
+    padding-right: 5px;
+}

@@ -31,16 +31,18 @@ shell-block message-block {
 shell-block form  {
     clear: both;
     margin: 3px;
+    display: flex;
 }
 
 shell-block form:before {
-    content: attr(prompt)
+    content: attr(pathname) ' ' attr(prompt)
 }
 
 shell-block input {
     outline: transparent;
     border: none;
     margin-left: 5px;
+    flex: 1;
 }
 
 /*shell-block [errno="ECONNREFUSED"] b-body::after  {

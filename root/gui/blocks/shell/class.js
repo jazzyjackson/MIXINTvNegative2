@@ -5,18 +5,22 @@ class ShellBlock extends ConvoBlock {
 
     connectedCallback(){
         this.init()
+        this.form.setAttribute('pathname', location.pathname)
     }
     
     handleSubmit(event, options = {headless: false}){ // overwrite handleSubmit method of prototype ConvoBlock, to eval first
         event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener
         var valueToSubmit = this.input.value || '...'
+        var pathnameOnSubmit = location.pathname
         var evalAttempt = this.evalledInWindow(valueToSubmit)  // try to eval submit in window first
         var newBlock = document.createElement('message-block')
 
         var newProps = {
             input: valueToSubmit,
             headless: options.headless,
-            localeval: evalAttempt.goodeval || evalAttempt.localerror            
+            localeval: evalAttempt.goodeval || evalAttempt.localerror,
+            pathname: pathnameOnSubmit,
+            prompt: this.form.getAttribute('prompt')
         }
         // if there was a localerror, attach action + method properties to prepare block for fetch
         evalAttempt.localerror && (newBlock.props = {
@@ -27,6 +31,7 @@ class ShellBlock extends ConvoBlock {
         /* have to wait til connectedCallback before attaching properties that mutate HTML */
         newBlock.props = newProps
         this.input.value = '' // reset input to blank (if there's not a keepInput prop on options)
+        this.form.setAttribute('pathname', location.pathname)
     }
 
     evalledInWindow(stringToEval){

@@ -1,8 +1,9 @@
-// this might be unique to edit Blocks, but I think that will be my prototype. Always a Div > TextArea, ShadowRoot. TextArea will always be firstElementNode
+document.body.addEventListener('mouseup', cancelDrag)
+
 function createUpdatePos({clientX, clientY}){ //this is a function creator. When a mouse/touchdown event occurs, the initial position
   var theLastX = clientX                      //is enclosed in a function, those variables are updated on mousemove and will persist
   var theLastY = clientY                      //as long as the function exists. On touch/mouseup events, the function is destroyed (the variable it was assigned to is reassigned null)
-  return function({clientX, clientY}){
+  return function({clientX, clientY, buttons}){
       var movementX = clientX - theLastX
       var movementY = clientY - theLastY
       theLastX = clientX
@@ -25,7 +26,6 @@ function handleDrag(event){
 function cancelDrag(){
     if(!event.buttons){
         document.body.removeEventListener('mousemove', window.updatePos)
-        document.body.removeEventListener('mousemove', window.cancelDrag)
         document.body.setAttribute('dragging',false) //textArea would occasionally steal focus because it thought I wanted to type. I'll disable in during the move.'
     }
 }

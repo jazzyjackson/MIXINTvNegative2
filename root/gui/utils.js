@@ -1,6 +1,4 @@
 // some global helper functions that don't really fit within more specific encapsulations
-
-
 function makeIterator(array) {
     var nextIndex = 0;
     return {
@@ -11,5 +9,3 @@ function makeIterator(array) {
        }
     };
 }
-
-const me = "I cant change"
