@@ -16,10 +16,10 @@ class ShellBlock extends ConvoBlock {
         var newProps = {
             input: valueToSubmit,
             headless: options.headless,
-            localeval: evalAttempt.goodEval || evalAttempt.localError            
+            localeval: evalAttempt.goodeval || evalAttempt.localerror            
         }
-        // if there was a localError, attach action + method properties to prepare block for fetch
-        evalAttempt.localError && (newBlock.props = {
+        // if there was a localerror, attach action + method properties to prepare block for fetch
+        evalAttempt.localerror && (newBlock.props = {
             action: location.pathname + '?' + encodeURI(valueToSubmit),
             method: 'POST'
         })
@@ -33,41 +33,41 @@ class ShellBlock extends ConvoBlock {
         if(stringToEval.indexOf('cd') == 0){
             var newDir = stringToEval.slice(3).trim()
 
-            if(newDir == '.') return { goodEval: 'OK'}
+            if(newDir == '.') return { goodeval: 'OK'}
             if(newDir == '..'){
                 var newPath = location.pathname.split('/')
                 newPath.pop()
                 newPath.pop()
                 newPath = newPath.join('/') + '/' 
                 history.pushState({}, null, newPath)
-                return { goodEval: 'OK'}
+                return { goodeval: 'OK'}
                 //new url is the rest of the string after you slice off the first slash and slice after the second slash
             }
             if(newDir == '~'){
                 history.pushState({}, null, '/') 
-                return { goodEval: 'OK'}
+                return { goodeval: 'OK'}
             }
             if(/[^\\/]/.test(newDir)){
                 //if the last character is a black slash or forwardslash, and the first character is not,
                 //append the new path to the pathname
                 history.pushState({}, null, location.pathname + /[\\/]\$/.test(newDir) ? newDir + '/' : newDir)
-                return { goodEval: 'OK'}
+                return { goodeval: 'OK'}
             } else if (/^[\\/]/.test(newDir)){
                 //if the first character is a slash
                 history.pushState({}, null,  /[\\/]\$/.test(newDir) ? newDir  + '/' : newDir)
-                return { goodEval: 'OK'}
+                return { goodeval: 'OK'}
             }
         }
         if(stringToEval.trim() == 'clear'){
             setTimeout(()=>Array.from(document.querySelectorAll('message-block'), node => node.remove()),0)
-            return { goodEval: 'OK'} // remove all the message blocks AFTER returning 'OK'
+            return { goodeval: 'OK'} // remove all the message blocks AFTER returning 'OK'
         }
         // if it wasn't cd or clear, then eval it as a string
         try {
             var success = eval(stringToEval)
             return { goodeval: typeof success == 'object' ? JSON.stringify(decycle(success),'',4) : String(success)}
-        } catch(localError) {
-            return { localError: localError.toString()} //errors are objects but can't be parsed by JSON stringify
+        } catch(localerror) {
+            return { localerror: localerror.toString()} //errors are objects but can't be parsed by JSON stringify
         }
     }
     // delete this.textArea

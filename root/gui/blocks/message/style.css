@@ -1,31 +1,14 @@
-message-block {
+message-block,
+message-block > b-body,
+message-block > b-head {
     display: block;
-    clear: both;
-}
-
-message-block > b-body {
-    display: block;
-    float: left;
-    clear: both;
     margin: 5px;    
 }
 
-message-block > b-head {
-    display: block;
-    float: right;
-    clear: both;
-    margin: 5px;
-}
-
+/* a few conditions where output should be pre-formatted monospace */
 message-block[bashdata] b-body, 
 message-block[evaldata] b-body, 
-message-block[goodeval] b-body {
-    white-space: pre;
-    font-family: monospace;
-}
-
-
-/* if input attribute begins with a colon, it was a debugging command, and result should be preformattaed monospace */
+message-block[goodeval] b-body,
 message-block[input^=":"] b-body {
     white-space: pre;
     font-family: monospace;
@@ -33,8 +16,4 @@ message-block[input^=":"] b-body {
 
 message-block[headless="true"] b-head {
     display: none;
-}
-
-message-block img {
-    width: 100%;
 }
