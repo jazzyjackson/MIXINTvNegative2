@@ -1,3 +1,8 @@
+message-block {
+    display: block;
+    clear: both;
+}
+
 message-block > b-body {
     display: block;
     float: left;
@@ -12,7 +17,9 @@ message-block > b-head {
     margin: 5px;
 }
 
-message-block[bashdata], message-block[evaldata], message-block[goodeval] {
+message-block[bashdata] b-body, 
+message-block[evaldata] b-body, 
+message-block[goodeval] b-body {
     white-space: pre;
     font-family: monospace;
 }

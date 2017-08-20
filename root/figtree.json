@@ -11,7 +11,7 @@
     },
     "body": {
         "shell-block": {
-            "init":":reset"
+            "init":"echo READY"
         }
     }
 }

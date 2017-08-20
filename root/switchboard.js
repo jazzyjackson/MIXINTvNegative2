@@ -9,17 +9,15 @@ var bookkeeper = require('../bookkeeper.js')
 var handleRequest = (request,response) => ({
     'GET': () => streamFileOrFigtree(request.url.split('?')[0])
                    .on('open', () => {
-                       response.setHeader('content-type','text/plain')
+                        // response.setHeader('content-type','text/plain; charset=utf-8;')
                    })
                    .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
-                   .pipe(response),
+                   .pipe(response)
+                   .setHeader('content-type','text/html; charset=utf-8;'),
     'POST': () => interpret(decodeURI(request.url.split('?')[1]), {cwd: '.' + request.url.split('?')[0]})
-                 .on('open', () => {
-                     // I've yet to figure out how to emit 'open' just once.
-                     response._headerSent || response.setHeader('content-type', 'application/json')
-                 })
                  .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) })
-                 .pipe(response),
+                 .pipe(response)
+                 .setHeader('content-type', 'application/json; charset=utf-8;'),
     'PUT': () => request.pipe(fs.createWriteStream('.' + request.url, 'utf8'))
                         .on('finish', () => { response.writeHead(201); response.end() })
                         .on('error', err => { response.writeHead(500); response.end( JSON.stringify(err)) }),

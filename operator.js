@@ -1,3 +1,5 @@
+#!/usr/local/bin/node 
+// should find a way so that when you run 'node operator' it runs which node and checks version and modifies this first line and adds to path and all that */
 /********* node built ins, nothing to install ***********/
 
 var spawn  = require('child_process').spawn

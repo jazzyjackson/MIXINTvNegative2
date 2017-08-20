@@ -37,6 +37,7 @@ class ReadBlock extends HTMLElement {
     }
 
     request(){
+        console.log(this.props.action)
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
         .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
         .then(response => response.body ? response.body.getReader() 
@@ -45,7 +46,7 @@ class ReadBlock extends HTMLElement {
     }
 
     consumeText(text){
-        if(this.props.contentType = 'application/json') {
+        if(this.props.contentType.includes('application/json')) {
             text.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
         } else {
             this.props = {text}
@@ -62,10 +63,10 @@ class ReadBlock extends HTMLElement {
                 this.streambuffer += textDecoder.decode(sample.value)
                 // if the last character of a chunk of data is a closing bracket, parse the JSON. Otherwise, keep consuming stream until it hits a closing bracket.
                 // this leaves the very unfortunate possible bug of a chunk of data coming in with an escaped bracket at the end, and to detect this condition we'd have to pay attention to opening and closing quotes, except for escaped qutoes
-                if(contentType == 'application/json' && this.streambuffer.match(/}\s*$/)){
+                if(contentType.includes('application/json') && this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
                     delete this.streambuffer
-                } else if(contentType == 'text/plain'){
+                } else if(contentType.includes('text/plain')){
                     this.props = {text: this.streambuffer}
                     delete this.streambuffer
                 }
@@ -104,7 +105,9 @@ class ReadBlock extends HTMLElement {
 
     static from(url, options = {method: 'get'}){
         var newBlock = new this
-        newBlock.props = {action: url, method: options.method}
+        if(url){
+            newBlock.props = {action: url, method: options.method}
+        }
         var parentNode = options.parentNode || document.body
         parentNode.appendChild(newBlock)
         return newBlock

@@ -26,23 +26,26 @@ shell-block > form {
 shell-block message-block {
     margin: 0 5px;
 }
-shell-block input {
-    outline: transparent;
-    border: none;
-}
+
 
 shell-block form  {
     clear: both;
     margin: 3px;
 }
 
-shell-block pre {
-    white-space: pre-wrap;
+shell-block form:before {
+    content: attr(prompt)
 }
 
-shell-block [errno="ECONNREFUSED"] b-body::after  {
-    content: 'Unable to connect to ChatScript server.'
+shell-block input {
+    outline: transparent;
+    border: none;
+    margin-left: 5px;
 }
+
+/*shell-block [errno="ECONNREFUSED"] b-body::after  {
+    content: 'ChatScript must be running to talk to the computer.'
+}*/
 
 /*form::before {
     content: attr(path) ' ' attr(prompt);

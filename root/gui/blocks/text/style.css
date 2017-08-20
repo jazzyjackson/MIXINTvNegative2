@@ -2,6 +2,11 @@ text-block {
   display: block;
   position: fixed;
   border: 2px solid black;
+  background: white;
+}
+
+text-block b-head {
+  padding: 3px;
 }
 
 text-block textarea {

@@ -11,11 +11,14 @@ class MessageBlock extends ReadBlock {
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
         /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['image','eval','goodchat','bashdata','goodeval','evaldata','input','text']
+        return ['image','eval','goodchat','bashdata','evaldata','localeval','input','text','errno']
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
         switch(attr){
+            case 'errno':
+                newValue == 'ECONNREFUSED' && ( this.body.textContent = 'ChatScript must be running to talk to the computer.')
+                break
             case 'input':      
                 this.head.textContent = newValue
                 break
