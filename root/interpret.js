@@ -82,9 +82,33 @@ class interpretation {
         })
     }
   
-    tryMySQL(){
-      // optional for ChatScript that runs sql for you. Connects to db from credentials file somehow, 
-      // streams rows as they come to 'goodtable' so the clientside js can build a table around the data :D
+    tryMySQL(input){
+        let escapeCSV = datum => {
+            // per csv definiton RFC 4180 https://tools.ietf.org/html/rfc4180#page-2
+            if(typeof datum == 'string' && datum.match(/[",\n]/)){ //if there are commas or double quotes or newline characters
+                datum = datum.replace(/"/g, `""`) //replace quotes that are part of the data with double quotes
+                datum = `"${datum}"` //wrap the data in double quotes
+            }
+            return datum
+        }
+        let objectToCSV = row => {
+            let csvrow = []
+            for(var column in row){
+                csvrow.push(escapeCSV(row[column]))
+            }
+            return csvrow.join(',') + '\n'
+        }
+        return new Promise((resolve, reject) => {
+            if(!input.mysql) return resolve(input)            
+            db.getConnection((err, conn) => {
+                if(err) reject({dbError: err})
+                conn.query(input.mysql)
+                    .on('end', () => conn.release() || resolve(input))
+                    .on('error', err => reject({queryError: err}))
+                    .on('fields', fields => this.send({fields}))
+                    .on('result', row => this.send({row: objectToCSV(row)}))
+            })
+        })
     }
     tryPSQL(){
       // 
