@@ -1,6 +1,10 @@
 class ConvoBlock extends ReadBlock {
-    constructor(){
-        super({template: 'convo-block'})
+    constructor(options){
+        super(options)
+    }
+
+    connectedCallback(){
+        this.init()
         this.head.textContent = location.host
         this.input = this.body.querySelector('input')
         this.form = this.body.querySelector('form')
@@ -18,12 +22,14 @@ class ConvoBlock extends ReadBlock {
 
     handleSubmit(event, options = {headless: false}){
         event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener
-        this.next.appendChild(new MessageBlock({
+        var newMessage = document.createElement('message-block')
+        newMessage.props = {
             action: '/?' + encodeURI(this.input.value || '...'),
             method: 'POST',
             input: this.input.value || '...',
             headless: options.headless
-        }))
+        }
+        this.next.appendChild(newMessage)
         this.input.value = '' // reset input to blank (if there's not a keepInput prop on options)
     }
 
@@ -35,6 +41,4 @@ class ConvoBlock extends ReadBlock {
         this.input.value = oldstring
     }
 }
-
-customElements.define('message-block', MessageBlock)
 customElements.define('convo-block', ConvoBlock)

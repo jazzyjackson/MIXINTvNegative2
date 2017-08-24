@@ -1,0 +1,28 @@
+text-block {
+  display: block;
+  position: fixed;
+  border: 2px solid black;
+  background: white;
+}
+
+text-block b-head {
+  padding: 3px;
+  border-bottom: 2px solid black;
+}
+
+text-block textarea {
+  border: transparent;
+}
+
+text-block:focus {
+  outline: none;
+}
+
+text-block.focused {
+    z-index: 10;
+    box-shadow: black 3px 3px 5px 0px;
+}
+
+text-block menu-block {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#000" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>');
+}

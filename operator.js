@@ -1,3 +1,5 @@
+#!/usr/local/bin/node 
+// should find a way so that when you run 'node operator' it runs which node and checks version and modifies this first line and adds to path and all that */
 /********* node built ins, nothing to install ***********/
 
 var spawn  = require('child_process').spawn
@@ -41,6 +43,7 @@ var rootLoginURL = 'http://' + getLocalIP() + ':' + port + '/?key=' + keymaker.a
 console.log(rootLoginURL)
 exec(os.platform() == 'win32' ? 'start ' + rootLoginURL : 'open ' + rootLoginURL)
 
+/* default parameters */
 process.env.interpretMode = 'bashFirst'
 process.env.userid = 'root'
 process.env.bot = 'harry'
@@ -79,8 +82,10 @@ function createPort4u(request, response){
     })
 
     shell.stderr.on('data', error => {
-        response.writeHead(500)
-        response.end(util.inspect(error))
+        /* if an error is reported before the response stream is closed, report the error the the client and close the stream */
+        /* in any case, log the error with the userid of the node process that reported the error */
+        response.writeable && response.writeHead(500)
+        response.writeable && response.end(util.inspect(error))
         bookkeeper.logError(userid, error)
     })
 
@@ -95,6 +100,13 @@ function proxy(request, response, port){
     if(!port) return port /* if port is undefined, exit function with falsey value */
     var {watchRequest, watchResponse} = bookkeeper.observe(request, response)
 
+    if(request.url.split('?')[0].slice(-1) == '/' && request.method == 'GET'){
+        response.setHeader('content-type', 'text/html; charset=utf-8;')
+    } else if(request.method == 'GET'){
+        response.setHeader('content-type', 'text/plain; charset=utf-8;')
+    } else if(request.method == 'POST'){
+        response.setHeader('content-type', 'application/json; charset=utf-8;')
+    }
     portCollection[request.userid].lastRequest = Date.now()
 
     request.pipe(watchRequest).pipe(http.request({
@@ -108,6 +120,8 @@ function proxy(request, response, port){
         response.writeHeader(proxyResponse.statusCode, proxyResponse.headers)
         proxyResponse.pipe(watchResponse).pipe(response)
     }))
+
+
 
     return port /* if proxy was successful, exit with truthy value. hopefully port is not 0 lol. */
     /* oh wow I just learned that to request a system port you just ask the system to bind to port 0 */

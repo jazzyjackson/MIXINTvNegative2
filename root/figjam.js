@@ -11,11 +11,14 @@
 /* an example figtree */
 var fs = require('fs')
 var path = require('path')
+var util = require('util')
+
+var readFile = util.promisify(fs.readFile)
 var { PassThrough } = require('stream')
 
 async function figjam(figtreeFilename, jam){ //jam, a readable stream
     /* Whatever filepath is given to figjam, assume the paths are relative to that filename, so, copy the filepath */
-    var figtree = JSON.parse(fs.readFileSync(figtreeFilename)) // this should happen very fast, but it would be nice to await readFile once I'm on node 8.
+    var figtree = JSON.parse(await readFile(figtreeFilename)) 
     var figDirectory = figtreeFilename.split('/').slice(0,-1).join('/')
     /* push the head and the style sheets */
     jam.push('<html><head>')
@@ -28,9 +31,9 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     /* followed by any other nodes in the head. Link, Title, Meta, etc. */
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]        
-        var blockStyle = path.join(figDirectory, 'gui/blocks', blockName, 'style.css')
+        var blockStyle = `/gui/blocks/${blockName}/style.css`
         jam.push(`<style filename="${blockStyle}">\n`)
-        await promise2pipe(blockStyle, jam)
+        await promise2pipe('.' + blockStyle, jam)
         jam.push(`</style>\n`)
     }
     for(var node in figtree.head){
@@ -74,6 +77,12 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         await promise2pipe(thisScriptFilePath, jam)
         jam.push(`</script>\n`)
     }
+    jam.push(`<script defer id="hoist">Array.from(document.querySelectorAll('template,script'), node => {
+        node.remove()
+        document.head.appendChild(node)
+    })
+    document.getElementById("hoist").remove()
+    </script>`)
     jam.push('</body>\n</html>')
     jam.push(null)
 }
@@ -83,6 +92,7 @@ function promise2pipe(filename, readable){
         fs.createReadStream(filename)
             .on('end', resolve)
             .on('error', error => {
+                /* if the file doesn't exist that's fine, keep going */
                 error.code == 'ENOENT' ? resolve() : reject(error)
             })
             .pipe(readable, {end: false})
@@ -100,6 +110,7 @@ if(figjamCalledDirectly && process.argv[2]){
 
 module.exports = filename => {
     var jam = new PassThrough
+    // can I fire an open event?
     figjam(filename, jam)
     return jam
 }

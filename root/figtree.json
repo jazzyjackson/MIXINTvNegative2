@@ -1,7 +1,7 @@
 {
     "styles":[],
     "scripts":["utils.js","vanillaClickAndDrag.js"],
-    "blocks":["read","message","convo","shell"],
+    "blocks":["read","message","convo","shell","text","menu"],
     "head": {
         "link": {
             "rel":"icon",
@@ -11,7 +11,8 @@
     },
     "body": {
         "shell-block": {
-            "init":"cat welcome.txt"
+            "init":"cat welcome.txt",
+            "tabindex":0
         }
     }
 }
