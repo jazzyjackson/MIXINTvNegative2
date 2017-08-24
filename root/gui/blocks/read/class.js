@@ -108,7 +108,7 @@ class ReadBlock extends HTMLElement {
         var newBlock = new this
         if(url){
             newBlock.props = {
-                action: url, 
+                action: encodeURI(url), 
                 method: options.method, 
                 title: location.pathname + url
             }

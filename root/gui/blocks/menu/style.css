@@ -1,0 +1,20 @@
+menu-block {
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 0;
+    width: 1em;
+    height: 1em;
+    margin: 4px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#fff" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>');
+    z-index: 20;
+    transition: .25s all;
+}
+
+*:focus menu-block {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#4d90fe" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>'); 
+}
+
+*[menu="visible"] menu-block {
+    transform: rotate(45deg)
+}

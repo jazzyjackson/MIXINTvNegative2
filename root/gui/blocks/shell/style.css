@@ -15,11 +15,7 @@ shell-block > b-head {
     justify-content: space-between;
     font-family: monospace;
 }
-shell-block > header button {
-    width: 18px;
-    height: 18px;
-    background-image: linear-gradient(black, black, white, black, white, black, white, black, black);
-}
+
 shell-block > form {
     padding: 5px;
 }
@@ -35,7 +31,7 @@ shell-block form  {
 }
 
 shell-block form:before {
-    content: attr(pathname) ' ' attr(prompt)
+    content: attr(pathname) ' ' attr(prompt);
 }
 
 shell-block input {
@@ -44,6 +40,23 @@ shell-block input {
     margin-left: 5px;
     flex: 1;
 }
+
+shell-block:focus {
+    outline: none;
+}
+
+shell-block input:focus {
+    border-bottom: 2px solid #4d90fe;
+}
+
+shell-block menu-block {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#fff" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>'); 
+    position: fixed;
+}
+
+/*shell-block:focus menu-block {
+    background: url('data:image/svg+xml<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#fff" transform="matrix(.96906 0 0 .96883 .928 .942)" d="M300a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z" stroke="#add8e6" fill="#fff" stroke-width="1.916"/></svg>')
+}*/
 
 /*shell-block [errno="ECONNREFUSED"] b-body::after  {
     content: 'ChatScript must be running to talk to the computer.'
