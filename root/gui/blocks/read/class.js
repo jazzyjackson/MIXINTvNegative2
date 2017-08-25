@@ -37,7 +37,6 @@ class ReadBlock extends HTMLElement {
     }
 
     request(){
-        console.log(this.props.action)
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
         .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
         .then(response => response.body ? response.body.getReader() 
@@ -83,7 +82,6 @@ class ReadBlock extends HTMLElement {
     }
 
     set props(data){
-        console.log(data)
         if(!data){
             return this.props
         }
