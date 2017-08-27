@@ -7,7 +7,11 @@ class MenuBlock extends HTMLElement {
         this.attachListeners()
         let menuList = document.createElement('ul')
         /* menu list is positioned absolutely against the right side */
-        for(var optionName in this.menuOptions){
+        console.log('parent element is', this.parentElement)
+        console.log('parents actions are', this.parentElement.actionMenu)
+        for(var optionName in this.parentElement.actionMenu){
+            optionName = optionName.replace(/ /g,'\u202F') // replace space with non-breaking space
+            optionName = optionName.replace(/-/g, '\u2011') /* \u2011 ‑ non breaking hyphen! neat! not like those normal hyphens - */
             let menuOption = document.createElement('li')
             menuOption.textContent = optionName
             menuList.appendChild(menuOption)
@@ -16,25 +20,21 @@ class MenuBlock extends HTMLElement {
         this.appendChild(menuList)
         menuList.style.height = menuList.getClientRects()[0].height /* what? oh, I'm binding the calculated height of the whole menu to the ul, because I want to hide it by setting height to 0, and I want it to be an animated transition, and that's done automatically if I can set explicit changes in numbers. Transition doesn't happen going from 0 to auto. */
         this.parentElement.setAttribute('menu','hidden')
-        /* damn I wish there was a better way to do this, but when HTML is parsed from file, 
-        the parentBlock gets connected before the menuBlock - when HTML is cloned from template, 
-        the menublock is connected before the parentblock, so .head.getClientRects is unavailable. 
-        I just have to handle both cases unless I think of something better */
-        if(this.parentElement.head){
-            console.log(this.parentElement.head.outerHTML)
+        this.waitForParentInit().then(()=>{
+            console.log("My parent was initialized")
             menuList.style.top = this.parentElement.head.getClientRects()[0].height            
-        } else {
-            /* custom 'load' event is dispatched via read-block's connectedCallback */
-            this.parentElement.addEventListener('load', () => {
-                menuList.style.top = this.parentElement.head.getClientRects()[0].height
-            })
-        }
+        })
 
     }
 
-    get menuOptions(){
-        /* this getter walks up the prototype chain, invoking 'get menu' on each class, then with that array of menu objects, reduce Object assign is called to return an amalgamated object of menu options */
-        return this.parentElement.superClassChain.map(superclass => superclass.menu).reduce((a,b) => Object.assign(a,b))
+    waitForParentInit(){
+        return new Promise( resolve => {
+            if(this.parentElement.initialized){
+                resolve()
+            } else {
+                this.parentElement.addEventListener('init', resolve)
+            }
+        })
     }
 
     attachListeners(){

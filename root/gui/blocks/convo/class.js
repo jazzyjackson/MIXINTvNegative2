@@ -1,6 +1,15 @@
-class ConvoBlock extends ReadBlock {
+class ConvoBlock extends ProtoBlock {
     constructor(options){
         super(options)
+    }
+
+    static get actions(){
+        return {
+            "clear convo": {
+                func: function(){ Array.from(this.next.childNodes, node => node.remove()) },
+                info: "the equivelant of typing 'clear' into the shell, simply deletes existing message blocks from this interface. Note this does not touch any files on disk"
+            }
+        } 
     }
 
     connectedCallback(){
