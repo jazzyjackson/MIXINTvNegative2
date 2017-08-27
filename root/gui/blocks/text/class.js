@@ -42,6 +42,10 @@ class TextBlock extends ReadBlock {
     blur(){
         Array.from(document.getElementsByClassName('focused'), node => node.classList.remove('focused'))
     }
+
+    static liveEdit(HTMLNode){
+        this.from(HTMLNode.getAttribute('filename'))
+    }
 }
 customElements.define('text-block', TextBlock)
 

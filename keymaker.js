@@ -8,6 +8,7 @@ const serverSelect = {
     /* serverSelect fills out variables for local, qa, and prod environments for authorization and redirect. 
      * hostname + pathname + query is used to redirect to another page if I'm unable to authorize you
      * checkAuthDomain and cookieDomain are only necessary if you have qa and prod servers on different domains */
+    /* in this case, if someone hits the server without a cookie or a key, I simply redirect them with a key of 0 to sign them in as 'nobody' */
     localhost: {
         hostname: '',
         pathname: '/',

@@ -19,24 +19,42 @@ class ReadBlock extends HTMLElement {
         this.id = 'block' + String(Math.random()).slice(-4) + String(Date.now()).slice(-4) //random id for convenience. random number + time to reduce likelihood of collisions
         this.props = this.options
         /* if action & method are defined, set the props of this node by fetching. skip if concenttype is already truthy, fetch already happened */
-        this.props.action && this.props.method && !this.contenttype && this.request()    
+        this.props.action && this.props.method && !this.contenttype && this.request()
+    }
+
+    static get superClassChain(){
+        var superClassChain = []
+        var superclass = this /* this is the part thats different for the class method: we can call the prototype of the class */
+        while(superclass.name != 'HTMLElement'){
+            superClassChain.push(superclass.prototype.constructor)
+            superclass = superclass.__proto__
+        }
+        return superClassChain 
+    }
+
+    get superClassChain(){
+        var superClassChain = []
+        var superclass = this.constructor /* this is the part thats different for the instance method: we have to call the constructor before we call for the prototype */
+        while(superclass.name != 'HTMLElement'){
+            superClassChain.push(superclass.prototype.constructor)
+            superclass = superclass.__proto__
+        }
+        return superClassChain
     }
     
     init(){
+        /* this calls every connectedCallback up the class inheritence chain or whatever you want to call it */
         if(this.initialized) return null
         else this.initialized = true
-        /* this calls every connectedCallback up the class inheritence chain or whatever you want to call it */
         /* call in reverse order to invoke base class connectedCallback first. */
-        var superClassChain = []
-        var superclass = this.constructor.__proto__
-        while(superclass.name != 'HTMLElement'){
-            superClassChain.push(superclass.prototype.connectedCallback)
-            superclass = superclass.__proto__
-        }
-        superClassChain.reverse().forEach(callback => callback.call(this))
+        this.superClassChain.reverse().forEach(superClass => superClass.prototype.connectedCallback.call(this))
+        console.log("Dispatching LOAD from", this.tagName)
+        this.dispatchEvent(new Event('load')) /* fire load event so other elements can wait for the node to be initialized */
+
     }
 
-    request(){
+    request(action, method){
+        action && method && this.clear() && Object.assign(this.props, {action, method}) // if request was called with arguments, clear all attributes and assign action and method, make the call again.
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
         .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
         .then(response => response.body ? response.body.getReader() 
@@ -89,17 +107,24 @@ class ReadBlock extends HTMLElement {
             data = {data}
         }
         Object.keys(data).forEach(key => {
-            var oldData = this.getAttribute(key)
-            var newData =  oldData ? oldData + data[key] : data[key]
+            let oldData = this.getAttribute(key)
+            let newData =  oldData ? oldData + data[key] : data[key]
             this.setAttribute(key, newData)
         })
         return this.props
     }
 
+    clear(){
+        /* a method for destroying attributes, to reset the block, but there's probably some attributes you want to keep. tabIndex and style needs to exist for click and drag (active element works off focus, updates from style attributes) */
+        let keepAttributes = ['id','style','tabIndex']
+        return Array.from(this.attributes, attr => keepAttributes.includes(attr.name) || this.removeAttribute(attr.name))
+    }
+
     get props(){
-        var temp = {}
-        Array.from(this.attributes, attr => temp[attr.name] = attr.value)
-        return temp
+        /* an ugly way to coerce a NamedNodeMap (attributes) into a normal key: value object. 
+        Use ES6 enhanced object literals to eval node.name as a key, so you have an array of objects (instead of attribute) and then you can just roll it up with reduce */
+        return Array.from(this.attributes, attr => ({[attr.name]: attr.value}))
+                    .reduce((a, b) => Object.assign(a, b)) // You would think you could do .reduce(Object.assign), but assign is variadic, and reduce passes the original array as the 4th argument to its callback, so you would get the original numeric keys in your result if you passed all 4 arguments of reduce to Object.assign. So, explicitely pass just 2 arguments, accumulator and next.
     }
 
     static from(url, options = {method: 'get'}){
@@ -115,6 +140,22 @@ class ReadBlock extends HTMLElement {
         parentNode.appendChild(newBlock)
         return newBlock
     }
+    // each class will have a static menu getter that returns the locally defined functioned to expose to the menu function. No need to bind, the function referenced will be invoked with 'call(parentBlock, args)'
+    // if a menu includes a method of the same name, probably want to use the lower one in the class heirarchy
+    static get menu(){
+        return {
+            /* \u2011 ‑ non breaking hyphen! neat! not like those normal hyphens - */
+            "re‑request": {
+                func: this.prototype.request,
+                args: [{action: String}, {method: String}],
+                defaults: [undefined, 'URL']
+            },
+            "become": {
+                func: this.prototype.become,
+                args: [{enum: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}]
+            }
+        } 
+    }   
 
 }
 
