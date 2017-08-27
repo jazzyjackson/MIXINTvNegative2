@@ -8,10 +8,12 @@
             "type":"image/x-icon",
             "href": "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
         },
-        "meta": {
+        "meta": [{
             "name":"viewport",
             "content":"maximum-scale=1, initial-scale=1"
-        }
+        },{
+            "charset":"UTF-8"
+        }]
     },
     "body": {
         "shell-block": {

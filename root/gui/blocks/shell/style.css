@@ -49,6 +49,10 @@ shell-block input:focus {
     border-bottom: 2px solid #4d90fe;
 }
 
+shell-block menu-block {
+    position: fixed;
+}
+
 shell-block menu-block:after {
     background-color: white;
 }

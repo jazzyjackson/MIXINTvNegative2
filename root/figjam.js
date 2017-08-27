@@ -37,11 +37,22 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         jam.push(`</style>\n`)
     }
     for(var node in figtree.head){
-        jam.push(`<${node} `)
-        for(var attribute in figtree.head[node]){
-            jam.push(`${attribute}="${figtree.head[node][attribute]}" `)
+        /* Can't read duplicate key names from JSON, so if you want siblings with the same tagName, have to make it an array of nodes */
+        if(Array.isArray(figtree.head[node])){
+            figtree.head[node].forEach(duplicate => {
+                jam.push(`<${node} `)
+                for(var attribute in duplicate){
+                    jam.push(`${attribute}="${duplicate[attribute]}" `)
+                }
+                jam.push(`/>\n`)
+            })
+        } else {
+            jam.push(`<${node} `)
+            for(var attribute in figtree.head[node]){
+                jam.push(`${attribute}="${figtree.head[node][attribute]}" `)
+            }
+            jam.push(`/>\n`)
         }
-        jam.push(`/>\n`)
     }
     /* finished with head. Render the graph of the body object */
     jam.push('</head>\n<body>\n')
