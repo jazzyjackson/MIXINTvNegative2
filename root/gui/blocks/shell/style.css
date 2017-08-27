@@ -49,9 +49,8 @@ shell-block input:focus {
     border-bottom: 2px solid #4d90fe;
 }
 
-shell-block menu-block {
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#fff" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>'); 
-    position: fixed;
+shell-block menu-block:after {
+    background-color: white;
 }
 
 /*shell-block:focus menu-block {

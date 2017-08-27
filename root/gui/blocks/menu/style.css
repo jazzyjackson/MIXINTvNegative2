@@ -1,3 +1,5 @@
+/* thanks to this thread https://stackoverflow.com/questions/9513588/prevent-children-from-inheriting-rotate-transformation-in-css */
+/* for the idea of applying the rotation transform to a :after psuedo element so that the children of menu-block won't be rotated when the icon is */
 menu-block {
     position: absolute;
     display: block;
@@ -5,16 +7,57 @@ menu-block {
     right: 0;
     width: 1em;
     height: 1em;
+    padding: 4px;
+    z-index: 11;
+    cursor: pointer;
+    box-sizing: content-box;
+}
+
+menu-block:after {
+    content: '';
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 0;
+    width: 1em;
+    height: 1em;
     margin: 4px;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#fff" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>');
+    background-color: #000;
+    clip-path: polygon(0.462em 0.000em, 0.369em 0.010em, 0.369em 0.369em, 0.009em 0.369em, 0.000em 0.462em, 0.010em 0.554em, 0.369em 0.554em, 0.369em 0.914em, 0.462em 0.923em, 0.554em 0.913em, 0.554em 0.554em, 0.914em 0.554em, 0.923em 0.462em, 0.913em 0.369em, 0.554em 0.369em, 0.554em 0.009em, 0.462em 0.000em);
     z-index: 20;
-    transition: .25s all;
+    transition: .25s transform;
 }
 
-*:focus menu-block {
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.000001 60.000001" height="100%" width="100%"><path fill="#4d90fe" d="M30 0a30 30 0 0 0-6 .639V24H.607A30 30 0 0 0 0 30a30 30 0 0 0 .639 6H24v23.393A30 30 0 0 0 30 60a30 30 0 0 0 6-.639V36h23.393A30 30 0 0 0 60 30a30 30 0 0 0-.639-6H36V.607A30 30 0 0 0 30 0z"/></svg>'); 
+*:focus menu-block:after {
+    background-color: cornflowerblue;
 }
 
-*[menu="visible"] menu-block {
+*[menu="visible"] menu-block:after {
     transform: rotate(45deg)
+}
+
+
+menu-block ul {
+    position: absolute;
+    right: 0;
+    list-style: none;
+    overflow: hidden;
+    transition: 0.25s height;
+}
+
+*[menu="hidden"] menu-block ul {
+    height: 0 !important; /* javascript is setting max height on the element, so to hide it we have to override */
+}
+
+
+menu-block li {
+    padding: 4px 25px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    width: 0;
+    display: table;
+    float: right;
+}
+menu-block li:hover {
+    border-left: 3px solid cornflowerblue;
 }
