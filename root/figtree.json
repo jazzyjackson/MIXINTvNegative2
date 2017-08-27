@@ -17,7 +17,7 @@
     },
     "body": {
         "shell-block": {
-            "init":"cat welcome.txt",
+            "init":"fold -s < welcome.txt",
             "tabindex":0
         }
     }
