@@ -14,13 +14,13 @@ const serverSelect = {
         pathname: '/',
         query: '?key=0', 
         checkAuthDomain: '', 
-        cookieDomain: ''
+        cookieDomain: 'coltenj.com'
     },
 }
 
 const { hostname, pathname, query, checkAuthDomain, cookieDomain } = serverSelect['localhost'] // select localhost, qa, or prod
 
-var formatCookie = key => 'key=' + key + ';Path=/;' + cookieDomain ? 'Domain=' + cookieDomain : ''
+var formatCookie = key => 'key=' + key + ';Path=/;Domain=' + cookieDomain
 
 async function identify(request, response){
     /* first check if there is a key in the cookie or in the url. If not, exit.  */
