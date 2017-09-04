@@ -64,7 +64,7 @@ class ShellBlock extends ConvoBlock {
             }
         }
         if(stringToEval.trim() == 'clear'){
-            setTimeout(()=>Array.from(document.querySelectorAll('message-block'), node => node.remove()),0)
+            setTimeout(() => { while (this.next.hasChildNodes()) this.next.removeChild(this.next.lastChild) })
             return { goodeval: 'OK'} // remove all the message blocks AFTER returning 'OK'
         }
         // if it wasn't cd or clear, then eval it as a string
