@@ -20,7 +20,7 @@ const serverSelect = {
 
 const { hostname, pathname, query, checkAuthDomain, cookieDomain } = serverSelect['localhost'] // select localhost, qa, or prod
 
-var formatCookie = key => 'key=' + key + ';Path=/;Domain=' + cookieDomain
+var formatCookie = key => 'key=' + key + ';Path=/;' + cookieDomain ? 'Domain=' + cookieDomain : ''
 
 async function identify(request, response){
     /* first check if there is a key in the cookie or in the url. If not, exit.  */
@@ -59,14 +59,14 @@ function setEnvironment(request){
             }
         }
         default: request.environment = {
-                cwd: 'root',
-                env: {
-                    bot: 'harry',
-                    user: request.userid,
-                    PATH: process.env.PATH,
-                    interpretMode: 'bashFirst'
-                }
+            cwd: 'root',
+            env: {
+                bot: 'harry',
+                user: request.userid,
+                PATH: process.env.PATH,
+                interpretMode: 'bashFirst'
             }
+        }
     }
 }
 
