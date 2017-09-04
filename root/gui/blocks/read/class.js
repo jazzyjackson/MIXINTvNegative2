@@ -14,8 +14,11 @@ class ReadBlock extends ProtoBlock {
             "re-request": {
                 func: this.prototype.request,
                 args: [{action: String}, {method: String}],
-                defaults: [undefined, 'URL']
+                defaults: [undefined, 'GET']
             }
+            /* get from disk */
+            /* put to disk */
+            /* delete from disk request(this.path + this.name, {method: "DELETE"}*/
         } 
     }
 

@@ -45,7 +45,7 @@ menu-block ul {
     transition: 0.25s height;
 }
 
-*[menu="hidden"] menu-block ul {
+*[menu="hidden"]:not([selection]) menu-block ul {
     height: 0 !important; /* javascript is setting max height on the element, so to hide it we have to override */
 }
 

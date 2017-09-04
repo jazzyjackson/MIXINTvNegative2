@@ -6,24 +6,26 @@ class MenuBlock extends HTMLElement {
     connectedCallback(){
         this.attachListeners()
         let menuList = document.createElement('ul')
+        let parentBlock = this.parentElement
         /* menu list is positioned absolutely against the right side */
         console.log('parent element is', this.parentElement)
         console.log('parents actions are', this.parentElement.actionMenu)
-        for(var optionName in this.parentElement.actionMenu){
-            optionName = optionName.replace(/ /g,'\u202F') // replace space with non-breaking space
-            optionName = optionName.replace(/-/g, '\u2011') /* \u2011 ‑ non breaking hyphen! neat! not like those normal hyphens - */
+        for(let optionName in parentBlock.actionMenu){
             let menuOption = document.createElement('li')
-            menuOption.textContent = optionName
+            menuOption.textContent = optionName.replace(/ /g,'\u202F').replace(/-/g, '\u2011') /* replace spaces and hyphens with their unicode non-breaking variants to prevent word-wrapping in menu */
+            menuOption.addEventListener('click', parentBlock.actionMenu[optionName].func.bind(parentBlock))
             menuList.appendChild(menuOption)
         }
-        /* transition should occur between 0 height and height of UL, but going from auto to 0 doesn't animate, so I have to explicitely set the max height as the calculated height. */
         this.appendChild(menuList)
-        menuList.style.height = menuList.getClientRects()[0].height /* what? oh, I'm binding the calculated height of the whole menu to the ul, because I want to hide it by setting height to 0, and I want it to be an animated transition, and that's done automatically if I can set explicit changes in numbers. Transition doesn't happen going from 0 to auto. */
+        /* transition should occur between 0 height and height of UL, but going from auto to 0 doesn't animate, so I have to explicitely set the max height as the calculated height. */
+        menuList.style.height = menuList.getClientRects()[0].height
         this.parentElement.setAttribute('menu','hidden')
         this.waitForParentInit().then(()=>{
-            console.log("My parent was initialized")
             menuList.style.top = this.parentElement.head.getClientRects()[0].height            
         })
+    }
+
+    constructExpression(optionObject){
 
     }
 

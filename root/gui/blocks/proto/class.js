@@ -11,15 +11,23 @@ class ProtoBlock extends HTMLElement {
         return {
             "become": {
                 func: this.prototype.become,
-                args: [{enum: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}]
+                args: [{dropdown: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}],
+                info: "Instantiates a new node of the selected type, copying all attributes from this node to the new one."
+            }, 
+            "remove from window": {
+                func: function(){this.remove()},
+                info: "Calls this.remove()"
             }
+            /* new child, new sibling -> templates */
+            /* remove from window */
         } 
     }
     /* get list of actions available on every class on the prototype chain and return an object to render MenuBlock */
     get actionMenu(){
-        console.log("In the action menu getter this is",this)
         /* this getter walks up the prototype chain, invoking 'get actions' on each class, then with that array of menu objects, reduce Object assign is called to return an amalgamated object of menu options */
-        return this.superClassChain.map(superclass => superclass.actions).reduce((a,b) => Object.assign(a,b))
+        return this.superClassChain.map(superclass => superclass.actions)
+                                   .reduce((a,b) => Object.assign(a,b))
+                                   
     }
 
     static get superClassChain(){
@@ -48,7 +56,7 @@ class ProtoBlock extends HTMLElement {
         if(this.initialized) return null
         /* but only calls it once if initialized flag isn't already set */
         this.initialized = true 
-        this.innerHTML = '' // don't remember if this is necessary...
+        this.innerHTML = null // don't remember if this is necessary...
         this.appendChild(document.querySelector(`[renders="${this.tagName.toLowerCase()}"]`).content.cloneNode(true))  
         this.head = this.querySelector('b-head') /* Had a lot of back and forth to organize the graph with each node having a next property */
         this.next = this.querySelector('b-next') /* I thought it might be a lot more elegant to have each custom element have its own shadowroot, So that the topmost lightDOM would just be a graph of custom elements. */
@@ -58,7 +66,7 @@ class ProtoBlock extends HTMLElement {
         /* call in reverse order to invoke base class connectedCallback first. */
         this.superClassChain.reverse().forEach(superClass => {
             /* this also expected connectedCallback to exist on every class, so just connectedCallback(){init()} if you don't need to do anything, just keep it as a template */
-            if(superClass.prototype.connectedCallback){
+            if(superClass.prototype.connectedCallback != undefined){
                 superClass.prototype.connectedCallback.call(this)
             }
         })
@@ -82,12 +90,9 @@ class ProtoBlock extends HTMLElement {
     }
 
     set props(data){
-        if(!data){
-            return this.props
-        }
-        if(typeof data != 'object'){ // convert strings and numbers into the property data, containing the value of data, so it can be appended to and reacted to normally
-            data = {data}
-        }
+        if(!data) return data // exit in the case of this.props = this.options, but options was undefined
+        if(typeof data != 'object') throw new Error("Set props requires an object to update from")
+       
         Object.keys(data).forEach(key => {
             let newData = data[key]
             let oldData = this.getAttribute(key)
