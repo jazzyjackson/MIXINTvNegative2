@@ -1,7 +1,74 @@
 # multi-interpreter
+An extensible and remixable space for cooperating with your network.
+
+Cooperating may include:
+- Uploading and modifying media on a shared, versioned filesystem
+- Communicating in chatrooms of your own design
+- Co-authoring chatbot personalities that control the computer
+
+Your network may include:
+- close friends and family
+- your local wifi router
+- distant acquiantences 
+- transoceanic fiber optics
+- strangers with a common interest
+- low-cost cloud infrastructure
+- coworkers and business partners
+- physical computers you control
+
+When you start a multi-interpreter, you're given a link that makes it accessible to anyone on the same network. If you're hosted in the cloud, or have an ISP that allows incoming connections on ports 80 and 443, the whole world is the same network. Otherwise, participants in the same room can use this shared online space without any connection to the wider internet.
+
+### Command & Convo
+Whether operating in single-player or multi-player, the interpreter is centered around two basic goals: to command the computer, and to have conversations.
+
+The first screen you see when connected to the interpreter's address could be welcoming or intimidating, based on your past experience with command line interfaces. It was my experience that being able to tell a computer exactly what to do was fun, so I became a programmer. But the trouble with a computer doing exactly what you tell it is that you're always a typo away from destroying files and breaking installations, so people shy away from copy-pasting code into their console.
+
+Conversational interfaces have found a new audience in millions of people who talk to their Alexas and Siris and Xiaoices, and multi-interpreter brings this natural language computer control back to its text-interface roots. If you don't know a word of machine language, you can still tell a multi-interpreter what to do and it will try and offer its capabilities. It may take a lot of babble and nonsensical replies to start figuring out what you can talk about, but that's to be expected when two parties meet without a common language.
+
+The expected outcome is some kind of computer-creole, where natural language carries the necessary information to get the machine to do what you want, and the machine expresses itself the best it can with a limited and mechanical knowledge of your language. (Creole and its relevance to AI is discussed in Nicoloas Negroponte's The Architecture Machine, 1970, check it out)
+
+#### Chatrooms of Your Own Design
+_OR, I've never seen a polite conversation on facebook trending_
+
+The internet offers a lot of ways for people to communicate. The copper that the early internet ran on top of was still routing telegrams, so of course mail became email without much fuss. But the fact that a reply could be expected immediately changed what conversations people have.
+
+Chatrooms where you could join and leave at will and have as many people as you wanted lead to conversations among people who would never cross paths in real life, out of geographic or social distance. 
+
+Identity plays a big role in conversations. You could come up with alter egos, be required by EULA to represent your legal identity, or be totally anonymous. If you're trying to be yourself, you're likely to stay ideologically consistent. If someone makes a personal attack. People will threaten you if they know it will scare you, and the only reason threats online are scary is because our real-life identities are so readily accessible on most social networks. Beyond the physical threat, can personal attacks exist in a space without ego? On 4chan image boards, there is no name attached to posts. You're left without a way to refer to other individuals. So you can shout slurs if you want, but who are you shouting at?
+
+My point is that the choices of what information a chatroom provides changes what chats happen in them. Not just whether your real name is attached to each message, but if the conversation is public or private, or if the messages will still exist in 24 hours, or if you can attach images to your message, or if you can delete messages.
+
+Consider the factors that may affect what you post on a website:
+- whether your real identity is attached to the message
+- who can see the conversation you're having
+- will the messages still exist in 24 hours? who can read the archive?
+- whether a character limit is enforced
+- is the composition of your message interrupted by new messages before you're done typing?
+- can someone enter the room at any time and see the old messages?
+- can you be kicked out of the room? By whom?
+- can you edit your message after its posted?
+- do other participants know you edited it? Can they see the previous edits?
+- can other people edit your message?
+- is the visual style of the messages decided for you, or can you modify it?
+- is the visual style of the chatroom decided for you, or can you modify it?
+
+These are choices that the designer of every chatroom makes, and I think it is important to use chatrooms that encourage the conversation you wish to have.
+
+
+I hope to see much experimentation in the design of chatrooms.
+
+### The Environment That Modifies Itself
+Javascript is a fairly unique language, taking cues from an ancestor, a computer language called LISP, which was designed to be able to change what functions do after the program has started. So LISP became a language to experiment with language, to create learning machine and programs that modified themselves. 
+
+Emacs was bourne out of this tradition, as a program that existed nominally as an editor, allowing for code to be written to extend and customize Emacs itself. Soon people were writing mail clients and filesystem browsers so they could use the whole computer without ever leaving emacs. 
+
+Multi-Interpreter also aims to continue the tradition, providing a web application that can change how it works while it's running. New capabilities can be added on the fly.
 
 I have this dream of writing a web server that walks you through the process of configuring itself for your needs.
 Kind of like that cow in the Restaurant at the End of the Universe that recommends its own liver, and rolls its eyes when you ask for a salad.
+
+
+
 
 The first step is to build a platform that can do all the work of your typical webserver, but has the power to change its own configuration and read its own error messages.
 
