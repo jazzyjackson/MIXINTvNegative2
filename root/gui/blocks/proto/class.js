@@ -15,12 +15,12 @@ class ProtoBlock extends HTMLElement {
                 info: "Instantiates a new node of the selected type, copying all attributes from this node to the new one."
             }, 
             "remove from window": {
-                func: function(){this.remove()},
+                func: HTMLElement.prototype.remove,
                 info: "Calls this.remove()"
             }
             /* new child, new sibling -> templates */
             /* remove from window */
-        } 
+        }   
     }
     /* get list of actions available on every class on the prototype chain and return an object to render MenuBlock */
     get actionMenu(){
@@ -71,8 +71,8 @@ class ProtoBlock extends HTMLElement {
             }
         })
         /* I'm expecting connectedCallbacks to be effectively blocking so that init is fired once all methods and HTML nodes are on the DOM, that's my intention anyway */
-        this.dispatchEvent(new Event('init')) /* fire load event so other elements can wait for the node to be initialized */
         console.log(`A ${this.tagName.toLowerCase()} was initialized`)
+        this.dispatchEvent(new Event('init')) /* fire load event so other elements can wait for the node to be initialized */
     }
 
     /* to be more extensible this should probably go up the superclasschain accumulating static get keepAttributes, and using that array to skip attribute removal */
@@ -82,8 +82,12 @@ class ProtoBlock extends HTMLElement {
         return Array.from(this.attributes, attr => keepAttributes.includes(attr.name) || this.removeAttribute(attr.name))
     }
 
-    become(blockType){
-        var newBlock = document.createElement(blockType)
+    become(block = this.constructor){
+        console.log("BECOME")
+        console.log()
+        // shell-block is the tagName of a ShellBlock, two different ways to make the same thing,
+        // depending on whether become was called with a reference to a class or just the string of a tagName
+        var newBlock = typeof block == 'string' ? document.createElement(block) : new block
         newBlock.props = this.props
         this.replaceWith(newBlock)
         return newBlock

@@ -39,11 +39,15 @@ class ReadBlock extends ProtoBlock {
     connectedCallback(){
         this.init() // doesn't really do anything on ReadBlock as a base class right after HTMLElement, but stuck here just for consistency, if you're using this as a model for what you should do */
         /* if action & method are defined, set the props of this node by fetching. skip if concenttype is already truthy, fetch already happened */
-        this.props.action && this.props.method && !this.contenttype && this.request()
+        this.props.action && this.props.method 
+                          && !this.contenttype 
+                          && this.request()
     }
 
     request(action, method){
-        action && method && this.clear() && Object.assign(this.props, {action, method}) // if request was called with arguments, clear all attributes and assign action and method, make the call again.
+        action && method 
+               && this.clear() 
+               && Object.assign(this.props, {action, method}) // if request was called with arguments, clear all attributes and assign action and method, make the call again.
         fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
         .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
         .then(response => response.body ? response.body.getReader() 

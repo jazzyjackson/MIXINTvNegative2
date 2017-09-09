@@ -13,7 +13,7 @@ class MenuBlock extends HTMLElement {
         for(let optionName in parentBlock.actionMenu){
             let menuOption = document.createElement('li')
             menuOption.textContent = optionName.replace(/ /g,'\u202F').replace(/-/g, '\u2011') /* replace spaces and hyphens with their unicode non-breaking variants to prevent word-wrapping in menu */
-            menuOption.addEventListener('click', parentBlock.actionMenu[optionName].func.bind(parentBlock))
+            menuOption.addEventListener('click', this.actionCreator(menuOption,parentBlock.actionMenu[optionName],parentBlock))
             menuList.appendChild(menuOption)
         }
         this.appendChild(menuList)
@@ -25,8 +25,17 @@ class MenuBlock extends HTMLElement {
         })
     }
 
-    constructExpression(optionObject){
-
+    actionCreator(menuOption, optionObject, context){
+        optionObject.args 
+        /* might be undefined, in that case, just invoke the function, no args */
+        /* otherwise, it should be an array of objects, whose key is the type of input. Text, Number, Select, 
+        /* following keyname is either the default option or the content of the select form... */
+        return function(){
+            /* modifies the menuOption, adds an event listener to execute after collecting options */
+            var args = prompt('what should I pass to ' + optionObject.func.name)
+            optionObject.func.call(context, args)
+        }
+       
     }
 
     waitForParentInit(){
