@@ -85,6 +85,7 @@ class ConvoBlock extends ProtoBlock {
     }
 
     handleParty(event){
+        event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener        
         let message = this.input.value || '...'
         let time = Date.now()
         let convoString = JSON.stringify({time, message})
