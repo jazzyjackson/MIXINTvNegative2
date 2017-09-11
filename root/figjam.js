@@ -64,6 +64,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         jam.push(`></${block}>\n`)
     }
     /* before ending the body tag, append a script tag for every javascript file */
+    jam.push('<block-templates>')
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]
         var blockTemplate = path.join(figDirectory, 'gui/blocks/', blockName,'/template.html')
@@ -71,29 +72,29 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
         await promise2pipe(blockTemplate, jam)
         jam.push(`</template>`)
     }
+    jam.push('</block-templates>')
+    
+    /* instead of appending separate script tags, read the list of names, */
+    /* future script tags re-declaring classes will simply override earlier declarations, and if the file is saved, it will be pulled from disk in its newest version */
+    jam.push(`<block-classes><script id="block-definitions">\n`)
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]        
         var blockClass = path.join(figDirectory, 'gui/blocks/', blockName,'/class.js')
-        jam.push(`<script filename="${blockClass}">\n`)
         /* if you needed to transpile, this is a good place
         just launch a child process to run Babel on the script and push that */
         await promise2pipe(blockClass, jam)
-        jam.push(`</script>\n`)
+        jam.push('\n')
     }
+    jam.push(`</script></block-classes>\n`)
     for(var thisScript of figtree.scripts){
         jam.push(`<script filename="${thisScript}">\n`)
         var thisScriptFilePath = path.join(figDirectory,'gui',thisScript)
-        /* if you needed to transpile, this is a good place
+        /* if you needed to transpile or add polyfill, this is a good place
         just launch a child process to run Babel on the script and push that */
         await promise2pipe(thisScriptFilePath, jam)
         jam.push(`</script>\n`)
     }
-    jam.push(`<script defer id="hoist">Array.from(document.querySelectorAll('template,script'), node => {
-        node.remove()
-        document.head.appendChild(node)
-    })
-    document.getElementById("hoist").remove()
-    </script>`)
+
     jam.push('</body>\n</html>')
     jam.push(null)
 }

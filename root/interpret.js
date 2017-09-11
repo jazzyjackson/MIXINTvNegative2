@@ -18,9 +18,13 @@ class interpretation {
         this.string2interpret = string2interpret
         this.promiseChain = makeIterator({
             botFirst: [this.tryChat],
-            bashFirst: [this.tryEval, this.tryBash, this.tryChat]
+            bashFirst: [this.tryBash, this.tryChat]
         }[process.env.interpretMode || 'botFirst']) // if environment wasn't set, default to bot
         this.iterateTilSuccess(this.promiseChain.next())
+        this.heartbeat = setInterval(() => {
+            this.send({heartbeat: true})
+        }, 10000) // heartbeat every 10 seconds. interval cleared when this.end is called.
+
     }
 
     iterateTilSuccess(whatsNext){
@@ -124,6 +128,7 @@ class interpretation {
     end(result){
         /* closes the stream by pushing null byte, optionally sending one last object if passed an argument */
         result && this.readable.push(JSON.stringify(result) + '\n')
+        clearInterval(this.heartbeat)        
         this.readable.push(null)
     }
 }

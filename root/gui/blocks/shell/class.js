@@ -5,6 +5,7 @@ class ShellBlock extends ConvoBlock {
 
     connectedCallback(){
         this.init()
+        this.head.textContent = location.host + ' talking to ' + this.getAttribute('convoMode')
         this.form.setAttribute('pathname', location.pathname)
     }
     
