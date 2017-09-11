@@ -53,7 +53,7 @@ class ConvoBlock extends ProtoBlock {
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
-        fetch('/?tail -f .convolog', { method: 'POST', credentials: "same-origin", redirect: "error" })
+        fetch('/?' + encodeURI('tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
         .then(response => response.body.getReader())
         .then(this.consumeStream.bind(this))
         .catch(err => {
@@ -89,7 +89,7 @@ class ConvoBlock extends ProtoBlock {
         let message = this.input.value || '...'
         let time = Date.now()
         let convoString = JSON.stringify({time, message})
-        fetch('/? echo' + convoString + ' >> .convolog', {method: "POST", credentials: "same-origin", redirect: "error"})
+        fetch('/?' + encodeURI('echo ' + convoString + ' >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .catch(console.error.bind(console))
     }
 
