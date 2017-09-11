@@ -89,7 +89,7 @@ class ConvoBlock extends ProtoBlock {
         let message = this.input.value || '...'
         let time = Date.now()
         let convoString = JSON.stringify({time, message})
-        fetch('/? echo' + convoString + ' >> .convolog')
+        fetch('/? echo' + convoString + ' >> .convolog', {method: "POST", credentials: "same-origin", redirect: "error"})
         .catch(console.error.bind(console))
     }
 
