@@ -30,7 +30,7 @@ class MessageBlock extends ReadBlock {
                 console.log('evalling command from ChatScript:', eval(newValue))
                 break
             default:
-                console.log("DEFAULT", attr, newValue)
+                console.log("DEFAULT", attr, newValue, this)
                 this.body.textContent = newValue
         }
         document.querySelector('message-block:last-child').scrollIntoView()

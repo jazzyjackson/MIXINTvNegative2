@@ -51,35 +51,35 @@ class ConvoBlock extends ProtoBlock {
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
-        fetch('tail -f .convolog', { method: 'POST', credentials: "same-origin", redirect: "error" })
+        fetch('/?tail -f .convolog', { method: 'POST', credentials: "same-origin", redirect: "error" })
         .then(response => response.body.getReader())
-        .then(reader => {
-            /* might handle the strage use case of tailing a file and searching for the first newline char and parsing from there */
-            if(!reader) return null  // consumeStream will exit if the text was consumed already
-            this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
-            /* recursively call consumeStream. reader.read() is a promise that resolves as soon as a chunk of data is available */
-            return reader.read().then(sample => {
-                if(sample.value){
-                    this.streambuffer += textDecoder.decode(sample.value)
-                    if(this.streambuffer.match(/}\s*$/)){
-                        this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
-                            // append a new message with the properties 
-                            var newMessage = document.createElement('message-block')
-                            newMessage.props = JSON.parse(JSONchunk)
-                            this.next.appendChild(newMessage)
-                        })
-                        delete this.streambuffer
-                    }
-                    return this.consumeStream(reader)
-                }
-            })
-        })
+        .then(this.consumeStream.bind(this))
         .catch(err => {
             console.error(err)
             console.error('multiplayer convo requires responseStream API, available in chrome')
         })
-
-
+    }
+            
+    consumeStream(reader){
+        /* might handle the strage use case of tailing a file and searching for the first newline char and parsing from there */
+        if(!reader) return null  // consumeStream will exit if the text was consumed already
+        this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
+        /* recursively call consumeStream. reader.read() is a promise that resolves as soon as a chunk of data is available */
+        return reader.read().then(sample => {
+            if(sample.value){
+                this.streambuffer += textDecoder.decode(sample.value)
+                if(this.streambuffer.match(/}\s*$/)){
+                    this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
+                        // append a new message with the properties 
+                        var newMessage = document.createElement('message-block')
+                        this.next.appendChild(newMessage)
+                        newMessage.props = JSON.parse(JSONchunk)
+                    })
+                    delete this.streambuffer
+                }
+                return this.consumeStream(reader)
+            }
+        })
     }
 
     handleSubmit(event, options = {headless: false}){
