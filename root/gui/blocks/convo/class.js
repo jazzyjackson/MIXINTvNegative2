@@ -22,13 +22,16 @@ class ConvoBlock extends ProtoBlock {
         this.head.textContent = location.host
         this.form = this.body.firstElementChild
         this.input = this.form.firstElementChild
-        this.form.onsubmit = this.handleSubmit.bind(this)
         window.autoSubmit = this.autoSubmit.bind(this)
 
         if(this.props.convomode == 'party'){
             this.addEventListener('init', () => {
                 this.startMultiPlayer()
+                this.form.onsubmit = this.handleParty.bind(this)                    
             })
+        } else {
+            this.autoSubmit(this.getAttribute('init'))
+            this.form.onsubmit = this.handleSubmit.bind(this)        
         }
 
         // A couple of ways to focus on the input. Click empty space, hit escape no matter what
@@ -37,7 +40,6 @@ class ConvoBlock extends ProtoBlock {
                                                                  || event.target === this
                                                                  && this.input.focus())
         document.body.addEventListener('keyup', event => event.key === 'Escape' && this.input.focus())
-        this.autoSubmit(this.getAttribute('init'))
     }
 
     switchMode(newMode){
@@ -80,6 +82,14 @@ class ConvoBlock extends ProtoBlock {
                 return this.consumeStream(reader)
             }
         })
+    }
+
+    handleParty(event){
+        let message = this.input.value || '...'
+        let time = Date.now()
+        let convoString = JSON.stringify({time, message})
+        fetch('/? echo' + convoString + ' >> .convolog')
+        .catch(console.error.bind(console))
     }
 
     handleSubmit(event, options = {headless: false}){
