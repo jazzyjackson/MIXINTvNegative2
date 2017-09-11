@@ -13,8 +13,7 @@ class ReadBlock extends ProtoBlock {
         return {
             "re-request": {
                 func: this.prototype.request,
-                args: [{action: String}, {method: String}],
-                defaults: [undefined, 'GET']
+                args: [{input: "filename"}, {select: ["GET","POST","DELETE","PUT"]}],
             }
             /* get from disk */
             /* put to disk */
@@ -45,6 +44,8 @@ class ReadBlock extends ProtoBlock {
     }
 
     request(action, method){
+        console.log("ACTION", action)
+        console.log("method", method)
         action && method 
                && this.clear() 
                && Object.assign(this.props, {action, method}) // if request was called with arguments, clear all attributes and assign action and method, make the call again.

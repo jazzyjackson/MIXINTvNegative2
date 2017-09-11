@@ -51,7 +51,7 @@ class ConvoBlock extends ProtoBlock {
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
-        fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
+        fetch('tail -f .convolog', { method: 'POST', credentials: "same-origin", redirect: "error" })
         .then(response => response.body.getReader())
         .then(reader => {
             /* might handle the strage use case of tailing a file and searching for the first newline char and parsing from there */

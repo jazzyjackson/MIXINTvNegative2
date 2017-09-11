@@ -11,23 +11,31 @@ class ProtoBlock extends HTMLElement {
         return {
             "become": {
                 func: this.prototype.become,
-                args: [{dropdown: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}],
+                args: [{select: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}],
                 info: "Instantiates a new node of the selected type, copying all attributes from this node to the new one."
             }, 
             "remove from window": {
                 func: HTMLElement.prototype.remove,
                 info: "Calls this.remove()"
+            },
+            "inspect or modify": {
+                func: this.prototype.inspectOrModify,
+                args: [{"select": ["style","class","template"]}]
             }
             /* new child, new sibling -> templates */
-            /* remove from window */
         }   
     }
+
     /* get list of actions available on every class on the prototype chain and return an object to render MenuBlock */
     get actionMenu(){
         /* this getter walks up the prototype chain, invoking 'get actions' on each class, then with that array of menu objects, reduce Object assign is called to return an amalgamated object of menu options */
         return this.superClassChain.map(superclass => superclass.actions)
                                    .reduce((a,b) => Object.assign(a,b))
                                    
+    }
+
+    static get requiredAttributes(){
+
     }
 
     static get superClassChain(){
@@ -83,14 +91,21 @@ class ProtoBlock extends HTMLElement {
     }
 
     become(block = this.constructor){
-        console.log("BECOME")
-        console.log()
         // shell-block is the tagName of a ShellBlock, two different ways to make the same thing,
         // depending on whether become was called with a reference to a class or just the string of a tagName
         var newBlock = typeof block == 'string' ? document.createElement(block) : new block
         newBlock.props = this.props
         this.replaceWith(newBlock)
         return newBlock
+    }
+
+    inspectOrModify(){
+        return {
+            class: "class.js",
+            style: "style.css",
+            template: "template.html"
+        }
+        // open TextBlock from the source code, might be class.js
     }
 
     set props(data){
