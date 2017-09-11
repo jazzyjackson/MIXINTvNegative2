@@ -18,7 +18,8 @@
     "body": {
         "shell-block": {
             "init":"fold -s < welcome.txt",
-            "tabindex":0
+            "tabindex":0,
+            "convoMode":"self"
         }
     }
 }

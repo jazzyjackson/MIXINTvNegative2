@@ -36,7 +36,6 @@ menu-block:after {
     transform: rotate(45deg)
 }
 
-
 menu-block ul {
     position: absolute;
     right: 0;
@@ -49,7 +48,6 @@ menu-block ul {
     height: 0 !important; /* javascript is setting max height on the element, so to hide it we have to override */
 }
 
-
 menu-block li {
     padding: 4px 25px;
     background: rgba(0,0,0,0.8);
@@ -57,7 +55,25 @@ menu-block li {
     width: 0;
     display: table;
     float: right;
+    clear: both;
+    white-space: nowrap;    
+    transition: .2s all;
 }
-menu-block li:hover {
+menu-block li:hover, menu-block li:focus {
     border-left: 3px solid cornflowerblue;
+}
+menu-block li:focus::after {
+    content: '⏎';
+    color: cornflowerblue;
+    padding-left: 5px;
+}
+
+/*direct descendents of form should have more obvious focus highligting */
+menu-block form > *:focus {
+border-left: 3px solid cornflowerblue;
+    
+}
+
+menu-block form {
+    display: inline-block;
 }

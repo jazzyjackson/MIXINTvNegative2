@@ -1,59 +1,45 @@
 # multi-interpreter
+An extensible and remixable space for cooperating with your network.
 
-I have this dream of writing a web server that walks you through the process of configuring itself for your needs.
-Kind of like that cow in the Restaurant at the End of the Universe that recommends its own liver, and rolls its eyes when you ask for a salad.
+Cooperating may include:
+- Uploading and modifying media on a shared, versioned filesystem
+- Communicating in chatrooms of your own design
+- Co-authoring chatbot personalities that control the computer
 
-The first step is to build a platform that can do all the work of your typical webserver, but has the power to change its own configuration and read its own error messages.
+Your network may include:
+- close friends and family
+- your local wifi router
+- distant acquiantences 
+- transoceanic fiber optics
+- strangers with a common interest
+- low-cost cloud infrastructure
+- coworkers and business partners
+- physical computers you control
 
-But before trying to explain what a self-aware web server looks like, I want to provide a minimal configuration that is immediately useful.
+When you start a multi-interpreter, you're given a link that makes it accessible to anyone on the same network. If you're hosted in the cloud, or have an ISP that allows incoming connections on ports 80 and 443, the whole world is the same network. Otherwise, participants in the same room can use this shared online space without any connection to the wider internet.
 
-Multi-intrepreter aims to make it easy to do all the things computers are good at, including:
-- Sharing files on a local network, or uploading files to a server to share online
-- Message passing between friends and co-workers
-- Modify the user interface to access and edit messages, files, and programs
-- Scheduling assistance to set alarms and run programs
-- Explain what available programs do and offer you many options on how to run them
-- Archiving files, keeping records and tracking changes to all of them
+### Command & Convo
+Whether operating in single-player or multi-player, the interpreter is centered around two basic goals: to command the computer, and to have conversations.
 
-On top of this central functionality, an application can be cloned and modified. 
-- Serve a simple static website
-- allow user actions to fire off specific functions - store or fetch data, send a text message
-- give a custom interface to the chatbot, even design a video game around the chat script.
+The first screen you see when connected to the interpreter's address could be welcoming or intimidating, based on your past experience with command line interfaces. It was my experience that being able to tell a computer exactly what to do was fun, so I became a programmer. But the trouble with a computer doing exactly what you tell it is that you're always a typo away from destroying files and breaking installations, so people shy away from copy-pasting code into their console.
 
-# Operator, Bookkeeper, and Keymaker
+Conversational interfaces have found a new audience in millions of people who talk to their Alexas and Siris and Xiaoices, and multi-interpreter brings this natural language computer control back to its text-interface roots.
 
-**Operator.js connects your calls.**
+Computers are typically unforgiving machines that take a lot of patience to get a feel for, and even engineers make mistakes. Multi-interpreter paired with chatscript personalities aims to provide a computer that knows about itself - an automated conversation that can answer questions about its own code. The chatbot even has the ability to modify its own configuration and read its own error logs.
 
-It is the top level script that does all the process creation and supervising, so once you git clone, you can run 'node operator' to start listening for HTTP requests. It also listens for input on stdin, so once you start the operator, you can still use the shell. Input is piped to the interpret function, explained further down, allowing you to run bash commands, javascript one-liners, or plain English to be replied to by the system's ChatScript personality.
+If you don't know a word of machine language, you can still tell a multi-interpreter what to do and it will try and offer its capabilities. It may take a lot of babble and nonsensical replies to start figuring out what you can talk about, but that's to be expected when two parties meet without a common language.
 
-**Bookkeeper.js takes note of every transaction made by the Operator.**
-
-Each user gets a separate log file, including the system itself. System errors are kept in error.log. They are written in JSON for easy interpretation by other programs. Each log includes information about GET/POST/PUT/DELETE request made by that user, how many bytes of data were transfered, along with CPU and RAM usage by that users' Switchboard.
-
-**Keymaker.js sets cookies and reads magic URLs**
-
-By designing a server meant to serve only a few hundred people, I get to cut a big corner in authorization - I don't have to store user sessions in a database. Keymaker simply maps random numbers to user ids. Keymaker also provides the function allowing you to decide what environment variables are set in that users sessions - you can decide what usernames have what unix uids, whether they talk to the bot or can execute arbitrary bash commands, and which directory they're contained in (e.g. what application they are served.)
-
-# Root, Logs, and Spiders
-You can think of logs as slices of a branch, an artifact that lets analyze the rings to determine what happened over time. Thankfully for our computer program, we don't have to destroy the tree to read its logs.
-
-If you're familiar with git branches, you'll have to zoom out a bit - a repository may have many branches, but it will at least have a master branch, which implies that there is a larger tree to attach to. The host machine's filesystem is that tree that contains many repos and their master branches.
-
-Spiders are programs that crawl filesystems and computer networks and carry out some task for you. Basic spiders might include, download any new messages from a POP server, fetch the weather.
-They can be accessed via POST requests from client side applications or by a ChatScript server, allowing your chatbot to digest data from the wider internet.
-
-# Root: Interpret, Switchboard, and GUI
-A switchboard is a lightweight node server spun up on a per-user basis ('guest' or 'nobody' may be a user that represents many different people requesting files).  
-
-If a 'GET' request is made to a directory (like '/' or '/root/gui/blocks/' ) the default figtree is used to serve the terminal interface.
-Otherwise, an attempt is made to serve the file requested by the pathname. Relative pathnames are relative to the working directory of the node server right now. Full paths are OK too.
-Note that a trailing slash is used to determine that a path represents a directory.
+The expected outcome is some kind of computer-creole, where natural language carries the necessary information to get the machine to do what you want, and the machine expresses itself the best it can with a limited and mechanical knowledge of your language. (Creole and its relevance to AI is discussed in Nicoloas Negroponte's The Architecture Machine, 1970, check it out)
 
 
-# Root: Convologs, Figtrees, and FigJam
-Convologs are JSON files with a single message per line, one file for each user.
-This allows the recording and interweaving of messages from many users, so anyone within a particular directory has the option to leave public messages. Chatroom functionality can be had if you connect to a "log watch" program to stream new file changes to you.
-Figtrees, short for Configuration Trees, are directed graphs representing the state of a workspace associated with a particular user. The file is read by a client to initialize and position all the blocks a particular user was working on.
+### Block and Tackle Programming
+Arranging simple machines into sophisticated systems
+
+Taking advantage of the graph-based nature of HTML, block-and-tackle provides a flexible way to arrange information and processes
+
+The parts and processes of a system can be prototyped like a mind map,but active nodes can run javascript that walks up and down the tree its a part of, reading and/or modifying its siblings, children, and ancestors. 
+
+So a prototype may simply arrange ideas under umbrellas representing different components, but code can be written on the back of each node, so that nodes start containing modal information. Notes that become documentation, and a visual separation of concerns that encourages thoughtful modularity and code testing.
 
 # Server Options: Timeshare | Stateless
 
@@ -70,13 +56,6 @@ New users are signed in as a nobody by default, so they don't have rights to del
 However, if you want certain users (say, everyone except you) to talk only to the bot, it is simply a matter of specifying a different interpreter mode.
 Bot-first prohibits the execution of arbitrary bash commands. Instead, the chatbot decides how to respond to a request, which MAY INCLUDE a bash command. That is, you can write chatscript that triggers bash commands on an untrusted users' behalf. So system administrators could set up bash scripts that are run when requested by a particular user (by the way chatbot also knows your username and can withhold or provide information based on username, it's all up to how you write the chatscript)
 
-# Magic Links and Session Cookies
-
- Multi-interpreter uses magic links and session cookies to provide security to your application. As opposed to serving the full application to every web request, any incoming request that does not include a valid cookie can be redirected to a page prompting the user to acquire a magic link - a random token that the server creates and identifies you as a unique user.
-
-# Timeshare or Stateless
-
-
 
 # From Sphinx to Root, duplicating and modifying applications
 
@@ -85,21 +64,8 @@ The included application aims to provide essential features to allow online coll
 If you're interested in a basic interface to allow anyone on the internet to chat with your chatbot, you don't even have to go past here. Sphinx.html includes a basic chat interface, and if you write a script that never redirects users to the application, they can talk to your bot all day long. The default usage is to determine if a user is human and/or trustworthy and redirect users to the website at that point.
 
 ## Compatibility notes
-I'm developing multi-interpreter with Node 7+, but everything I'm using has been standard since 0.12, I think.
-Browser compatibility is another story, as I'm using Promises and ES6 classes on the clientside.
-In early development, I'm concentrating on webkit + gecko browsers (chrome, opera, firefox).
-In the future, polyfill and babel translation for older browsers will be provided.
-
-## Why?
-
-The central principal of this project is simply this: you already own a computer and pay for a network connection, why trade your attention and privacy to a social network or megacorp just to co-operate online with friends and coworkers?
-
-As for the ChatScript server being the end of the interpretation-chain, I'm very optimistic about a computer being able to clue in on what you're trying to do and volunteer its abilities to you.
-
-Machine language is so sensitive to the exact syntax and grammar of its parser that things go very poorly when you make a mistake...
-
-One missing semicolom and the program won't start, did you type `rm -rf` in the wrong directory? Poof! All yours files are gone forever. Computers are typically very unforgiving machines that take a lot of patience to get a feel for, and even engineers make mistakes.
-So multi-interpreter paired with a ChatScript personality aims to provide an assisstant that knows about itself - can modify its own configuration, read its own error log, and tries to match your intent with its own capabilities.
+Get Node 8
+Get Chrome (uses customElements and ResponseStream API, web standards that will eventually be supported by other browsers. Just chrome for now. Or you can detect user agent and provide polyfill)
 
 ## Why free?
 
