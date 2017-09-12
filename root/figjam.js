@@ -31,7 +31,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     /* followed by any other nodes in the head. Link, Title, Meta, etc. */
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]        
-        var blockStyle = `/gui/blocks/${blockName}/style.css`
+        var blockStyle = `/gui-blocks/${blockName}/style.css`
         jam.push(`<style filename="${blockStyle}">\n`)
         await promise2pipe('.' + blockStyle, jam)
         jam.push(`</style>\n`)
@@ -67,7 +67,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push('<block-templates>')
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]
-        var blockTemplate = path.join(figDirectory, 'gui/blocks/', blockName,'/template.html')
+        var blockTemplate = path.join(figDirectory, 'gui-blocks/', blockName,'/template.html')
         jam.push(`<template renders="${blockName}-block" filename="${blockTemplate}">`)
         await promise2pipe(blockTemplate, jam)
         jam.push(`</template>`)
@@ -79,7 +79,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push(`<block-classes><script id="block-definitions">\n`)
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]        
-        var blockClass = path.join(figDirectory, 'gui/blocks/', blockName,'/class.js')
+        var blockClass = path.join(figDirectory, 'gui-blocks/', blockName,'/class.js')
         /* if you needed to transpile, this is a good place
         just launch a child process to run Babel on the script and push that */
         await promise2pipe(blockClass, jam)
