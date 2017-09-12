@@ -9,7 +9,6 @@ class ShellBlock extends ConvoBlock {
         this.head.textContent = this.name + '@' + location.host + ' talking to ' + this.getAttribute('convoMode')
         this.form.setAttribute('pathname', location.pathname)
         fetch('/?' + encodeURI('tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
-        .then(() => this.input.value = '')
     }
     
     handleSubmit(event, options = {headless: false}){ // overwrite handleSubmit method of prototype ConvoBlock, to eval first

@@ -94,6 +94,7 @@ class ConvoBlock extends ProtoBlock {
         // So I'll avoid control characters by base64 encoding my JSON string, and piping that string through the coreutils program 'base64' before saving it to file.
         let convoString = btoa(JSON.stringify({time, message}) + '\n')
         fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
+        .then(() => this.input.value = '')
         .catch(console.error.bind(console))
     }
 
