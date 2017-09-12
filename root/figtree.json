@@ -19,7 +19,7 @@
         "shell-block": {
             "init":"echo READY",
             "tabindex":0,
-            "convoMode":""
+            "convoMode":"self"
         }
     }
 }
