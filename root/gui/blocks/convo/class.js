@@ -73,9 +73,11 @@ class ConvoBlock extends ProtoBlock {
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
                         // append a new message with the properties 
+                        let incomingData = JSON.parse(JSONchunk)
+                        if(incomingData.heartbeat) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         var newMessage = document.createElement('message-block')
                         this.next.appendChild(newMessage)
-                        newMessage.props = JSON.parse(JSONchunk)
+                        newMessage.props = incomingData
                     })
                     delete this.streambuffer
                 }
@@ -88,8 +90,10 @@ class ConvoBlock extends ProtoBlock {
         event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener        
         let message = this.input.value || '...'
         let time = Date.now()
-        let convoString = JSON.stringify({time, message})
-        fetch('/?' + encodeURI('echo "' + convoString + '" >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
+        // alright this is a little crazy but shells require different escape sequences so its actually kind of hard to just pipe arbitrary strings to file when they contain bash/csh/zsh control characters. 
+        // So I'll avoid control characters by base64 encoding my JSON string, and piping that string through the coreutils program 'base64' before saving it to file.
+        let convoString = btoa(JSON.stringify({time, message}) + '\n')
+        fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .catch(console.error.bind(console))
     }
 
