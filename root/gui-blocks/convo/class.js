@@ -90,9 +90,10 @@ class ConvoBlock extends ProtoBlock {
         event && event.preventDefault()// suppress default action of reloading the page if handleSubmit was called by event listener        
         let message = this.input.value || '...'
         let time = Date.now()
+        let identity = this.identity
         // alright this is a little crazy but shells require different escape sequences so its actually kind of hard to just pipe arbitrary strings to file when they contain bash/csh/zsh control characters. 
         // So I'll avoid control characters by base64 encoding my JSON string, and piping that string through the coreutils program 'base64' before saving it to file.
-        let convoString = btoa(JSON.stringify({time, message}) + '\n')
+        let convoString = btoa(JSON.stringify({time, message, identity}) + '\n')
         fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .catch(console.error.bind(console))
     }
