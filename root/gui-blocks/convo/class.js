@@ -74,6 +74,7 @@ class ConvoBlock extends ProtoBlock {
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
                         // append a new message with the properties 
                         let incomingData = JSON.parse(JSONchunk)
+                        console.log(incomingData)
                         if(incomingData.heartbeat) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         var newMessage = document.createElement('message-block')
                         this.next.appendChild(newMessage)
