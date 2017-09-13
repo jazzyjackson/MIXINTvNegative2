@@ -95,7 +95,10 @@ class ConvoBlock extends ProtoBlock {
         let pt = this.form.getAttribute('prompt')
         // alright this is a little crazy but shells require different escape sequences so its actually kind of hard to just pipe arbitrary strings to file when they contain bash/csh/zsh control characters. 
         // So I'll avoid control characters by base64 encoding my JSON string, and piping that string through the coreutils program 'base64' before saving it to file.
-        let convoString = btoa(JSON.stringify({at, msg, id, pt}) + '\n')
+        let utf16 = JSON.stringify({at,msg,id,pt}) + '\n'
+        let utf8 = new TextEncoder('utf-8').encode(utf16)
+        let Latin1 = Array.from(utf8, String.fromCharCode).join('')
+        let convoString = btoa(Latin1)
         fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .then(() => this.input.value = '')
         .catch(console.error.bind(console))
