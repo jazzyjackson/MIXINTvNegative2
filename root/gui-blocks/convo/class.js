@@ -73,6 +73,7 @@ class ConvoBlock extends ProtoBlock {
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
                         if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
+                        JSONchunk = JSONchunk.replace(/\n$/) // destroy trailing newlines. 
                         // append a new message with the properties 
                         let incomingData = JSON.parse(JSONchunk)
                         console.log(incomingData)
