@@ -77,8 +77,8 @@ class ConvoBlock extends ProtoBlock {
                         if(incomingData.heartbeat) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         var newMessage = document.createElement('message-block')
                         this.next.appendChild(newMessage)
-                        newMessage.props.goodchat = [incomingData.id, incomingData.pt, incomingData.msg].join(' ')
-                        newMessage.setAttribute('title', new Date(incomingData.at).toDateString)
+                        newMessage.setAttribute('goodchat', [incomingData.id, incomingData.pt, incomingData.msg].join(' '))
+                        newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
                     })
                     delete this.streambuffer
                 }
@@ -96,6 +96,8 @@ class ConvoBlock extends ProtoBlock {
         // alright this is a little crazy but shells require different escape sequences so its actually kind of hard to just pipe arbitrary strings to file when they contain bash/csh/zsh control characters. 
         // So I'll avoid control characters by base64 encoding my JSON string, and piping that string through the coreutils program 'base64' before saving it to file.
         let utf16 = JSON.stringify({at,msg,id,pt}) + '\n'
+        // Whoa I didn't think this would work, thanks https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa#Unicode_Strings
+        // bota only does Latin1. after unescaping encodeURI, I've got a byte for byte representation of the unicode I want. I pipe that to file. When I read the file as utf8, it's all gravy
         let convoString = btoa(unescape(encodeURIComponent(utf16)))
         fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .then(() => this.input.value = '')
