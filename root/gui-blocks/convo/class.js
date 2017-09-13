@@ -74,17 +74,22 @@ class ConvoBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
-                        if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
-                        JSONchunk = JSONchunk.replace(/\n$/) // destroy trailing newlines. 
-                        // append a new message with the properties 
-                        let incomingData = JSON.parse(JSONchunk)
-                        console.log(incomingData)
-                        if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
-                        var newMessage = document.createElement('message-block')
-                        this.next.appendChild(newMessage)
-                        let {id, pt, msg} = JSON.parse(incomingData.bashData)
-                        newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
-                        newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
+                        try {
+                            if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
+                            JSONchunk = JSONchunk.replace(/\n$/) // destroy trailing newlines. 
+                            // append a new message with the properties 
+                            let incomingData = JSON.parse(JSONchunk)
+                            console.log(incomingData)
+                            if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
+                            var newMessage = document.createElement('message-block')
+                            this.next.appendChild(newMessage)
+                            let {id, pt, msg} = JSON.parse(incomingData.bashData)
+                            newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
+                            newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
+                        } catch(e) {
+                            console.error(e)
+                            console.log(JSONchunk)
+                        }
                     })
                     delete this.streambuffer
                 }
