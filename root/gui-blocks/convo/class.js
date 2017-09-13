@@ -99,6 +99,8 @@ class ConvoBlock extends ProtoBlock {
         let utf8 = new TextEncoder('utf-8').encode(utf16)
         let Latin1 = Array.from(utf8, String.fromCharCode).join('')
         let convoString = btoa(Latin1)
+        console.log("LATIN", Latin1)
+        console.log("BASE64", convoString)
         fetch('/?' + encodeURI('printf ' + convoString + ' | base64 -d >> .convolog'), {method: "POST", credentials: "same-origin", redirect: "error"})
         .then(() => this.input.value = '')
         .catch(console.error.bind(console))
