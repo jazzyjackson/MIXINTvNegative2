@@ -89,7 +89,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push(`</script></block-classes>\n`)
     for(var thisScript of figtree.scripts){
         jam.push(`<script filename="${thisScript}">\n`)
-        var thisScriptFilePath = path.join(figDirectory,'gui',thisScript)
+        var thisScriptFilePath = path.join(figDirectory,'gui-blocks',thisScript)
         /* if you needed to transpile or add polyfill, this is a good place
         just launch a child process to run Babel on the script and push that */
         await promise2pipe(thisScriptFilePath, jam)
