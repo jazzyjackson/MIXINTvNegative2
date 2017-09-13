@@ -77,6 +77,7 @@ class ConvoBlock extends ProtoBlock {
                         try {
                             if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                             JSONchunk = JSONchunk.replace(/\n$/,'') // destroy trailing newlines. 
+                            JSONchunk = JSONchunk.replace(/^\n/,'') // destroy leading newlines. 
                             // append a new message with the properties 
                             let incomingData = JSON.parse(JSONchunk)
                             console.log(incomingData)
