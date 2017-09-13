@@ -22,7 +22,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     var figDirectory = figtreeFilename.split('/').slice(0,-1).join('/')
     /* push the head and the style sheets */
     jam.push('<html><head>')
-    jam.push('<meta data-user="' + process.env.user + '">' )
+    jam.push('<meta data-identity="' + process.env.user + '">' )
     for(var thisStyle of figtree.styles) {
         jam.push(`<style filename="${thisStyle}">\n`)
         var thisStyleFilePath = path.join(figDirectory,'gui', thisStyle)
@@ -68,7 +68,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push('<block-templates>')
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]
-        var blockTemplate = path.join(figDirectory, 'gui-blocks/', blockName,'/template.html')
+        var blockTemplate = path.join(figDirectory, 'gui-blocks', blockName,'template.html')
         jam.push(`<template renders="${blockName}-block" filename="${blockTemplate}">`)
         await promise2pipe(blockTemplate, jam)
         jam.push(`</template>`)
@@ -80,7 +80,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     jam.push(`<block-classes><script id="block-definitions">\n`)
     for(var each in figtree.blocks){
         var blockName = figtree.blocks[each]        
-        var blockClass = path.join(figDirectory, 'gui-blocks/', blockName,'/class.js')
+        var blockClass = path.join(figDirectory, 'gui-blocks', blockName,'class.js')
         /* if you needed to transpile, this is a good place
         just launch a child process to run Babel on the script and push that */
         await promise2pipe(blockClass, jam)
