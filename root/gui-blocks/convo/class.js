@@ -81,12 +81,14 @@ class ConvoBlock extends ProtoBlock {
                             let incomingData = JSON.parse(JSONchunk)
                             console.log(incomingData)
                             if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
-                            incomingData.bashData = incomingData.bashData.replace(/\n$/,'')
-                            var newMessage = document.createElement('message-block')
-                            this.next.appendChild(newMessage)
-                            let {id, pt, msg} = JSON.parse(incomingData.bashData)
-                            newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
-                            newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
+                            incomingData.bashData.split(/\n(?={)/g).forEach(innerJSONchunk => {
+                                var newMessage = document.createElement('message-block')
+                                this.next.appendChild(newMessage)
+                                innerJSONchunk = innerJSONchunk.replace(/\n$/,'') // destroy trailing newlines. 
+                                let {id, pt, msg} = JSON.parse(innerJSONchunk)
+                                newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
+                                newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
+                            })
                         } catch(e) {
                             console.error(e)
                             console.log(JSONchunk)
