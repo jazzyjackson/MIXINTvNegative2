@@ -77,11 +77,11 @@ class ConvoBlock extends ProtoBlock {
                         try {
                             if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                             JSONchunk = JSONchunk.replace(/\n$/,'') // destroy trailing newlines. 
-                            JSONchunk = JSONchunk.replace(/^\n/,'') // destroy leading newlines. 
                             // append a new message with the properties 
                             let incomingData = JSON.parse(JSONchunk)
                             console.log(incomingData)
                             if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
+                            incomingData.bashData = incomingData.bashData.replace(/\n$/,'')
                             var newMessage = document.createElement('message-block')
                             this.next.appendChild(newMessage)
                             let {id, pt, msg} = JSON.parse(incomingData.bashData)
