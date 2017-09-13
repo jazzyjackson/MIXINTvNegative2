@@ -105,7 +105,7 @@ function proxy(request, response, port){
     } else if(request.method == 'GET'){
         response.setHeader('content-type', 'text/plain; charset=utf-8;')
     } else if(request.method == 'POST'){
-        response.setHeader('content-type', 'application/json')
+        response.setHeader('content-type', 'application/octet-stream')
     }
     portCollection[request.userid].lastRequest = Date.now()
 

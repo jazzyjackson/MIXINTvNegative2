@@ -57,14 +57,14 @@ class ReadBlock extends ProtoBlock {
     }
 
     consumeText(text){
-        if(this.props.contentType.includes('application/json')) {
+        if(this.props.contentType.includes('application/octet-stream')) {
             text.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
         } else {
             this.props = {text}
         }
     }
 
-    consumeStream(reader, contentType = 'application/json'){
+    consumeStream(reader, contentType = 'application/octet-stream'){
         var contentType = this.getAttribute('contenttype')
         if(!reader) return null  // consumeStream will exit if the text was consumed already
         this.streambuffer || (this.streambuffer = '') //if streambuffer is undefined, create it
@@ -74,7 +74,7 @@ class ReadBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 // if the last character of a chunk of data is a closing bracket, parse the JSON. Otherwise, keep consuming stream until it hits a closing bracket.
                 // this leaves the very unfortunate possible bug of a chunk of data coming in with an escaped bracket at the end, and to detect this condition we'd have to pay attention to opening and closing quotes, except for escaped qutoes
-                if(contentType.includes('application/json') && this.streambuffer.match(/}\s*$/)){
+                if(contentType.includes('application/octet-stream') && this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => this.props = JSON.parse(JSONchunk))
                     delete this.streambuffer
                 } else if(contentType.includes('text/plain')){
