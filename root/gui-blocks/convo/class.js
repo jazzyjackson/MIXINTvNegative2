@@ -26,6 +26,7 @@ class ConvoBlock extends ProtoBlock {
 
         if(this.props.convomode == 'party'){
             this.addEventListener('init', () => {
+                console.log("INIT")
                 this.startMultiPlayer()
                 this.form.onsubmit = this.handleParty.bind(this)                    
             })
@@ -49,17 +50,18 @@ class ConvoBlock extends ProtoBlock {
 
     /* changing convo modes will reload this component. become itself but with new attributes - set convoMode as multiplayer */
     startMultiPlayer(){
+        if(this.tail) return null
         // set attribute convoPartner: party, or group name whatever.
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
-        fetch('/?' + encodeURI('tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
-        .then(response => response.body.getReader())
-        .then(this.consumeStream.bind(this))
-        .catch(err => {
-            console.error(err)
-            console.error('multiplayer convo requires responseStream API, available in chrome')
-        })
+        this.tail = fetch('/?' + encodeURI('tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
+                    .then(response => response.body.getReader())
+                    .then(this.consumeStream.bind(this))
+                    .catch(err => {
+                        console.error(err)
+                        console.error('multiplayer convo requires responseStream API, available in chrome')
+                    })
     }
             
     consumeStream(reader){

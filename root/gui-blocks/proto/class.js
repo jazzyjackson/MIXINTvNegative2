@@ -62,8 +62,8 @@ class ProtoBlock extends HTMLElement {
     init(){
         /* this calls every connectedCallback up the class inheritence chain or whatever you want to call it */
         if(this.initialized) return null
+        this.initialized = true             
         /* but only calls it once if initialized flag isn't already set */
-        this.initialized = true 
         this.innerHTML = null // don't remember if this is necessary...
         this.appendChild(document.querySelector(`[renders="${this.tagName.toLowerCase()}"]`).content.cloneNode(true))  
         this.head = this.querySelector('b-head') /* Had a lot of back and forth to organize the graph with each node having a next property */
