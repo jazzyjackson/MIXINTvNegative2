@@ -59,7 +59,7 @@ class interpretation {
                 return reject({bashReject: `Blank line doesn't mean anything`})
             if(input[0] == ':')
                 return reject({bashReject: ': is no-op in bash! input will be ignored, no error thrown'})
-            var processpipe = exec(input, {cwd: this.options.cwd || '.', shell: '/bin/sh', env: process.env})
+            var processpipe = exec(input, {cwd: this.options.cwd || '.', env: process.env})
                 .on('error', err => reject({tryBashErr: err.toString()}))
                 .on('exit', (code, signal) => {
                     if(signal || code) reject(signal || code)

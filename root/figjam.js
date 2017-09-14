@@ -23,6 +23,7 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
     /* push the head and the style sheets */
     jam.push('<html><head>')
     jam.push('<meta data-identity="' + process.env.user + '">' )
+    jam.push('<meta process-identity="' + process.pid + '">' )
     for(var thisStyle of figtree.styles) {
         jam.push(`<style filename="${thisStyle}">\n`)
         var thisStyleFilePath = path.join(figDirectory,'gui', thisStyle)

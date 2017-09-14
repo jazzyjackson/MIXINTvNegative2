@@ -63,6 +63,18 @@ repl.start({eval: (cmd, context, filename, callback) => {
 
 /**** proxy functions *******/
 
+/* so im going to have to do an on window leave, which will be the normal, polite situation. 
+A workspace might have several ongoing processes, at least a tail or two. on window.leave, 
+the mark up needs to contain the pid of itself.
+I'll also need a proxy garbage collector. Oh yeah I'm already saving time of last request. But I also want to allow a complete lack of timeouts of a stream hasn't been closed by caller. 
+So yeah, every minute, if last request was over a minute ago, 
+Kind of agressive, but should keep resources down. If you want to prolong sessions for some reason, maybe you have pemenant userbase or wish to persist changes in local environment, thats cool, Infinity compatible
+
+How to check if pid is connected to port?
+Let's kill pid on page leave. port?/kill pid
+onbeforeunload
+*/
+
 function createPort4u(request, response){
     var userid = request.userid
     var shell = spawn('node',['switchboard.js'], request.environment)

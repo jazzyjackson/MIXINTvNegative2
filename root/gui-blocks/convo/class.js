@@ -26,7 +26,7 @@ class ConvoBlock extends ProtoBlock {
 
         if(this.props.convomode == 'party'){
             this.addEventListener('init', () => {
-                console.log("INIT")
+                console.log("INIT PARTY")
                 this.startMultiPlayer()
                 this.form.onsubmit = this.handleParty.bind(this)                    
             })
@@ -50,7 +50,10 @@ class ConvoBlock extends ProtoBlock {
 
     /* changing convo modes will reload this component. become itself but with new attributes - set convoMode as multiplayer */
     startMultiPlayer(){
+        console.log("1. tail is", this.tail)        
         if(this.tail) return null
+        console.log("2. starting mutliplayer")
+        console.log("3. tail is", this.tail)
         // set attribute convoPartner: party, or group name whatever.
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
@@ -74,25 +77,16 @@ class ConvoBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
-                        try {
-                            if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
-                            JSONchunk = JSONchunk.replace(/\n$/,'') // destroy trailing newlines. 
-                            // append a new message with the properties 
-                            let incomingData = JSON.parse(JSONchunk)
-                            console.log(incomingData)
-                            if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
-                            incomingData.bashData.split(/\n(?={)/g).forEach(innerJSONchunk => {
-                                var newMessage = document.createElement('message-block')
-                                this.next.appendChild(newMessage)
-                                innerJSONchunk = innerJSONchunk.replace(/\n$/,'') // destroy trailing newlines. 
-                                let {id, pt, msg} = JSON.parse(innerJSONchunk)
-                                newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
-                                newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
-                            })
-                        } catch(e) {
-                            console.error(e)
-                            console.log(JSONchunk)
-                        }
+                        if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
+                        let incomingData = JSON.parse(JSONchunk)
+                        if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
+                        incomingData.bashData.split(/\n(?={)/g).forEach(innerJSONchunk => {
+                            var newMessage = document.createElement('message-block')
+                            this.next.appendChild(newMessage)
+                            let {id, pt, msg} = JSON.parse(innerJSONchunk)
+                            newMessage.setAttribute('goodchat', [id, pt, msg].join(' '))
+                            newMessage.setAttribute('title', new Date(incomingData.at).toDateString())
+                        })
                     })
                     delete this.streambuffer
                 }
