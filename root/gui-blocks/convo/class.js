@@ -83,6 +83,7 @@ class ConvoBlock extends ProtoBlock {
                         if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         incomingData.bashData.split(/\n(?={)/g).forEach(innerJSONchunk => {
                             console.log("INNERJSON", innerJSONchunk)
+                            if(!innerJSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                             var newMessage = document.createElement('message-block')
                             this.next.appendChild(newMessage)
                             let {id, pt, msg} = JSON.parse(innerJSONchunk)
