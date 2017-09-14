@@ -59,7 +59,7 @@ class ConvoBlock extends ProtoBlock {
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
         // maybe I'll create the file before tailing it. so touch .convolog &&
-        this.tail = fetch('/?' + encodeURI('touch .convolog && tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
+        this.tail = fetch('?' + encodeURI('touch .convolog && tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
                     .then(response => response.body.getReader())
                     .then(this.consumeStream.bind(this))
                     .catch(err => {
@@ -78,9 +78,11 @@ class ConvoBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/.+\n(?={)/g).forEach(JSONchunk => {
+                        if(!JSONchunk) return null
                         let incomingData = JSON.parse(JSONchunk)
                         if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         incomingData.bashData.split(/.+\n(?={)/g).forEach(innerJSONchunk => {
+                            if(!innerJSONchunk) return null
                             var newMessage = document.createElement('message-block')
                             this.next.appendChild(newMessage)
                             let {id, pt, msg} = JSON.parse(innerJSONchunk)
