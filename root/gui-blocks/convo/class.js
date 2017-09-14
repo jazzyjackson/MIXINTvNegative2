@@ -78,10 +78,12 @@ class ConvoBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/.+\n(?={)/g).forEach(JSONchunk => {
+                        console.log(JSONchunk)                        
                         if(!JSONchunk) return null
                         let incomingData = JSON.parse(JSONchunk)
                         if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         incomingData.bashData.split(/.+\n(?={)/g).forEach(innerJSONchunk => {
+                            console.log(innerJSONchunk)                            
                             if(!innerJSONchunk) return null
                             var newMessage = document.createElement('message-block')
                             this.next.appendChild(newMessage)
