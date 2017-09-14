@@ -58,7 +58,8 @@ class ConvoBlock extends ProtoBlock {
         // oh yeah I still want locally evallable js to eval on everyone's machine cuz its hilarious and strange
         // allow convo partner to eval code in this window - just an options
         // the fetch to tail should be recursively promise itself - I expect each new tail response should be 512 bytes max, so never split up across blobs
-        this.tail = fetch('/?' + encodeURI('tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
+        // maybe I'll create the file before tailing it. so touch .convolog &&
+        this.tail = fetch('/?' + encodeURI('touch .convolog && tail -f .convolog'), { method: 'POST', credentials: "same-origin", redirect: "error" })
                     .then(response => response.body.getReader())
                     .then(this.consumeStream.bind(this))
                     .catch(err => {
@@ -77,13 +78,9 @@ class ConvoBlock extends ProtoBlock {
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
                     this.streambuffer.split(/.+\n(?={)/g).forEach(JSONchunk => {
-                        console.log("OUTJSON", JSONchunk)
-                        if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                         let incomingData = JSON.parse(JSONchunk)
                         if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
                         incomingData.bashData.split(/.+\n(?={)/g).forEach(innerJSONchunk => {
-                            console.log("INNERJSON", innerJSONchunk)
-                            if(!innerJSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                             var newMessage = document.createElement('message-block')
                             this.next.appendChild(newMessage)
                             let {id, pt, msg} = JSON.parse(innerJSONchunk)
