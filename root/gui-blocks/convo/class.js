@@ -76,12 +76,12 @@ class ConvoBlock extends ProtoBlock {
             if(sample.value){
                 this.streambuffer += textDecoder.decode(sample.value)
                 if(this.streambuffer.match(/}\s*$/)){
-                    this.streambuffer.split(/\n(?={)/g).forEach(JSONchunk => {
+                    this.streambuffer.split(/.+\n(?={)/g).forEach(JSONchunk => {
                         console.log("OUTJSON", JSONchunk)
                         if(!JSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                         let incomingData = JSON.parse(JSONchunk)
                         if(!incomingData.bashData) return null // exit if JSON data was just a heartbeat keeping the connection alive
-                        incomingData.bashData.split(/\n(?={)/g).forEach(innerJSONchunk => {
+                        incomingData.bashData.split(/.+\n(?={)/g).forEach(innerJSONchunk => {
                             console.log("INNERJSON", innerJSONchunk)
                             if(!innerJSONchunk) return null //exit if the array ended up with a blank line. Could probably re-think my regex.
                             var newMessage = document.createElement('message-block')
