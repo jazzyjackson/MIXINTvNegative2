@@ -14,7 +14,7 @@ const serverSelect = {
         pathname: '/',
         query: '?key=0', 
         checkAuthDomain: '', 
-        cookieDomain: 'coltenj.com'
+        cookieDomain: ''
     },
 }
 

@@ -2,13 +2,14 @@ class TextBlock extends ReadBlock {
     /* options = {action, method, input, headless} */
     constructor(options){ 
         super(Object.assign({
-            style: "top: 50px; left: 50px;",
-            tabIndex: 0
+            tabIndex: 0,
+            defaultStyle: "left: 200px; top: 100px;"
         }, options))
     }
 
     connectedCallback(){
         this.init()
+        this.getAttribute('style') || this.setAttribute('style', this.getAttribute('defaultStyle'))
         this.head.textContent = this.getAttribute('action')
         this.head.addEventListener('mousedown', handleDrag)
         this.textarea = this.body.firstElementChild

@@ -12,6 +12,7 @@ class ProtoBlock extends HTMLElement {
             "become": {
                 func: this.prototype.become,
                 args: [{select: Array.from(document.querySelectorAll('template'), template => template.getAttribute('renders'))}],
+                default: [ctx => ctx.tagName.toLowerCase()],
                 info: "Instantiates a new node of the selected type, copying all attributes from this node to the new one."
             }, 
             "remove from window": {
@@ -86,7 +87,7 @@ class ProtoBlock extends HTMLElement {
     /* to be more extensible this should probably go up the superclasschain accumulating static get keepAttributes, and using that array to skip attribute removal */
     clear(){
         /* a method for destroying attributes, to reset the block, but there's probably some attributes you want to keep. tabIndex and style needs to exist for click and drag (active element works off focus, updates from style attributes) */
-        let keepAttributes = ['id','style','tabIndex']
+        let keepAttributes = ['id','style','tabindex']
         return Array.from(this.attributes, attr => keepAttributes.includes(attr.name) || this.removeAttribute(attr.name))
     }
 

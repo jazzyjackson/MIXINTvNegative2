@@ -10,10 +10,12 @@ class ReadBlock extends ProtoBlock {
     }
 
     static get actions(){
+        console.log("in the menu action getter what is this", this)
         return {
             "re-request": {
                 func: this.prototype.request,
-                args: [{input: "filename"}, {select: ["GET","POST","DELETE","PUT"]}],
+                args: [{select: ["GET","POST","DELETE","PUT"]}, {input: "filename"}],
+                default: [ctx => "PUT", ctx => ctx.props.action]
             }
             /* get from disk */
             /* put to disk */
@@ -43,7 +45,7 @@ class ReadBlock extends ProtoBlock {
                           && this.request()
     }
 
-    request(action, method){
+    request(method, action){
         console.log("ACTION", action)
         console.log("method", method)
         action && method 
@@ -54,6 +56,7 @@ class ReadBlock extends ProtoBlock {
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))
+        .catch(console.error.bind(console))
     }
 
     consumeText(text){

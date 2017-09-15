@@ -49,10 +49,7 @@ class MenuBlock extends HTMLElement {
             menuList.style.height = 'unset'
             console.log("menuList")
             console.log(menuList)
-            
-            
-            
-            
+                        
             let oldMenuOption = event.target
             let newMenuOption = document.createElement('li')
             newMenuOption.setAttribute('tabIndex', 0)
@@ -60,9 +57,9 @@ class MenuBlock extends HTMLElement {
             nameSpan.textContent = 'this.' + optionObject.func.name + '(' //I'll use old textContent cuz it already has those non-breaking spaces/hyphens stuck in
             let formNode = document.createElement('form')
             formNode.addEventListener('submit', event => event.preventDefault()) // actually don't submit if someone goes and hits enter
-            Array.isArray(optionObject.args) && optionObject.args.forEach(argObject => {
+            Array.isArray(optionObject.args) && optionObject.args.forEach((argObject, argIndex) => {
                 let formType = Object.keys(argObject)[0] // each arg option is expected to have a single key. If javascript had tuples I'd use those.
-                let argNode = document.createElement(formType)
+                let argNode = document.createElement(formType)                                                    
                 argNode.setAttribute('tabIndex', 0)
                 formNode.appendChild(argNode)
                 if(formType == 'select'){
@@ -72,9 +69,17 @@ class MenuBlock extends HTMLElement {
                         optionNode.textContent = argOption
                         argNode.appendChild(optionNode)
                     })
-                } else {
-                    argNode.setAttribute('placeholder', argObject[formType])
+                } else { // formtype == 'input'
+                    argNode.setAttribute('type', argObject[formType])
                 }
+                // append a comma if this isn't the last argument
+                if(argIndex != optionObject.args.length - 1){
+                    formNode.innerHTML += ', '
+                }
+                // default arg prop may be empty
+                optionObject.default 
+                    && optionObject.default[argIndex]
+                    && (argNode.value = optionObject.default[argIndex](this))
             })
             let closeSpan = document.createElement('span')
             closeSpan.textContent = ')'
@@ -90,6 +95,7 @@ class MenuBlock extends HTMLElement {
                 console.log("Calling")
                 console.log(optionObject)
                 let argsFromForm = Array.from(newMenuOption.querySelectorAll('form > *'), argument => argument.value) // This is kind of funny, if you call Array.from with a single node (instead of a node list) it grabs the children of that node, neat.) Could also be Array.from(this.querySelectorAll('form > *'))
+                console.log("with args", argsFromForm)
                 optionObject.func.call(this, ...argsFromForm)
                 menuList.style.height = originalHeight
                 newMenuOption.replaceWith(oldMenuOption)

@@ -16,6 +16,8 @@ function createUpdatePos({clientX, clientY}){ //this is a function creator. When
 }
 
 function handleDrag(event){
+    console.log(this)
+    console.log(event.target)
     if(event.target != this) return undefined // exit function if a mousedown managed to bubble up to me.
     window.updatePos = createUpdatePos(this.parentElement)
     document.body.addEventListener('mousemove', window.updatePos)
