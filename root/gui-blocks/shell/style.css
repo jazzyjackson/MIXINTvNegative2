@@ -1,10 +1,6 @@
-shell-block {
-    padding-top: 30px;
-    display: block;
-    /*font-family: monospace !important;*/
-}
+
 shell-block > b-head {
-    position: fixed;
+    position: relative;
     padding: 4px;
     color: white;
     background: black;
@@ -47,10 +43,6 @@ shell-block:focus {
 
 shell-block input:focus {
     border-bottom: 2px solid #4d90fe;
-}
-
-shell-block menu-block {
-    position: fixed;
 }
 
 shell-block menu-block:after {

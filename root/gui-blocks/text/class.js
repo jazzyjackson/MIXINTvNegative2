@@ -3,7 +3,6 @@ class TextBlock extends ReadBlock {
     constructor(options){ 
         super(Object.assign({
             tabIndex: 0,
-            defaultStyle: "left: 200px; top: 100px;"
         }, options))
     }
 
@@ -11,13 +10,16 @@ class TextBlock extends ReadBlock {
         this.init()
         this.getAttribute('style') || this.setAttribute('style', this.getAttribute('defaultStyle'))
         this.head.textContent = this.getAttribute('action')
-        this.head.addEventListener('mousedown', handleDrag)
         this.textarea = this.body.firstElementChild
         this.textarea.onfocus = this.focus.bind(this)
         this.textarea.onblur = this.blur.bind(this)
         this.onfocus = this.focus.bind(this)
         this.onblur = this.blur.bind(this)
     }    
+
+    get text(){
+        return this.textarea.value
+    }
 
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
@@ -28,7 +30,7 @@ class TextBlock extends ReadBlock {
     attributeChangedCallback(attr, oldValue, newValue){
         switch(attr){
             case 'text': 
-                this.body.firstElementChild.textContent = newValue
+                this.textarea.textContent = newValue
                 break
             default:
                 console.error("DEFAULT", newValue)

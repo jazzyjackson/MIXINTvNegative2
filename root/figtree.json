@@ -1,6 +1,6 @@
 {
     "styles":[],
-    "scripts":["utils.js","vanillaClickAndDrag.js"],
+    "scripts":[],
     "blocks":["proto","read","message","convo","shell","text","menu"],
     "head": {
         "link": {
@@ -17,9 +17,11 @@
     },
     "body": {
         "shell-block": {
-            "init":"fold -s < welcome.txt",
+            "init":":reset",
             "tabindex":0,
-            "convoMode":"self"
+            "convoMode":"self",
+            "class":"fullscreen",
+            "x-draggable":"false"
         }
     }
 }

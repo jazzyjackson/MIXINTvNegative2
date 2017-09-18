@@ -1,0 +1,19 @@
+body > * {
+  position: fixed;
+  display: block;
+}
+
+.fullscreen {
+  width: 100%;
+}
+
+*[x-draggable="true"] {
+  border: 2px solid black;  
+  background: white;
+  min-width: 400px;
+  min-height: 300px;
+}
+
+*:not([x-draggable="true"]){
+
+}

@@ -29,7 +29,9 @@ class ReadBlock extends ProtoBlock {
             newBlock.props = {
                 action: encodeURI(url), 
                 method: options.method, 
-                title: location.pathname + url
+                title: location.pathname + url,
+                "x-draggable": true,
+                style: "left: 200px; top: 100px;"
             }
         }
         var parentNode = options.parentNode || document.body
@@ -46,13 +48,20 @@ class ReadBlock extends ProtoBlock {
     }
 
     request(method, action){
-        console.log("ACTION", action)
-        console.log("method", method)
-        action && method 
-               && this.clear() 
-               && Object.assign(this.props, {action, method}) // if request was called with arguments, clear all attributes and assign action and method, make the call again.
-        fetch(this.props.action, { method: this.props.method, credentials: "same-origin", redirect: "error" })
-        .then(response => {this.props = {contenttype: response.headers.get('content-type')}; return response;})
+        if(action && method){
+            this.setAttribute("action",action)
+            this.setAttribute("method",method)
+        }   
+        fetch(this.props.action, {
+            method: this.props.method, 
+            credentials: "same-origin", 
+            redirect: "error",
+            body: method == 'PUT' ? this.text : undefined
+        })
+        .then(response => {
+            this.props = {contenttype: response.headers.get('content-type')} 
+            return response
+        })
         .then(response => response.body ? response.body.getReader() 
                                         : response.text().then(text => this.consumeText(text)))
         .then(reader => this.consumeStream(reader))

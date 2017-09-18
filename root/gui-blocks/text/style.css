@@ -1,17 +1,21 @@
 text-block {
-  display: block;
-  position: fixed;
-  border: 2px solid black;
-  background: white;
+  display: flex;
+  flex-flow: column;
 }
 
 text-block b-head {
   padding: 3px;
   border-bottom: 2px solid black;
 }
+text-block b-body {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+}
 
 text-block textarea {
   border: transparent;
+  flex: 1;
 }
 
 text-block:focus {
