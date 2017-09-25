@@ -1,22 +1,34 @@
 {
     "styles":[],
     "scripts":[],
-    "blocks":["proto","read","message","convo","shell","text","menu"],
+    "blocks":["proto","read","message","convo","shell","text","menu","markdown"],
     "head": {
-        "link": {
+        "link": [{
             "rel":"icon",
             "type":"image/x-icon",
             "href": "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
-        },
+        },{
+            "rel":"stylesheet",
+            "href":"http://esironal.github.io/cmtouch/lib/codemirror.css"
+        },{
+            "rel":"stylesheet",
+            "href":"http://esironal.github.io/cmtouch/addon/hint/show-hint.css"
+        }],
         "meta": [{
             "name":"viewport",
             "content":"width=device-width, initial-scale=1"
         },{
             "charset":"UTF-8"
         }],
-        "script": {
-            "src":"./showdown.js"
-        }
+        "script": [{"src":"./showdown.js"},
+            {"src":"http://esironal.github.io/cmtouch/lib/codemirror.js"},
+            {"src":"http://esironal.github.io/cmtouch/addon/hint/show-hint.js"},
+            {"src":"http://esironal.github.io/cmtouch/addon/hint/xml-hint.js"},
+            {"src":"http://esironal.github.io/cmtouch/addon/hint/html-hint.js"},
+            {"src":"http://esironal.github.io/cmtouch/mode/xml/xml.js"},
+            {"src":"http://esironal.github.io/cmtouch/mode/javascript/javascript.js"},
+            {"src":"http://esironal.github.io/cmtouch/mode/css/css.js"},
+            {"src":"http://esironal.github.io/cmtouch/mode/htmlmixed/htmlmixed.js"}]
     },
     "body": {
         "shell-block": {
