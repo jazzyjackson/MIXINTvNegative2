@@ -31,3 +31,7 @@ codemirror-block.focused {
 [dragging="true"] textarea {
   pointer-events: none;
 }
+
+.CodeMirror {
+  height: 100%;
+}
