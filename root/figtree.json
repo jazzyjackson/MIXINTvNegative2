@@ -13,7 +13,10 @@
             "content":"width=device-width, initial-scale=1"
         },{
             "charset":"UTF-8"
-        }]
+        }],
+        "script": {
+            "src":"./showdown.js"
+        }
     },
     "body": {
         "shell-block": {
