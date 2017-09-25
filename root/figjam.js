@@ -46,14 +46,14 @@ async function figjam(figtreeFilename, jam){ //jam, a readable stream
                 for(var attribute in duplicate){
                     jam.push(`${attribute}="${duplicate[attribute]}" `)
                 }
-                jam.push(`/>\n`)
+                jam.push(`></${node}>\n`)
             })
         } else {
             jam.push(`<${node} `)
             for(var attribute in figtree.head[node]){
                 jam.push(`${attribute}="${figtree.head[node][attribute]}" `)
             }
-            jam.push(`/>\n`)
+            jam.push(`></${node}>\n`)
         }
     }
     /* finished with head. Render the graph of the body object */
