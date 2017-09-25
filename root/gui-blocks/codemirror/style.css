@@ -1,0 +1,33 @@
+codemirror-block {
+  display: flex;
+  flex-flow: column;
+}
+
+codemirror-block b-head {
+  padding: 3px;
+  border-bottom: 2px solid black;
+}
+codemirror-block b-body {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  overflow: auto;
+}
+
+codemirror-block textarea {
+  border: transparent;
+  flex: 1;
+}
+
+codemirror-block:focus {
+  outline: none;
+}
+
+codemirror-block.focused {
+    z-index: 10;
+    box-shadow: black 3px 3px 5px 0px;
+}
+
+[dragging="true"] textarea {
+  pointer-events: none;
+}

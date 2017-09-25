@@ -1,7 +1,7 @@
 {
     "styles":[],
     "scripts":[],
-    "blocks":["proto","read","message","convo","shell","text","menu","markdown"],
+    "blocks":["proto","read","message","convo","shell","text","menu","markdown","codemirror"],
     "head": {
         "link": [{
             "rel":"icon",
