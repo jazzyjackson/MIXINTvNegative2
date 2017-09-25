@@ -24,12 +24,15 @@ class TextBlock extends ReadBlock {
     static get observedAttributes() {
         /* chatbot can send back 'Out of Band' data which will be attached as attributes to this block */
         /* attributeChangedCallback can attach special behavior to the block when these properties are set */
-        return ['text']
+        return ['text','bashdata']
     }
 
     attributeChangedCallback(attr, oldValue, newValue){
         switch(attr){
             case 'text': 
+                this.textarea.textContent = newValue
+                break
+            case 'bashdata':
                 this.textarea.textContent = newValue
                 break
             default:

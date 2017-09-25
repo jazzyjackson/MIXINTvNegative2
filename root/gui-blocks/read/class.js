@@ -15,7 +15,7 @@ class ReadBlock extends ProtoBlock {
             "re-request": {
                 func: this.prototype.request,
                 args: [{select: ["GET","POST","DELETE","PUT"]}, {input: "filename"}],
-                default: [ctx => "PUT", ctx => ctx.props.action]
+                default: [ctx => ctx.props.method, ctx => ctx.props.action]
             }
             /* get from disk */
             /* put to disk */
@@ -38,6 +38,7 @@ class ReadBlock extends ProtoBlock {
         parentNode.appendChild(newBlock)
         return newBlock
     }
+
 
     connectedCallback(){
         this.init() // doesn't really do anything on ReadBlock as a base class right after HTMLElement, but stuck here just for consistency, if you're using this as a model for what you should do */

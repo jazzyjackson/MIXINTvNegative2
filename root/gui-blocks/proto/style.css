@@ -13,8 +13,8 @@ body > * {
 *[x-draggable="true"] {
   border: 2px solid black;  
   background: white;
-  width: 400px;
-  height: 300px;
+  width: 700px;
+  height: 500px;
 }
 
 *:not([x-draggable="true"]){
