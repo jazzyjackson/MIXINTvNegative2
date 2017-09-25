@@ -1,0 +1,33 @@
+markdown-block {
+  display: flex;
+  flex-flow: column;
+}
+
+markdown-block b-head {
+  padding: 3px;
+  border-bottom: 2px solid black;
+}
+markdown-block b-body {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  overflow: auto;
+}
+
+markdown-block textarea {
+  border: transparent;
+  flex: 1;
+}
+
+markdown-block:focus {
+  outline: none;
+}
+
+markdown-block.focused {
+    z-index: 10;
+    box-shadow: black 3px 3px 5px 0px;
+}
+
+[dragging="true"] textarea {
+  pointer-events: none;
+}
